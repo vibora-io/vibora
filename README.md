@@ -37,8 +37,8 @@ Client Features
 * Transparent Content Decoding
 
 
-Usage Example
--------------
+Server Example
+--------------
 ```python
 from vibora import Vibora, Request, Response
 
@@ -54,6 +54,24 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
 ```
 
+Client Example
+--------------
+
+```python
+import asyncio
+from vibora import client
+
+
+async def hello_world():
+    response = await client.get('https://google.com/')
+    print(f'Content: {response.content}')
+    print(f'Status code: {response.status_code}')
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(hello_world())
+```
 
 Documentation
 -------------
