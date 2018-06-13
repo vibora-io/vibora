@@ -41,16 +41,13 @@ Client Features
 Usage Example
 -------------
 ```python
-from vibora import Vibora
-from vibora.request import Request
-from vibora.responses import JsonResponse
+from vibora import Vibora, Request, Response
 
 app = Vibora()
 
 
 @app.route('/')
 async def home(request: Request):
-    print(request.headers)
     return JsonResponse({'hello': 'world'})
 
 
@@ -61,7 +58,7 @@ if __name__ == '__main__':
 
 Documentation
 -------------
-[Check it out at Vibora Docs website](https://docs.vibora.io/docs).
+[Check it out at Vibora docs website](https://docs.vibora.io/docs).
 
 
 Goals
