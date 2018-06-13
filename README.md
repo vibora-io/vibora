@@ -1,6 +1,8 @@
 Vibora (Work in progress)
 -------------------------
 ![CircleCI](https://circleci.com/gh/vibora-io/vibora.svg?style=shield)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Vibora.svg)
+
 
 [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework.
 
