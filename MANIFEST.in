@@ -1,0 +1,2 @@
+global-include *.txt *.rst *.pyx *.pxd *.c *.h
+recursive-include *

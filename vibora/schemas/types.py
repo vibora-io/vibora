@@ -1,0 +1,4 @@
+
+
+class Email(str):
+    pass

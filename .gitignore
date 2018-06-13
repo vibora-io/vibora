@@ -1,0 +1,15 @@
+.idea/
+*.so
+*.c
+build/
+__pycache__
+__compiled__
+__cache__
+dist
+vibora.egg-info
+.venv
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

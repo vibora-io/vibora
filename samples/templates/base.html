@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test123</title>
+        {% static 'app.js' %}
+    </head>
+    <body>
+        {% url 'home' %}
+        {% for x in [1, 2, 3, 4] %}
+            {{ x }}
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </body>
+</html>

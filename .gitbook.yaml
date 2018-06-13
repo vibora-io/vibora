@@ -1,0 +1,6 @@
+root: /docs
+structure:
+  readme: started.md
+  summary: summary.md
+redirects:
+  previous/page: redirects/page.md

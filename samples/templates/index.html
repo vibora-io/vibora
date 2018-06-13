@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% macro asd(value) %}
+    {{ value }} aaaa + 1234
+{% endmacro %}
+{% block content %}
+    qwe123456bs
+    {% include 'header.html' %}
+    {% for x in teste %}
+        {{ x }}
+        {% for y in teste %}
+            {{ y }}
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
