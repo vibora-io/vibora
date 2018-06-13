@@ -7,16 +7,6 @@ class Headers:
         self.values = None
         self.evaluated = False
 
-    def __getitem__(self, item: str):
-        if not self.evaluated:
-            self.eval()
-        return self.values[item.lower()]
-
-    def __setitem__(self, key: str, value: str):
-        if not self.evaluated:
-            self.eval()
-        self.values[key.lower()] = value
-
     def get(self, key, default=None):
         if not self.evaluated:
             self.eval()
@@ -44,6 +34,16 @@ class Headers:
                 value = cookie[first + 1:]
                 cookies[name] = value
         return cookies
+
+    def __getitem__(self, item: str):
+        if not self.evaluated:
+            self.eval()
+        return self.values[item.lower()]
+
+    def __setitem__(self, key: str, value: str):
+        if not self.evaluated:
+            self.eval()
+        self.values[key.lower()] = value
 
     def __repr__(self):
         return f'<Headers {self.dump()}>'

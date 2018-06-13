@@ -95,7 +95,7 @@ class Response:
         headers['Content-Length'] = len(self.content)
         headers['Date'] = current_time
         content = f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
-        for header, value in self.headers.items():
+        for header, value in headers.items():
             content += f'{header}: {value}\r\n'
         if self.cookies:
             for cookie in self.cookies:
@@ -147,6 +147,19 @@ class CachedResponse(Response):
         self.cookies = cookies or []
         self.cache = None
 
+    def encode(self) -> bytes:
+        headers = self.headers
+        headers['Content-Length'] = len(self.content)
+        headers['Date'] = '$date'
+        content = f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        for header, value in headers.items():
+            content += f'{header}: {value}\r\n'
+        if self.cookies:
+            for cookie in self.cookies:
+                content += cookie.header + '\r\n'
+        content += '\r\n'
+        return content.encode()
+
     def send(self, protocol):
         if self.cache is None:
             headers = self.encode()
@@ -168,7 +181,6 @@ class JsonResponse(Response):
         self.status_code = status_code
         self.content = json.dumps(content).encode()
         self.headers = headers or {}
-        self.headers['Content-Length'] = str(len(self.content))
         self.headers['Content-Type'] = 'application/json'
         self.cookies = cookies or []
 

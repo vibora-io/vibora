@@ -76,7 +76,7 @@ class Vibora(Application):
         if Exception not in self.exception_handlers:
             @self.handle(Exception)
             async def handle_internal_error(app: Vibora, error: Exception):
-                if app.debug is True:
+                if app.debug and not app.testing:
                     traceback.print_exception(MissingComponent, error, error.__traceback__)
                 return Response(b'Internal Server Error', status_code=500, headers={'Content-Type': 'text/html'})
 
@@ -118,7 +118,9 @@ class Vibora(Application):
             """
             if level in (logging.INFO, logging.CRITICAL, logging.ERROR, logging.WARNING):
                 print(f'[{self.current_time}] - {msg}', file=sys.stderr)
-        self.log = default_log
+
+        if not self.testing:
+            self.log = default_log
 
     def load_templates(self):
         """
@@ -205,6 +207,8 @@ class Vibora(Application):
         if not self.running:
             sock, address, port = get_free_port()
             sock.close()
+            if not self.initialized:
+                self.testing = True
             self.run(host=address, port=port, block=False, verbose=False, necromancer=False, workers=1, debug=True)
             self._test_client = Session(prefix='http://' + address + ':' + str(port), headers=headers,
                                         follow_redirects=follow_redirects, max_redirects=max_redirects, stream=stream,

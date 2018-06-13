@@ -1,5 +1,5 @@
 import ssl
-from asyncio import StreamWriter, StreamReader, BaseEventLoop
+from asyncio import StreamWriter, StreamReader, BaseEventLoop, wait_for, TimeoutError
 from typing import Coroutine
 
 
@@ -57,7 +57,11 @@ class Connection:
 
         :return:
         """
-        return False
+        try:
+            await wait_for(self.reader.readexactly(0), 0.001)
+            return True
+        except TimeoutError:
+            return False
 
     def release(self, keep_alive: bool=False):
         """

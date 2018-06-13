@@ -19,7 +19,7 @@ cdef class Response:
         public list cookies
         public bint skip_hooks
 
-    @cython.locals(header=str, content=str)
+    @cython.locals(header=str, content=str, headers=dict)
     cdef bytes encode(self)
 
     cpdef void send(self, Connection protocol)

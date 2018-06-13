@@ -12,10 +12,10 @@ class HeadersTestCase(unittest.TestCase):
 
     def test_headers_obj(self):
         headers = Headers()
-        headers['test'] = 1
-        headers['test'] = 2
-        headers['a'] = 3
-        self.assertEqual(headers.dump(), {'test': 2, 'a': 3})
+        headers['test'] = '1'
+        headers['test'] = '2'
+        headers['a'] = '3'
+        self.assertEqual({'test': '2', 'a': '3'}, headers.dump())
 
 
 class IntegrationHeadersTestCase(TestSuite):

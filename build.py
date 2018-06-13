@@ -33,3 +33,5 @@ process = subprocess.run(
 )
 if process.returncode != 0:
     raise SystemExit(f'Failed to build native modules.')
+
+print('Build process completed successfully.')

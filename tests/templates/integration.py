@@ -17,5 +17,5 @@ class ViboraExtensionSuiteCase(TestSuite):
     async def test_empty_template_expects_empty_string(self):
         template = Template('')
         self.app.template_engine.add_template(template, ['test'])
-        self.app.template_engine.compile_templates(verbose=True)
+        self.app.template_engine.compile_templates(verbose=False)
         self.assertEqual('', await self.app.template_engine.render('test'))

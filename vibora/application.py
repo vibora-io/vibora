@@ -39,6 +39,7 @@ class Application(Blueprint):
         super().__init__(template_dirs=template_dirs or self._get_template_dirs_based_on_stack(),
                          limits=route_limits)
         self.debug = False
+        self.testing = False
         self.server_name = server_name
         self.url_scheme = url_scheme
         self.handler = Connection
