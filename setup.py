@@ -2,9 +2,9 @@ import platform
 from setuptools import setup, Extension, find_packages
 
 if platform.system().lower() == 'linux':
-    dependencies = ['uvloop', 'ujson']
+    dependencies = ['uvloop', 'ujson', 'pendulum']
 else:
-    dependencies = []
+    dependencies = ['pendulum']
 
 setup(
     name="vibora",
