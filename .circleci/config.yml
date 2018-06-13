@@ -28,7 +28,7 @@ jobs:
           - v1-dependencies-
 
       - run:
-          name: install dependencies
+          name: Installing dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -40,7 +40,7 @@ jobs:
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
-          name: Building C/Cython extensions.
+          name: Building C/Cython extensions
           command: |
             . venv/bin/activate
             python build.py
