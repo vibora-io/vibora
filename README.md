@@ -23,7 +23,6 @@ Server Features
 * Static Files (Smart Cache, Range, LastModified, ETags)
 * Complete Test Framework
 * Type hints, type hints, type hints everywhere.
-* Zero dependencies mode. ("pip install vibora[pure]")
 
 
 Client Features
