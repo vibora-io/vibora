@@ -1,6 +1,7 @@
 .idea/
 *.so
 *.c
+!vendor/http-parser-2.8.1/*.c
 build/
 __pycache__
 __compiled__
