@@ -184,8 +184,6 @@ class Application(Blueprint):
 
     def clean_up(self):
         # self.session_engine.clean_up()
-        # self.loop.run_until_complete(self.call_hooks(Events.BEFORE_SERVER_STOP))
-        # self.loop.stop()
         for process in self.workers:
             process.terminate()
         self.running = False

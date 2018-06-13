@@ -1,4 +1,5 @@
 import asyncio
+import time
 import uuid
 from vibora import Vibora, Response, Request, MissingComponent
 from vibora.responses import StreamingResponse
@@ -168,6 +169,7 @@ class HooksTestSuite(TestSuite):
             # This sends a kill signal to all workers, pretty much like someone is trying to stop the server.
             # Our HTTP client already sent the request but didn't consumed the response yet, the server must
             # respectfully wait for us.
+            time.sleep(1)
             self.app.clean_up()
             await response.read_content()
             self.assertEqual(response.content, b'123' * 5)
