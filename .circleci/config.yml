@@ -49,7 +49,3 @@ jobs:
           command: |
             . venv/bin/activate
             python build.py
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
