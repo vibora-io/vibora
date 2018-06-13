@@ -40,13 +40,13 @@ jobs:
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
-          name: build
+          name: Building C/Cython extensions.
           command: |
             . venv/bin/activate
             python build.py
 
       - run:
-          name: run tests
+          name: Running Tests
           command: |
             . venv/bin/activate
             python test.py
