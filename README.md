@@ -7,6 +7,7 @@
 [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework.
 
 
+---------------
 Server Features
 ---------------
 * Performance (https://vibora.io/#benchmarks).
@@ -23,7 +24,7 @@ Server Features
 * Complete Test Framework
 * Type hints, type hints, type hints everywhere.
 
-
+---------------
 Client Features
 ---------------
 * Fastest Python HTTP client.
