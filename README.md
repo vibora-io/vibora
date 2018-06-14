@@ -1,4 +1,4 @@
-![Logo](https://image.ibb.co/iwmg0J/logogit.png)
+![Logo](https://image.ibb.co/cBiN7y/logogit.png)
 ![CircleCI](https://img.shields.io/circleci/project/github/vibora-io/vibora.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Vibora.svg)
 ![PyPI - License](https://img.shields.io/pypi/l/Vibora.svg)
