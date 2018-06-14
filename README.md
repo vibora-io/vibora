@@ -4,7 +4,7 @@
 ![PyPI - License](https://img.shields.io/pypi/l/Vibora.svg)
 -----------------------------------------------------------
 
-[Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework.
+> [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework.
 
 
 ---------------
