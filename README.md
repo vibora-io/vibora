@@ -1,8 +1,10 @@
-![Logo](https://image.ibb.co/n0U10J/logogit.png)
+<p align="center">
+  <img src="https://image.ibb.co/n0U10J/logogit.png">
+</p>
+
 ![CircleCI](https://img.shields.io/circleci/project/github/vibora-io/vibora.svg)
 -----------------------------------------------------------
-
-> [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework.
+> [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework. (Alpha stage)
 
 
 Server Features
