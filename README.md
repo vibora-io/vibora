@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://image.ibb.co/n0U10J/logogit.png">
+  <a href="https://vibora.io"><img src="https://raw.githubusercontent.com/vibora-io/vibora/master/docs/logo.png"></a>
+  <a href="https://circleci.com/gh/vibora-io/vibora"><img src="https://circleci.com/gh/vibora-io/vibora.svg?style=shield"></a>
 </p>
 
-![CircleCI](https://img.shields.io/circleci/project/github/vibora-io/vibora.svg)
 -----------------------------------------------------------
 > [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework. (Alpha stage)
 
