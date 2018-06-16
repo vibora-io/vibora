@@ -11,9 +11,9 @@ app = Vibora(
 
 @app.route('/', methods=['POST'])
 async def home(request: Request):
-    print(await request.form())
-    return JsonResponse({'hello': 'world', 'form': str(request.form)})
+    await request.form()
+    return JsonResponse({'hello': 'world'})
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000, host='0.0.0.0')
+    app.run(debug=False, port=8000, host='0.0.0.0')

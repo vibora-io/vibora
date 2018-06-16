@@ -8,9 +8,8 @@ else:
 
 setup(
     name="vibora",
-    version='0.0.5',
-    download_url='https://github.com/frnkvieira/vibora/archive/v0.0.3.zip',
-    description='Modern Python 3.6+ web framework',
+    version='0.0.6',
+    description='Fast, asynchronous and sexy Python web framework',
     author='Frank Vieira',
     author_email='frank@frankvieira.com.br',
     license='MIT',
@@ -105,6 +104,12 @@ setup(
         Extension(
             "vibora.components.components",
             ["vibora/components/components.c"],
+            extra_compile_args=['-O3'],
+            include_dirs=['.']
+        ),
+        Extension(
+            "vibora.multipart.parser",
+            ["vibora/multipart/parser.c"],
             extra_compile_args=['-O3'],
             include_dirs=['.']
         )

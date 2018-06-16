@@ -2,15 +2,21 @@ from typing import List
 from urllib.parse import urlparse, parse_qs, ParseResult
 from asyncio import Event
 from queue import deque
-from ..multipart import MultipartParser, DiskFile, MemoryFile, UploadedFile
+from ..multipart import DiskFile, MemoryFile, UploadedFile
 from ..exceptions import InvalidJSON
 from ..sessions import Session
 from ..utils import RequestParams
-from ..headers.headers import Headers
 from ..utils import json
 
+# noinspection PyUnresolvedReferences
+from ..headers.headers cimport Headers
+# noinspection PyUnresolvedReferences
+from ..protocol.cprotocol cimport Connection
+# noinspection PyUnresolvedReferences
+from ..multipart.parser cimport MultipartParser
 
-class StreamQueue:
+
+cdef class StreamQueue:
 
     def __init__(self):
         self.items = deque()
@@ -33,26 +39,26 @@ class StreamQueue:
                 self.waiting = False
                 return self.items.popleft()
 
-    def put(self, item):
+    cdef void put(self, bytes item):
         self.dirty = True
         self.items.append(item)
         if self.waiting is True:
             self.event.set()
 
-    def clear(self):
+    cdef void clear(self):
         if self.dirty:
             self.items.clear()
             self.event.clear()
             self.dirty = False
         self.finished = False
 
-    def end(self):
+    cdef void end(self):
         if self.waiting:
             self.put(None)
         self.finished = True
 
 
-class Stream:
+cdef class Stream:
 
     def __init__(self, connection):
         self.consumed = False
@@ -77,7 +83,7 @@ class Stream:
             self.connection.pause_reading()
             yield data
 
-    def clear(self):
+    cdef void clear(self):
         """
         Resets the stream status.
         :return: None
@@ -86,26 +92,33 @@ class Stream:
         self.consumed = False
 
 
-class Request:
+cdef class Request:
 
-    def __init__(self, url: bytes, headers: Headers, method: bytes, stream: Stream, protocol):
+    def __init__(self, bytes url, Headers headers, bytes method, Stream stream, Connection protocol):
+        """
 
+        :param url:
+        :param headers:
+        :param method:
+        :param stream:
+        :param protocol:
+        """
         self.url = url
         self.protocol = protocol
         self.method = method
         self.headers = headers
         self.context = {}
         self.stream = stream
-        self.__cookies = None
-        self.__args = None
-        self.__parsed_url = None
-        self.__form = None
+        self._cookies = None
+        self._args = None
+        self._parsed_url = None
+        self._form = None
 
     @property
     def app(self):
         return self.protocol.app
 
-    def client_ip(self) -> str:
+    cpdef str client_ip(self):
         return self.protocol.client_ip()
 
     @property
@@ -114,9 +127,9 @@ class Request:
 
         :return:
         """
-        if not self.__parsed_url:
-            self.__parsed_url = urlparse(self.url)
-        return self.__parsed_url
+        if not self._parsed_url:
+            self._parsed_url = urlparse(self.url)
+        return self._parsed_url
 
     @property
     def args(self) -> RequestParams:
@@ -124,9 +137,9 @@ class Request:
 
         :return:
         """
-        if not self.__args:
-            self.__args = RequestParams(parse_qs(self.parsed_url.query))
-        return self.__args
+        if not self._args:
+            self._args = RequestParams(parse_qs(self.parsed_url.query))
+        return self._args
 
     @property
     def cookies(self) -> dict:
@@ -134,9 +147,9 @@ class Request:
 
         :return:
         """
-        if self.__cookies is None:
-            self.__cookies = self.headers.parse_cookies()
-        return self.__cookies
+        if self._cookies is None:
+            self._cookies = self.headers.parse_cookies()
+        return self._cookies
 
     async def session(self) -> Session:
         """
@@ -172,25 +185,26 @@ class Request:
 
         :return:
         """
+        cdef str content_type
         content_type = self.headers.get('Content-Type')
         if 'multipart/form-data' in content_type:
             boundary = content_type[content_type.find('boundary=') + 9:]
-            parser = MultipartParser(boundary.encode(), temp_dir=self.app.temporary_dir)
+            parser = MultipartParser(boundary.encode())
             async for chunk in self.stream:
-                parser.feed_data(chunk)
-            self.__form = parser.consume()
+                await parser.feed(chunk)
+            self._form = parser.consume()
         else:
-            self.__form = {}
+            self._form = {}
 
     async def files(self) -> List[UploadedFile]:
         """
 
         :return:
         """
-        if self.__form is None:
+        cdef list files = []
+        if self._form is None:
             await self._load_form()
-        files = []
-        for key, value in self.__form.items():
+        for value in self._form.values():
             if isinstance(value, (DiskFile, MemoryFile)):
                 files.append(value)
         return files
@@ -200,6 +214,6 @@ class Request:
 
         :return:
         """
-        if self.__form is None:
+        if self._form is None:
             await self._load_form()
-        return self.__form
+        return self._form

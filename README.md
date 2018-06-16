@@ -5,7 +5,6 @@
 > [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework.
 
 
----------------
 Server Features
 ---------------
 * Performance (https://vibora.io/#benchmarks).
@@ -22,7 +21,7 @@ Server Features
 * Complete Test Framework
 * Type hints, type hints, type hints everywhere.
 
----------------
+
 Client Features
 ---------------
 * Fastest Python HTTP client.
@@ -34,7 +33,7 @@ Client Features
 * Basic/digest Authentication
 * Transparent Content Decoding
 
---------------
+
 Server Example
 --------------
 ```python
@@ -51,7 +50,7 @@ async def home(request: Request):
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
 ```
---------------
+
 Client Example
 --------------
 
@@ -70,7 +69,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(hello_world())
 ```
--------------
+
 Documentation
 -------------
 [Check it out at Vibora docs website](https://docs.vibora.io/docs).
@@ -82,7 +81,7 @@ Goals
 * Windows / Linux / MacOS.
 * Enjoyable and up to date development features/trends.
 
------------
+
 Coming Soon
 -----------
 * Server Rate Limiting

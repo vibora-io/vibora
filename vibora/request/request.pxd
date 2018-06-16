@@ -27,7 +27,7 @@ cdef class Stream:
         StreamQueue queue
         Connection connection
 
-    cdef clear(self)
+    cdef void clear(self)
 
 
 @cython.freelist(409600)
@@ -37,14 +37,13 @@ cdef class Request:
         readonly bytes url
         readonly bytes method
         readonly object parent
-        readonly object protocol
-        readonly bytearray body
+        readonly Connection protocol
         readonly Headers headers
-        readonly dict context
         readonly Stream stream
-        object __cookies
-        object __parsed_url
-        object __args
-        dict __form
+        readonly dict context
+        object _cookies
+        object _parsed_url
+        object _args
+        dict _form
 
     cpdef str client_ip(self)
