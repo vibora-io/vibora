@@ -12,6 +12,7 @@ setup(
     description='Fast, asynchronous and sexy Python web framework',
     author='Frank Vieira',
     author_email='frank@frankvieira.com.br',
+    url='https://vibora.io',
     license='MIT',
     python_requires='>=3.6',
     classifiers=[
