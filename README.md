@@ -39,7 +39,8 @@ Client Features
 Server Example
 --------------
 ```python
-from vibora import Vibora, Request, Response
+from vibora import Vibora, Request
+from vibora.responses import JsonResponse
 
 app = Vibora()
 
