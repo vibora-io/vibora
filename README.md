@@ -76,6 +76,17 @@ Documentation
 -------------
 [Check it out at Vibora docs website](https://docs.vibora.io/docs).
 
+Performance (Infamous Hello World benchmark)
+-----------
+| Frameworks    | Requests/Sec  | Version |
+| ------------- |:-------------:|:-------:|
+| Tornado       | 14,249         | 5.02    |
+| Django        | 22,727         | 2.0.6   |
+| Flask         | 37,139         | 1.0.2   |
+| Aiohttp       | 40,986         | 3.3.2   |
+| Sanic         | 116,195        | 0.7.0   |
+| Vibora        | 361,685        | 0.0.6   |
+> More benchmarks and info at https://github.com/vibora-io/benchmarks
 -----
 Goals
 -----
