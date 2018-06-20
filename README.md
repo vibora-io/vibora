@@ -6,6 +6,8 @@
 -----------------------------------------------------------
 > [Vibora](https://vibora.io) is a **sexy and fast** async Python 3.6+ http client/server framework. (Alpha stage)
 
+> Before you ask, Vibora means Viper in Portuguese ;)
+
 
 Server Features
 ---------------
