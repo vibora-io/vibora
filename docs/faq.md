@@ -35,11 +35,11 @@
   - Common tasks as schema validation, template rendering and other stuff were made builtin in the framework,
     written from scratch with performance in mind.
 
-#### It's Pypy compatible ?
+#### Is it compatible with PyPy ?
 
-  - No. Pypy poor C extensions compatibility (performance wise) is the biggest problem.
-    Vibora would need to drop the C extensions or duplicate implementations (Cython powered X pure Python).
-    In the end I would bet that Vibora on Pypy would still be slower than the Cython powered version.
+  - No. PyPy's poor C extensions compatibility (performance-wise) is the biggest problem.
+    Vibora would need to drop its C extensions or duplicate implementations (Cython powered X pure Python).
+    In the end I would bet that Vibora on PyPy would still be slower than the Cython-powered version.
     I'm open to suggestions and I'm watching PyPy closely so who knows.
 
 #### Why not use Jinja2 ?
