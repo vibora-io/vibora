@@ -4,6 +4,7 @@
 <p align="center">
   <a href="https://circleci.com/gh/vibora-io/vibora"><img src="https://circleci.com/gh/vibora-io/vibora.svg?style=shield"></a>
   <a href="https://vibora-io.slack.com"><img src="https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg"></a>
+  <a href="#"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
 -----------------------------------------------------------
