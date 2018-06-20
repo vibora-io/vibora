@@ -10,4 +10,4 @@
 
 5. One more time: Don't forget to add tests.
 
-6. Ensure the entire test suite is passing and overral performance is not degraded.
+6. Ensure the entire test suite is passing and overall performance is not degraded.
