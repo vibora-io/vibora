@@ -1,3 +1,4 @@
+import typing
 from inspect import isclass, iscoroutinefunction
 from .cache import Static
 from .optimizer import is_static
@@ -9,7 +10,7 @@ from .limits import RouteLimits
 
 
 class Blueprint:
-    def __init__(self, template_dirs=None, hosts: list=None, limits: RouteLimits=None):
+    def __init__(self, template_dirs=None, hosts: list = None, limits: RouteLimits = None):
         self.default_routes = {}
         self.routes = []
         self.hooks = {}
@@ -29,11 +30,15 @@ class Blueprint:
         self.app = None
         self.parent = None
 
+    def __encode_pattern(self, pattern: typing.Union[str, bytes]) -> bytes:
+        return pattern if isinstance(pattern, bytes) else pattern.encode()
+
     def handle(self, value, local: bool = True):
         """
         Decorator to register a hook.
         :return: None
         """
+
         def wrapper(*args):
             handler = args[0]
             values = value if isinstance(value, (list, tuple)) else [value]
@@ -44,9 +49,10 @@ class Blueprint:
                     self.exception_handlers[v] = ExceptionHandler(handler, v, local=local)
                 else:
                     raise SyntaxError('{0} is not allowed at @handle.'.format(v))
+
         return wrapper
 
-    def route(self, pattern, methods=None, cache=None, name=None, hosts: list=None, limits: RouteLimits=None):
+    def route(self, pattern, methods=None, cache=None, name=None, hosts: list = None, limits: RouteLimits = None):
         def register(*args):
             handler = args[0]
 
@@ -63,10 +69,7 @@ class Blueprint:
             route_name = handler.__name__ if name is None else name
 
             # Patterns should be bytes.
-            if isinstance(pattern, str):
-                encoded_pattern = pattern.encode()
-            else:
-                encoded_pattern = pattern
+            encoded_pattern = self.__encode_pattern(pattern)
 
             new_route = Route(encoded_pattern, handler, tuple(methods or (b'GET',)),
                               parent=self, name=route_name, cache=chosen_cache,
@@ -83,8 +86,9 @@ class Blueprint:
             # Generating route name dynamically in case the user doesn't provide one.
             # Route names are used to create URLs (I.e: links inside templates)
             route_name = handler.__name__ if name is None else name
+            encoded_pattern = self.__encode_pattern(pattern)
 
-            new_route = WebsocketRoute(pattern, websocket_handshake_handler, ['GET'],
+            new_route = WebsocketRoute(encoded_pattern, websocket_handshake_handler, ['GET'],
                                        parent=self, name=route_name, websocket=True, websocket_handler=handler)
             self.routes.append(new_route)
             return handler
@@ -141,7 +145,7 @@ class Blueprint:
         content = await self.app.template_engine.render(template_name, streaming=True, **template_vars)
         return StreamingResponse(content)
 
-    def add_blueprint(self, blueprint, prefixes: dict=None):
+    def add_blueprint(self, blueprint, prefixes: dict = None):
         """
         Add a nested blueprint.
         :param blueprint: Blueprint instance.
