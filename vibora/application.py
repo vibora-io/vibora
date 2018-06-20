@@ -5,21 +5,24 @@ from collections import defaultdict
 from inspect import stack
 from .request import Request
 from .blueprints import Blueprint
+from .sessions import SessionEngine
 from .router import Router, Route, RouterStrategy, RouteLimits
 from .protocol import Connection
+from .responses import Response
 from .components import ComponentsEngine
 from .exceptions import ReverseNotFound, DuplicatedBlueprint
 from .templates.engine import TemplateEngine
 from .templates.extensions import ViboraNodes
 from .static import StaticHandler
 from .limits import ServerLimits
+from .hooks import Events
 
 
 class Application(Blueprint):
 
     current_time = None
 
-    def __init__(self, template_dirs: list = None, router_strategy=RouterStrategy.CLONE, sessions=None,
+    def __init__(self, template_dirs: list = None, router_strategy=RouterStrategy.CLONE, sessions: SessionEngine=None,
                  server_name: str = None, url_scheme: str = 'http', static=None,
                  log: Callable = None, server_limits: ServerLimits=None, route_limits: RouteLimits=None,
                  temporary_dir: str=None):
@@ -49,8 +52,6 @@ class Application(Blueprint):
         self.connections = set()
         self.logger = None
         self.workers = []
-        # self.session_engine = sessions or FilesSessionEngine()
-        self.session_engine = sessions
         self.components = ComponentsEngine()
         self.loop = None
         self.log = log
@@ -60,6 +61,33 @@ class Application(Blueprint):
         self.temporary_dir = temporary_dir or gettempdir()
         self.running = False
         self._test_client = None
+        self._session_engine = sessions
+
+    @property
+    def session_engine(self) -> SessionEngine:
+        """
+
+        :return:
+        """
+        if not self._session_engine:
+            raise ValueError('There is no session engine configured. Perhaps you forgot to configure your own.')
+        return self._session_engine
+
+    @session_engine.setter
+    def session_engine(self, value: SessionEngine):
+        """
+
+        :param value:
+        :return:
+        """
+        if not self._session_engine:
+            @self.handle(Events.AFTER_ENDPOINT)
+            async def flush_session(request: Request, response: Response, sessions: SessionEngine):
+                pending_session = request.session_pending_flush()
+                if pending_session:
+                    await sessions.save(pending_session, response)
+        self._session_engine = value
+        self.components.add(value)
 
     def override_request(self, class_obj: Type):
         """
@@ -183,7 +211,10 @@ class Application(Blueprint):
             blueprint.hooks = local_listeners
 
     def clean_up(self):
-        # self.session_engine.clean_up()
+        """
+
+        :return:
+        """
         for process in self.workers:
             process.terminate()
         self.running = False

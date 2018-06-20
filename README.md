@@ -9,13 +9,13 @@
 
 Server Features
 ---------------
-* Performance (https://vibora.io/#benchmarks).
+* Performance (https://github.com/vibora-io/benchmarks).
 * Schemas Engine. (50x faster than marshmallow, Async Enabled)
 * Nested Blueprints / Domain Based Routes / Components
 * Connection Reaper / Self-Healing Workers
-* Sessions (files, Redis, Memcache)
+* Sessions Engine (easily extended to any backend)
 * Streaming
-* Websockets
+* Websockets (under development)
 * Caching tools
 * Async Template Engine (hot-reloading, deep inheritance)
 * Complete flow customization
@@ -26,10 +26,9 @@ Server Features
 
 Client Features
 ---------------
-* Fastest Python HTTP client.
 * Streaming MultipartForms (Inspired by: https://github.com/requests/requests/issues/1584)
 * Rate Limiting / Retries mechanisms
-* Websockets
+* Websockets (under development)
 * Keep-Alive & Connection Pooling
 * Sessions with cookies persistence
 * Basic/digest Authentication

@@ -5,8 +5,7 @@ from cryptography.fernet import Fernet
 
 class EncryptedCookiesEngine(SessionEngine):
     def __init__(self, cookie_name='vibora', secret_key=None):
-        super().__init__()
-        self.cookie_name = cookie_name
+        super().__init__(cookie_name=cookie_name)
         self.cipher = Fernet(secret_key or Fernet.generate_key())
 
     def load_cookie(self, request):
@@ -17,7 +16,7 @@ class EncryptedCookiesEngine(SessionEngine):
             except (AttributeError, ValueError):
                 pass
 
-    def load(self, request):
+    async def load(self, request):
         cookie = self.load_cookie(request)
         if cookie:
             try:
@@ -28,7 +27,7 @@ class EncryptedCookiesEngine(SessionEngine):
                 return Session(needs_update=True)
         return Session()
 
-    def save(self, request, response):
+    async def save(self, request, response):
         value = self.cipher.encrypt(request.session.dumps().encode())
         cookie = f'{self.cookie_name}={value.decode()}; SameSite=Lax'
         response.headers['Set-Cookie'] = cookie
