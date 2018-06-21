@@ -17,6 +17,7 @@ split your validation logic between different places.
 ###### Declaring your schema
 ```py
 from vibora.schemas import Schema, fields
+from vibora.schemas.exceptions import ValidationError
 from vibora.schemas.validators import Length, Email
 from vibora.context import get_component
 from .database import Database
