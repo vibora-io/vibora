@@ -1,18 +1,24 @@
-from vibora import Vibora
-from vibora.request import Request
-from vibora.responses import JsonResponse
+from vibora import Vibora, JsonResponse, Request
+from vibora.hooks import Events
+from vibora.sessions.files import FilesSessionEngine
 
 
 app = Vibora()
 
 
-@app.route('/', cache=False)
-def home(request: Request):
-    if 'requests_count' in request.session:
-        request.session['requests_count'] += 1
+@app.handle(Events.BEFORE_SERVER_START)
+async def set_up_sessions(current_app: Vibora):
+    current_app.session_engine = FilesSessionEngine('/tmp/test')
+
+
+@app.route('/')
+async def home(request: Request):
+    session = await request.session()
+    if 'requests_count' in session:
+        session['requests_count'] += 1
     else:
-        request.session['requests_count'] = 0
-    return JsonResponse({'a': 1, 'session': request.session.dump()})
+        session['requests_count'] = 0
+    return JsonResponse({'a': 1, 'session': session.dump()})
 
 
 if __name__ == '__main__':

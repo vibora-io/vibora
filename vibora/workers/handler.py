@@ -51,6 +51,7 @@ class RequestHandler(Process):
         loop.run_until_complete(self.app.call_hooks(Events.AFTER_SERVER_START, components=self.app.components))
 
         async def stop_server(timeout=30):
+
             # Calling the before server stop hook.
             await self.app.call_hooks(Events.BEFORE_SERVER_STOP, components=self.app.components)
 

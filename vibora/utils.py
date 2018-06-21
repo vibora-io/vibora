@@ -2,6 +2,7 @@ import socket
 import sys
 import time
 import os
+import signal
 from typing import Tuple
 
 
@@ -164,11 +165,31 @@ def wait_server_offline(host, port, timeout: int=10):
     raise SystemError(f'Server is still running after the timeout threshold.')
 
 
-def cprint(message: str, color='\033[35m', mixed: bool=False):
+def colored_print(message: str, color='\033[35m', custom: bool=False):
+    """
+    Colored prints in interactive terminals and PyCharm.
+    :param message:
+    :param color:
+    :param custom:
+    :return:
+    """
     if sys.stdout.isatty() or os.environ.get('PYCHARM_HOSTED'):
-        if mixed:
+        if custom:
             print(message.format(color_=color, end_='\033[0m'))
         else:
             print(color + message + '\033[0m')
     else:
-        print(message)
+        print(message.format(color_='', end_=''))
+
+
+def pause() -> None:
+    """
+    Pauses the process until a signed is received.
+    Windows does not have a signal.pause() so we waste a few more cpu cycles.
+    :return: None
+    """
+    if os.name == 'nt':
+        while True:
+            time.sleep(60)
+    else:
+        signal.pause()

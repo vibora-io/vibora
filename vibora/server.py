@@ -2,7 +2,6 @@ import logging
 import sys
 import traceback
 from email.utils import formatdate
-from signal import pause
 from collections import OrderedDict, deque
 from functools import partial
 from multiprocessing import cpu_count
@@ -14,13 +13,10 @@ from .router import Route
 from .request import Request
 from .responses import *
 from .templates.loader import TemplateLoader
-from .templates.compilers.cython import CythonTemplateCompiler
-from .templates.engine import TemplateEngine
-from .templates.cache import DiskCache, InMemoryCache
 from .templates.extensions import ViboraNodes
 from .exceptions import NotFound, MethodNotAllowed, MissingComponent
 from .parsers.errors import BodyLimitError, HeadersLimitError
-from .utils import wait_server_available, get_free_port, cprint
+from .utils import wait_server_available, get_free_port, colored_print, pause
 from .hooks import Hook, Events
 from .application import Application
 
@@ -95,11 +91,6 @@ class Vibora(Application):
 
         :return:
         """
-        if self.session_engine and self.session_engine.is_async:
-            for routes in self.router.routes.values():
-                for route in routes:
-                    if not route.is_coroutine:
-                        raise Exception('You cannot use an asynchronous session handler with synchronous views.')
         self.router.check_integrity()
 
     def turn_on_debug_features(self):
@@ -146,8 +137,8 @@ class Vibora(Application):
             new_hook = Hook(Events.AFTER_SERVER_START, start_template_loader)
             self.add_hook(new_hook)
         else:
-            tl = TemplateLoader(dirs, self.template_engine)
-            tl.load()
+            loader = TemplateLoader(dirs, self.template_engine)
+            loader.load()
         self.template_engine.compile_templates()
 
     def add_default_error_handlers(self):
@@ -262,11 +253,12 @@ class Vibora(Application):
                                       interval=self.server_limits.worker_timeout)
             necromancer.start()
 
+        # Wait the server start accepting new connections.
         wait_server_available(host, port)
 
         if verbose:
-            cprint('# Vibora ({color_}' + __version__ + '{end_}) # http://' + str(host) + ':' + str(port),
-                   mixed=True)
+            colored_print('# Vibora ({color_}' + __version__ + '{end_}) # http://' + str(host) + ':' + str(port),
+                          custom=True)
 
         self.running = True
         if block:
