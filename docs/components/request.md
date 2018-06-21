@@ -35,7 +35,7 @@ You can control the memory/disk usage of uploaded files by calling
 `request.load_form(threshold=1 * 1024 * 1024)` explicitely,
 in this case files bigger than 1mb will be flushed to disk.
 
-> Please be aware that the form threadhold does not passthrough the
+> Please be aware that the form threshold does not passthrough the
   max_body_size limit so you'll still need to configure your route
   properly.
 
