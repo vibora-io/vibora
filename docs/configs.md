@@ -85,7 +85,7 @@ if __name__ == "__main__":
         config = Config(json.load(f))
 
         # Registering the config as a component so you can use it
-        later on (as we do in the "before_server_start" hook)
+        # later on (as we do in the "before_server_start" hook)
         app.components.add(config)
 
         # Running the server.
