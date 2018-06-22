@@ -100,7 +100,7 @@ Configuration example:
 from vibora import Vibora
 from vibora.router import RouterStrategy
 
-app = Vibora(router_strategy=RouterStrategy.Strict)
+app = Vibora(router_strategy=RouterStrategy.STRICT)
 ```
 
 ### Caching
