@@ -35,8 +35,8 @@ if __name__ == '__main__':
 
 ### Creating a project
 
-The previous exercise was just to show off how easily is
+The previous example was just to show off how easy is it
 to spin up a server.
 
 The recommended way to start a new project is by letting vibora do it for you.
-Vibora is also a command-line tool, try it out in your command-line: `vibora new project_name`
+Vibora is also a command-line tool, try it out: `vibora new project_name`

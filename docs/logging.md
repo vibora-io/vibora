@@ -23,7 +23,7 @@ if __name__ == '__main__':
     def log_handler(msg, level):
         # Redirecting the msg and level to logging library.
         getattr(logging, level)(msg)
-        pring(f'Msg: {msg} / Level: {level}'
+        print(f'Msg: {msg} / Level: {level}')
 
     app.run(logging=log_handler)
 ```

@@ -7,8 +7,7 @@ app = Vibora()
 
 
 async def validate(value, context):
-
-
+    return True
 
 
 class BenchmarkSchema(Schema):

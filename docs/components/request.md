@@ -41,7 +41,7 @@ in this case files bigger than 1mb will be flushed to disk.
 
 Instead of pre-parsing the entire form you could call
 `request.stream_form()` and deal with every uploaded field as
-it arrives by the network. This is good when you don't files
+it arrives by the network. This is good when you don't want files
 hitting the disk and in some scenarios allows you to waste less memory
 by doing way more coding yourself.
 

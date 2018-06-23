@@ -11,7 +11,7 @@ from .workers.handler import RequestHandler
 from .workers.necromancer import Necromancer
 from .router import Route
 from .request import Request
-from .responses import Response
+from .responses import *
 from .templates.loader import TemplateLoader
 from .templates.extensions import ViboraNodes
 from .exceptions import NotFound, MethodNotAllowed, MissingComponent
