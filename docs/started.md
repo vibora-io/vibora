@@ -14,7 +14,8 @@ advantage of some new Python features.
 2) Create a file called `anything.py` with the following code:
 
 ```py
-from vibora import Vibora, JsonResponse
+from vibora import Vibora
+from vibora.responses import JsonResponse
 
 app = Vibora()
 

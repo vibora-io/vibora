@@ -14,7 +14,8 @@ Bellow there are the most important ones:
 Automatically dumps Python objects and adds the correct headers to match the JSON format.
 
 ```py
-from vibora import Vibora, JsonResponse
+from vibora import Vibora
+from vibora.responses import JsonResponse
 
 app = Vibora()
 

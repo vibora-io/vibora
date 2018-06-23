@@ -9,7 +9,8 @@ register a listener to the event "BeforeResponse" and inject the desired headers
 Below is a fully working example:
 
 ```py
-from vibora import Vibora, Response
+from vibora import Vibora, 
+from vibora.responses import Response
 from vibora.hooks import Events
 
 app = Vibora()
