@@ -1,7 +1,9 @@
 import ujson
 from unittest import TestCase
+from vibora import Vibora
 from vibora.responses import JsonResponse, Response
 from vibora.cookies import Cookie
+from vibora.tests import TestSuite
 
 
 class AttributesTestCase(TestCase):
@@ -31,3 +33,22 @@ class AttributesTestCase(TestCase):
         self.assertEqual(response.headers['server'], headers['server'])
         self.assertEqual(response.status_code, status_code)
         self.assertEqual(response.content, content)
+
+
+class IntegrationCookiesTestCase(TestSuite):
+
+    async def test_cookies_encoding__expects_correctly_evaluated(self):
+        app = Vibora()
+        content = {"data": "all right"}
+
+        @app.route("/")
+        async def set_cookie():
+            cookies = [Cookie('test', 'test_cookie')]
+            return JsonResponse(content, cookies=cookies)
+
+        client = app.test_client()
+        response = await client.get('/')
+        set_cookie_header = response.headers['set-cookie']
+
+        self.assertEqual(response.json(), content)
+        self.assertEqual(set_cookie_header, 'test=test_cookie;')
