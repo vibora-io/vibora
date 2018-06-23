@@ -240,7 +240,7 @@ class Vibora(Application):
              host: str = '127.0.0.1',
              port: int = 5000,
              workers: int = None,
-             debug: bool = True,
+             debug: bool = False,
              block: bool = True,
              verbose: bool = True,
              necromancer: bool = False,
@@ -288,10 +288,8 @@ class Vibora(Application):
             except KeyboardInterrupt:
                 self.clean_up()
 
-    def run(self, **kwargs):
-        debug = kwargs.get('debug', True)
-
-        if debug:
+    def run(self, reload: bool = False, **kwargs):
+        if reload:
             run_with_reloader(lambda: self._run(**kwargs))
         else:
             self._run(**kwargs)
