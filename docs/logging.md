@@ -11,8 +11,7 @@ It's up to you to choose what to do with logging messages.
 
 ```py
 import logging
-from vibora import Vibora
-from vibora.responses import Response
+from vibora import Vibora, Response
 
 app = Vibora()
 
