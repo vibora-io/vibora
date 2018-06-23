@@ -6,6 +6,10 @@ from signal import pause
 from collections import OrderedDict, deque
 from functools import partial
 from multiprocessing import cpu_count
+from socket import socket
+
+from werkzeug._reloader import run_with_reloader
+
 from vibora.__version__ import __version__
 from .client import Session
 from .workers.handler import RequestHandler
@@ -215,7 +219,7 @@ class Vibora(Application):
                                         decode=decode, keep_alive=False)
         return self._test_client
 
-    def initialize(self, debug: bool=False):
+    def initialize(self, debug: bool = False):
         """
 
         :return:
@@ -232,8 +236,16 @@ class Vibora(Application):
         self.initialized = True
         self.load_templates()
 
-    def run(self, host='127.0.0.1', port=5000, workers=None, debug=True, block=True, verbose=True,
-            necromancer: bool = False, sock=None):
+    def _run(self,
+             host: str = '127.0.0.1',
+             port: int = 5000,
+             workers: int = None,
+             debug: bool = False,
+             block: bool = True,
+             verbose: bool = True,
+             necromancer: bool = False,
+             sock: socket = None,
+             **kwargs):
         """
 
         :param host:
@@ -275,3 +287,9 @@ class Vibora(Application):
                 self.running = False
             except KeyboardInterrupt:
                 self.clean_up()
+
+    def run(self, reload: bool = False, **kwargs):
+        if reload:
+            run_with_reloader(lambda: self._run(**kwargs))
+        else:
+            self._run(**kwargs)
