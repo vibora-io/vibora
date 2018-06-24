@@ -74,7 +74,7 @@ class ForNode(Node):
 
 class IfNode(Node):
 
-    parser = re.compile('{%\s?if\s(.*?)\s?%}')
+    parser = re.compile(r'{%\s?if\s(.*?)\s?%}')
 
     def __init__(self, expression: str, raw: str):
         super().__init__(raw)
@@ -107,7 +107,7 @@ class IfNode(Node):
 
 class ElifNode(Node):
 
-    parser = re.compile('{%\s?elif\s(.*?)\s?%}|{%\s?else if \s(.*?)\s?%}')
+    parser = re.compile(r'{%\s?elif\s(.*?)\s?%}|{%\s?else if \s(.*?)\s?%}')
 
     def __init__(self, expression: str, raw: str):
         super().__init__(raw)
@@ -128,7 +128,7 @@ class ElifNode(Node):
         compiler.indent()
         rollback = True
         for child in self.children:
-            if isinstance(child, ElifNode) or isinstance(child, ElseNode):
+            if isinstance(child, (ElifNode, ElseNode)):
                 compiler.indent()
                 rollback = False
             child.compile(compiler)
@@ -138,7 +138,7 @@ class ElifNode(Node):
 
 class ElseNode(Node):
 
-    parser = re.compile('{%\s?else\s(.*?)\s?%}')
+    parser = re.compile(r'{%\s?else\s(.*?)\s?%}')
 
     def __init__(self, expression: str, raw: str):
         super().__init__(raw)
@@ -210,8 +210,6 @@ class BlockNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        import re
-
         parser = re.compile('{% block (.*?) %}')
         found = parser.search(node)
         if found:
