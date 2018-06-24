@@ -18,5 +18,4 @@ VTE has hot-reloading so we can swap templates at run-time.
 This is enabled by default in debug mode so you have a fast iteration
 cycle while building your app.
 
-Although VTE do not aim to be **sandboxed**, it tries hard to
-prevent the templates from leaking access to outside context.
+Although VTE **do not aim to be sandboxed** it tries hard to prevent the templates from leaking access to outside context.

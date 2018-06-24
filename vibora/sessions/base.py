@@ -1,32 +1,32 @@
-from inspect import iscoroutinefunction
 from ..utils import json
 
 
 class SessionEngine:
-    def __init__(self):
-        self.is_async = iscoroutinefunction(self.load)
 
-    def load(self, request):
+    def __init__(self, cookie_name: str=None):
+        self.cookie_name = cookie_name or 'SESSION_ID'
+
+    async def load(self, request):
         raise NotImplementedError
 
-    def save(self, request, response):
+    async def save(self, request, response):
         raise NotImplementedError
 
-    def clean_up(self):
+    async def clean_up(self):
         pass
 
 
 class Session:
-    __slots__ = ('values', 'needs_update', 'uuid')
+    __slots__ = ('values', 'pending_flush', 'uuid')
 
-    def __init__(self, values: dict = None, needs_update=False, unique_id=None):
+    def __init__(self, values: dict = None, pending_flush: bool=False, unique_id: str=None):
         self.uuid = unique_id
         self.values = values or {}
-        self.needs_update = needs_update
+        self.pending_flush = pending_flush
 
     def __setitem__(self, key, value):
         self.values[key] = value
-        self.needs_update = True
+        self.pending_flush = True
 
     def __getitem__(self, item):
         return self.values[item]
@@ -39,7 +39,7 @@ class Session:
 
     def __delitem__(self, key):
         del self.values[key]
-        self.needs_update = True
+        self.pending_flush = True
 
     def dump(self):
         return self.values
@@ -49,11 +49,11 @@ class Session:
 
     def load(self, values: dict):
         self.values.update(values)
-        self.needs_update = True
+        self.pending_flush = True
 
     def clear(self):
         self.values.clear()
-        self.needs_update = True
+        self.pending_flush = True
 
     def __contains__(self, item):
         return item in self.values

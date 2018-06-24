@@ -15,6 +15,10 @@ from ..constants import ALL_STATUS_CODES
 from ..utils import json
 
 
+__all__ = ['Response', 'JsonResponse', 'StreamingResponse', 'RedirectResponse', 'update_current_time',
+           'stream_chunked_response', 'stream_response', 'CachedResponse', 'WebsocketHandshakeResponse']
+
+
 current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
 
@@ -258,12 +262,6 @@ class WebsocketHandshakeResponse(Response):
             'Connection': 'Upgrade',
             'Sec-Websocket-Accept': key.decode('utf-8')
         }
-
-
-def render(path: str, **variables):
-    loop = asyncio.get_event_loop()
-    template = loop.app.jinja_env.get_template(path)
-    return Response(template.render(**variables).encode(), headers={'Content-Type': 'text/html'})
 
 
 def update_current_time(value):

@@ -7,21 +7,23 @@ class Events:
     # After the fork but before the server is online receiving requests.
     BEFORE_SERVER_START = 1
 
-    # After server fork and server online. Understand this is not deterministic, you could
+    # After server fork and server online. Understand that you could
     # theoretically be in the middle of a request while this function is running.
+    # If you need to ensure something runs before the first request arrives "BEFORE_SERVER_START" is what you need.
     AFTER_SERVER_START = 2
 
-    # Before each endpoint, this is hook is very useful so you can halt requests,
-    # authenticate stuff and many other common tasks in APIs.
+    # Before each endpoint, you can halt requests, authorize users and many other common tasks
+    # that are shared with many routes.
     BEFORE_ENDPOINT = 3
 
-    # After each endpoint is called, this is useful when you need to globally inject data into responses like headers.
+    # After each endpoint is called, this is useful when you need to globally inject data into responses
+    # like headers.
     AFTER_ENDPOINT = 4
 
     # Called after each response is sent to the client, useful to cleaning and non-critical logging operations.
     AFTER_RESPONSE_SENT = 5
 
-    # Called right before the server is stopped, you may have the chance to halt a stop request,
+    # Called right before the server is stopped, you have the chance to cancel a stop request,
     # notify your clients and other useful stuff using this hook.
     BEFORE_SERVER_STOP = 6
 
@@ -31,11 +33,14 @@ class Events:
 
 
 class Hook:
+
+    __slots__ = ('event_type', 'handler', 'local', 'is_async', 'wanted_components')
+
     def __init__(self, event: int, handler, local=False):
         self.event_type = event
         self.handler = handler
         self.local = local
-        self.async = iscoroutinefunction(handler)
+        self.is_async = iscoroutinefunction(handler)
         self.wanted_components = get_type_hints(self.handler)
 
     def call_handler(self, components):
