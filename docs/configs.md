@@ -101,8 +101,8 @@ databases drivers, for example, often need to be instantiated
 after the server is forked so you'll need the config after
 the "run script".
 
-Also our config class is this example is a mere wrapper for our JSON
-config but in a real app you could be using the config class as
+Also, our config class in this example is a mere wrapper for our JSON
+config but in a real app, you could be using the config class as
 a components wrapper. You'll just need to add references to many
 important components so you don't need to repeat yourself by
 importing many different components in every route.
