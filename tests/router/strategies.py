@@ -5,7 +5,6 @@ from vibora.responses import Response
 
 
 class RedirectStrategyTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora(router_strategy=RouterStrategy.REDIRECT)
 
@@ -45,7 +44,6 @@ class RedirectStrategyTestCase(TestSuite):
 
 
 class StrictStrategyTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora(router_strategy=RouterStrategy.STRICT)
 
@@ -118,7 +116,6 @@ class StrictStrategyTestCase(TestSuite):
 
 
 class CloneStrategyTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora(router_strategy=RouterStrategy.CLONE)
 

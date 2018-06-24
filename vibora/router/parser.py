@@ -10,16 +10,18 @@ class PatternParser:
     CAST = {
         str: lambda x: x.decode('utf-8'),
         int: lambda x: int(x),
-        float: lambda x: float(x)
+        float: lambda x: float(x),
     }
 
     @classmethod
     def validate_param_name(cls, name: bytes):
         # TODO:
         if b':' in name:
-            raise RouteConfigurationError('Special characters are not allowed in param name. '
-                                          'Use type hints in function parameters to cast the variable '
-                                          'or regexes with named groups to ensure only a specific URL matches.')
+            raise RouteConfigurationError(
+                'Special characters are not allowed in param name. '
+                'Use type hints in function parameters to cast the variable '
+                'or regexes with named groups to ensure only a specific URL matches.'
+            )
 
     @classmethod
     def extract_params(cls, pattern: bytes) -> tuple:

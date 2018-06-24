@@ -9,7 +9,9 @@ from .limits import RouteLimits
 
 
 class Blueprint:
-    def __init__(self, template_dirs=None, hosts: list=None, limits: RouteLimits=None):
+    def __init__(
+        self, template_dirs=None, hosts: list = None, limits: RouteLimits = None
+    ):
         self.default_routes = {}
         self.routes = []
         self.hooks = {}
@@ -34,25 +36,41 @@ class Blueprint:
         Decorator to register a hook.
         :return: None
         """
+
         def wrapper(*args):
             handler = args[0]
             values = value if isinstance(value, (list, tuple)) else [value]
             for v in values:
                 if v in Events.ALL:
                     self.add_hook(Hook(v, args[0], local=local))
-                elif isinstance(v, Exception) or (isclass(v) and issubclass(v, Exception)):
-                    self.exception_handlers[v] = ExceptionHandler(handler, v, local=local)
+                elif isinstance(v, Exception) or (
+                    isclass(v) and issubclass(v, Exception)
+                ):
+                    self.exception_handlers[v] = ExceptionHandler(
+                        handler, v, local=local
+                    )
                 else:
                     raise SyntaxError('{0} is not allowed at @handle.'.format(v))
+
         return wrapper
 
-    def route(self, pattern, methods=None, cache=None, name=None, hosts: list=None, limits: RouteLimits=None):
+    def route(
+        self,
+        pattern,
+        methods=None,
+        cache=None,
+        name=None,
+        hosts: list = None,
+        limits: RouteLimits = None,
+    ):
         def register(*args):
             handler = args[0]
 
             # Checking if handler is co-routine.
             if not iscoroutinefunction(handler):
-                raise SyntaxError(f'Your route handler must be an async function. (Handler: {handler})')
+                raise SyntaxError(
+                    f'Your route handler must be an async function. (Handler: {handler})'
+                )
 
             # If the route it's simple enough let the static cache kicks in.
             chosen_cache = cache
@@ -68,9 +86,16 @@ class Blueprint:
             else:
                 encoded_pattern = pattern
 
-            new_route = Route(encoded_pattern, handler, tuple(methods or (b'GET',)),
-                              parent=self, name=route_name, cache=chosen_cache,
-                              hosts=hosts or self.hosts, limits=limits or self.limits)
+            new_route = Route(
+                encoded_pattern,
+                handler,
+                tuple(methods or (b'GET',)),
+                parent=self,
+                name=route_name,
+                cache=chosen_cache,
+                hosts=hosts or self.hosts,
+                limits=limits or self.limits,
+            )
             self.add_route(new_route)
             return handler
 
@@ -84,8 +109,15 @@ class Blueprint:
             # Route names are used to create URLs (I.e: links inside templates)
             route_name = handler.__name__ if name is None else name
 
-            new_route = WebsocketRoute(pattern, websocket_handshake_handler, ['GET'],
-                                       parent=self, name=route_name, websocket=True, websocket_handler=handler)
+            new_route = WebsocketRoute(
+                pattern,
+                websocket_handshake_handler,
+                ['GET'],
+                parent=self,
+                name=route_name,
+                websocket=True,
+                websocket_handler=handler,
+            )
             self.routes.append(new_route)
             return handler
 
@@ -138,10 +170,12 @@ class Blueprint:
         :param template_vars:
         :return:
         """
-        content = await self.app.template_engine.render(template_name, streaming=True, **template_vars)
+        content = await self.app.template_engine.render(
+            template_name, streaming=True, **template_vars
+        )
         return StreamingResponse(content)
 
-    def add_blueprint(self, blueprint, prefixes: dict=None):
+    def add_blueprint(self, blueprint, prefixes: dict = None):
         """
         Add a nested blueprint.
         :param blueprint: Blueprint instance.
@@ -152,13 +186,16 @@ class Blueprint:
             prefixes = {'': ''}
 
         if blueprint.parent:
-            raise DuplicatedBlueprint('You cannot add a blueprint twice. Use more prefixes or different hierarchy.')
+            raise DuplicatedBlueprint(
+                'You cannot add a blueprint twice. Use more prefixes or different hierarchy.'
+            )
 
         for key in prefixes.keys():
             for existent_prefix in self.blueprints.values():
                 if key == existent_prefix:
                     raise ConflictingPrefixes(
-                        f'Prefix "{key}" conflicts with an already existing prefix: {existent_prefix}')
+                        f'Prefix "{key}" conflicts with an already existing prefix: {existent_prefix}'
+                    )
 
         blueprint.parent = self
         self.blueprints[blueprint] = prefixes

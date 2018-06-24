@@ -6,10 +6,26 @@ from .connection import Connection, SECURE_CONTEXT, INSECURE_CONTEXT
 
 class ConnectionPool:
 
-    __slots__ = ('loop', 'host', 'port', 'protocol', 'max_connections', 'connections', 'available_connections',
-                 'keep_alive', 'wait_connection_available')
+    __slots__ = (
+        'loop',
+        'host',
+        'port',
+        'protocol',
+        'max_connections',
+        'connections',
+        'available_connections',
+        'keep_alive',
+        'wait_connection_available',
+    )
 
-    def __init__(self, loop: BaseEventLoop, host: str, port: int, protocol: str, keep_alive: bool=True):
+    def __init__(
+        self,
+        loop: BaseEventLoop,
+        host: str,
+        port: int,
+        protocol: str,
+        keep_alive: bool = True,
+    ):
         self.loop = loop
         self.host = host
         self.port = port

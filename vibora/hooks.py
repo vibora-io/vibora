@@ -26,8 +26,14 @@ class Events:
     BEFORE_SERVER_STOP = 6
 
     # Useful for debugging purposes.
-    ALL = (BEFORE_SERVER_START, AFTER_SERVER_START, BEFORE_ENDPOINT, AFTER_ENDPOINT, AFTER_RESPONSE_SENT,
-           BEFORE_SERVER_STOP)
+    ALL = (
+        BEFORE_SERVER_START,
+        AFTER_SERVER_START,
+        BEFORE_ENDPOINT,
+        AFTER_ENDPOINT,
+        AFTER_RESPONSE_SENT,
+        BEFORE_SERVER_STOP,
+    )
 
 
 class Hook:

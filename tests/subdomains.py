@@ -4,7 +4,6 @@ from vibora.tests import TestSuite
 
 
 class BlueprintsTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora()
 
@@ -63,7 +62,11 @@ class BlueprintsTestCase(TestSuite):
             self.assertEqual(response.status_code, 200)
             response = await client.request('/', headers={'Host': 'test2.vibora.io'})
             self.assertEqual(response.status_code, 404)
-            response = await client.request('/test', headers={'Host': 'anything.should.work'})
+            response = await client.request(
+                '/test', headers={'Host': 'anything.should.work'}
+            )
             self.assertEqual(response.status_code, 200)
-            response = await client.request('/test2', headers={'Host': 'anything.should.404'})
+            response = await client.request(
+                '/test2', headers={'Host': 'anything.should.404'}
+            )
             self.assertEqual(response.status_code, 404)

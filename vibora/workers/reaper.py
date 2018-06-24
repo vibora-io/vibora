@@ -40,7 +40,8 @@ class Reaper(Thread):
             conditions = (
                 connection.status == ConnectionStatus.PROCESSING_REQUEST,
                 current_time != 0,
-                current_time - connection.last_started_processing >= self.worker_timeout
+                current_time - connection.last_started_processing
+                >= self.worker_timeout,
             )
             if all(conditions):
                 # ###############
@@ -78,9 +79,19 @@ class Reaper(Thread):
 
             # Removing the microseconds because this time is cached and it could trick the user into believing
             # that two requests were processed at exactly the same time because of the cached time.
-            now = pendulum.datetime(now.year, now.month, now.day, now.hour, now.minute, now.second, tz=now.tz)
+            now = pendulum.datetime(
+                now.year,
+                now.month,
+                now.day,
+                now.hour,
+                now.minute,
+                now.second,
+                tz=now.tz,
+            )
             self.app.current_time = now.isoformat()
-            update_current_time(formatdate(timeval=now.timestamp(), localtime=False, usegmt=True))
+            update_current_time(
+                formatdate(timeval=now.timestamp(), localtime=False, usegmt=True)
+            )
 
             # if self.keep_alive_timeout > 0:
             #     if counter % self.keep_alive_timeout == 0:

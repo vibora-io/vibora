@@ -2,8 +2,13 @@ import time
 import datetime
 from .base import TemplateCompiler
 from ..template import CompiledTemplate
-from ..utils import CompilerFlavor, CompilationResult, TemplateMeta, get_architecture_signature, \
-    generate_entry_point
+from ..utils import (
+    CompilerFlavor,
+    CompilationResult,
+    TemplateMeta,
+    get_architecture_signature,
+    generate_entry_point,
+)
 from ..exceptions import InvalidVersion, InvalidArchitecture
 
 
@@ -99,7 +104,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         comment = (' ' * self._indentation) + '# ' + content.strip() + '\n'
         self.pending_comment = comment
 
-    def add_statement(self, content: str, flush_comments: bool=True):
+    def add_statement(self, content: str, flush_comments: bool = True):
         """
 
         :param flush_comments:
@@ -182,7 +187,7 @@ class PythonTemplateCompiler(TemplateCompiler):
             raise InvalidArchitecture
         return self.get_render_function(content.decode('utf-8'), meta.entry_point)
 
-    def compile(self, template, verbose: bool=False) -> CompiledTemplate:
+    def compile(self, template, verbose: bool = False) -> CompiledTemplate:
         """
 
         :param verbose:
@@ -208,7 +213,7 @@ class PythonTemplateCompiler(TemplateCompiler):
             created_at=datetime.datetime.now().isoformat(),
             architecture=get_architecture_signature(),
             compilation_time=round(time.time() - started_at, 2),
-            dependencies=template.dependencies
+            dependencies=template.dependencies,
         )
 
         # Compilation result contains the meta data and the render function loaded at runtime.
@@ -216,8 +221,12 @@ class PythonTemplateCompiler(TemplateCompiler):
             print(self.content)
 
         compiled = CompiledTemplate(
-            content=template.content, ast=template.ast, dependencies=template.dependencies,
-            code=self.content, meta=meta, render=self.get_render_function(self.content, entry_point)
+            content=template.content,
+            ast=template.ast,
+            dependencies=template.dependencies,
+            code=self.content,
+            meta=meta,
+            render=self.get_render_function(self.content, entry_point),
         )
 
         # Cleaning the state machine.

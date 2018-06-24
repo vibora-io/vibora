@@ -3,9 +3,7 @@ from vibora.tests import TestSuite
 
 
 class ComponentsTestSuite(TestSuite):
-
     def test_duplicated_component_expects_exception(self):
-
         class Config:
             def __init__(self):
                 self.name = b'test'
@@ -18,7 +16,6 @@ class ComponentsTestSuite(TestSuite):
             pass
 
     async def test_single_component_in_route(self):
-
         class Config:
             def __init__(self):
                 self.name = b'test'
@@ -35,7 +32,6 @@ class ComponentsTestSuite(TestSuite):
             self.assertEqual(response.content, app.components[Config].name)
 
     async def test_multiple_components_in_route(self):
-
         class TestComponent:
             def __init__(self):
                 self.name = b'test'
@@ -53,12 +49,13 @@ class ComponentsTestSuite(TestSuite):
 
         with app.test_client() as client:
             response = await client.get('/')
-            self.assertEqual(response.content,
-                             app.components[TestComponent].name +
-                             app.components[TestComponent2].name)
+            self.assertEqual(
+                response.content,
+                app.components[TestComponent].name
+                + app.components[TestComponent2].name,
+            )
 
     async def test_multiple_components_with_parameters_in_route(self):
-
         class TestComponent:
             def __init__(self):
                 self.name = b'test'
@@ -78,12 +75,12 @@ class ComponentsTestSuite(TestSuite):
             response = await client.get('/test')
             self.assertEqual(
                 response.content,
-                app.components[TestComponent].name + app.components[TestComponent2].name
-                + b'test'
+                app.components[TestComponent].name
+                + app.components[TestComponent2].name
+                + b'test',
             )
 
     def test_loaded_component_class_instead_of_instance_expects_exception(self):
-
         class TestComponent:
             def __init__(self):
                 self.name = b'test'
@@ -96,9 +93,7 @@ class ComponentsTestSuite(TestSuite):
             pass
 
     async def test_override_request_expects_successful(self):
-
         class Request2(Request):
-
             @property
             def test(self):
                 return 'test'
@@ -115,9 +110,7 @@ class ComponentsTestSuite(TestSuite):
             self.assertEqual(response.content, b'test')
 
     async def test_override_request_try_parent_one(self):
-
         class Request2(Request):
-
             @property
             def test(self):
                 return 'test'

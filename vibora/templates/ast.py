@@ -68,7 +68,9 @@ def merge(a, b):
     # Replacing blocks.
     new_blocks = find_all(lambda x: isinstance(x, BlockNode), b.ast)
     for block in new_blocks:
-        replace_all(lambda x: isinstance(x, BlockNode) and x.name == block.name, block, new_ast)
+        replace_all(
+            lambda x: isinstance(x, BlockNode) and x.name == block.name, block, new_ast
+        )
 
     # Preserving macros.
     macros = find_all(lambda x: isinstance(x, MacroNode), b.ast)

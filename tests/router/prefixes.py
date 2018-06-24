@@ -4,7 +4,6 @@ from vibora.responses import JsonResponse
 
 
 class RouterPrefixesTestCase(TestSuite):
-
     async def test_root_route_expect_registered(self):
         data = {'hello': 'world'}
         app = Vibora()

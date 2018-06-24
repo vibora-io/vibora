@@ -31,13 +31,21 @@ def get_scope_by_args(function_def: str):
 
 
 def get_function_name(definition: str):
-    return definition[:definition.find('(')].strip()
+    return definition[: definition.find('(')].strip()
 
 
 class TemplateMeta:
-    def __init__(self, entry_point: str, version: str, template_hash: str,
-                 created_at: str, compiler: str, architecture: str, compilation_time: float,
-                 dependencies: list=None):
+    def __init__(
+        self,
+        entry_point: str,
+        version: str,
+        template_hash: str,
+        created_at: str,
+        compiler: str,
+        architecture: str,
+        compilation_time: float,
+        dependencies: list = None,
+    ):
         self.entry_point = entry_point
         self.version = version
         self.template_hash = template_hash
@@ -60,8 +68,13 @@ class TemplateMeta:
 
 
 class CompilationResult:
-    def __init__(self, template, meta: TemplateMeta, render_function: typing.Callable,
-                 code: bytes):
+    def __init__(
+        self,
+        template,
+        meta: TemplateMeta,
+        render_function: typing.Callable,
+        code: bytes,
+    ):
         self.template = template
         self.meta = meta
         self.render_function = render_function

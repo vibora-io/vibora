@@ -5,7 +5,6 @@ from vibora.tests import TestSuite
 
 
 class ExceptionsTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora()
 
@@ -213,7 +212,6 @@ class ExceptionsTestCase(TestSuite):
         self.assertEqual(response.content, b'Correct!')
 
     async def test_exception_flow_expects_parent_response(self):
-
         @self.app.route('/')
         async def handle_errors():
             raise IOError('Vibora ;)')
@@ -224,7 +222,9 @@ class ExceptionsTestCase(TestSuite):
 
         @self.app.handle(Exception)
         async def handle_errors(request: Request):
-            return JsonResponse({'called': request.context.get('called')}, status_code=500)
+            return JsonResponse(
+                {'called': request.context.get('called')}, status_code=500
+            )
 
         with self.app.test_client() as client:
             response = await client.request('/')

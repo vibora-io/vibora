@@ -5,7 +5,6 @@ from vibora import Vibora
 
 
 class BlueprintsTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora(router_strategy=RouterStrategy.STRICT)
 

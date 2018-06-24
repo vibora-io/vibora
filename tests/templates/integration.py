@@ -4,7 +4,6 @@ from vibora.templates import Template
 
 
 class ViboraExtensionSuiteCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora()
 

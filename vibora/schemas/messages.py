@@ -1,5 +1,3 @@
-
-
 class Messages:
     MISSING_REQUIRED_FIELD = 1
     MUST_BE_STRING = 2
@@ -15,5 +13,5 @@ EnglishLanguage = {
     Messages.MUST_BE_INTEGER: lambda x: 'Must be a valid integer',
     Messages.MUST_BE_NUMBER: lambda x: 'Must be a valid number',
     Messages.MUST_BE_LIST: lambda x: 'Must be a list',
-    Messages.MUST_BE_DICT: lambda x: 'Must be a map'
+    Messages.MUST_BE_DICT: lambda x: 'Must be a map',
 }

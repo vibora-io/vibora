@@ -22,7 +22,9 @@ class HTTPEngine:
 
     __slots__ = ('loop', 'session', 'pools', 'limits')
 
-    def __init__(self, session: 'Session', loop: BaseEventLoop, limits: List[RequestRate] = None):
+    def __init__(
+        self, session: 'Session', loop: BaseEventLoop, limits: List[RequestRate] = None
+    ):
         self.loop = loop
         self.session = session
         self.pools = {}
@@ -45,12 +47,26 @@ class HTTPEngine:
         try:
             return self.pools[key]
         except KeyError:
-            self.pools[key] = ConnectionPool(loop=self.loop, host=host, port=port, protocol=protocol,
-                                             keep_alive=self.session.keep_alive)
+            self.pools[key] = ConnectionPool(
+                loop=self.loop,
+                host=host,
+                port=port,
+                protocol=protocol,
+                keep_alive=self.session.keep_alive,
+            )
         return self.pools[key]
 
-    async def handle_redirect(self, request: Request, response: Response, stream: bool, follow_redirects: bool,
-                              max_redirects: int, decode: bool, validate_ssl, headers: dict) -> Response:
+    async def handle_redirect(
+        self,
+        request: Request,
+        response: Response,
+        stream: bool,
+        follow_redirects: bool,
+        max_redirects: int,
+        decode: bool,
+        validate_ssl,
+        headers: dict,
+    ) -> Response:
         """
 
         :param headers:
@@ -77,9 +93,15 @@ class HTTPEngine:
         redirect_url = parse_url(location.encode())
         headers['Host'] = redirect_url.host
         return await self.request(
-            url=redirect_url, method='GET', stream=stream, follow_redirects=follow_redirects,
-            max_redirects=(max_redirects - 1), decode=decode, validate_ssl=validate_ssl, headers=headers,
-            origin=response
+            url=redirect_url,
+            method='GET',
+            stream=stream,
+            follow_redirects=follow_redirects,
+            max_redirects=(max_redirects - 1),
+            decode=decode,
+            validate_ssl=validate_ssl,
+            headers=headers,
+            origin=response,
         )
 
     async def throttle(self, url: str):
@@ -92,9 +114,19 @@ class HTTPEngine:
             if not limit.pattern or limit.pattern.fullmatch(url):
                 await limit.notify()
 
-    async def request(self, url, method: str, stream: bool, follow_redirects: bool,
-                      max_redirects: int, decode: bool, validate_ssl, headers: dict,
-                      origin: Response = None, data=None) -> Response:
+    async def request(
+        self,
+        url,
+        method: str,
+        stream: bool,
+        follow_redirects: bool,
+        max_redirects: int,
+        decode: bool,
+        validate_ssl,
+        headers: dict,
+        origin: Response = None,
+        data=None,
+    ) -> Response:
         """
 
         :param url:
@@ -113,8 +145,14 @@ class HTTPEngine:
             await self.throttle(url.raw)
         pool = self.get_pool(url.schema, url.host, url.port)
         connection = await pool.get_connection(validate_ssl)
-        request = Request(method, url, headers, data, self.session.cookies.get(domain=url.host),
-                          origin=origin)
+        request = Request(
+            method,
+            url,
+            headers,
+            data,
+            self.session.cookies.get(domain=url.host),
+            origin=origin,
+        )
         await request.encode(connection)
         response = Response(request.url, connection, request=request, decode=decode)
         await response.receive_headers()
@@ -122,8 +160,16 @@ class HTTPEngine:
         if follow_redirects:
             if response.is_redirect():
                 await response.read_content()
-                return await self.handle_redirect(request, response, stream, follow_redirects,
-                                                  max_redirects, decode, validate_ssl, headers)
+                return await self.handle_redirect(
+                    request,
+                    response,
+                    stream,
+                    follow_redirects,
+                    max_redirects,
+                    decode,
+                    validate_ssl,
+                    headers,
+                )
         if not stream:
             await response.read_content()
         return response
@@ -135,15 +181,38 @@ class HTTPEngine:
 
 class Session:
 
-    __slots__ = ('_loop', '_engine', '_headers', 'follow_redirects', 'max_redirects',
-                 'stream', 'decode', 'ssl', 'prefix', 'keep_alive', 'retries_policy',
-                 'timeout', 'cookies', 'limits')
+    __slots__ = (
+        '_loop',
+        '_engine',
+        '_headers',
+        'follow_redirects',
+        'max_redirects',
+        'stream',
+        'decode',
+        'ssl',
+        'prefix',
+        'keep_alive',
+        'retries_policy',
+        'timeout',
+        'cookies',
+        'limits',
+    )
 
-    def __init__(self, loop: BaseEventLoop = None, headers: dict = None,
-                 follow_redirects: bool = True, max_redirects: int = 30,
-                 stream: bool = False, decode: bin = True, ssl=None, keep_alive: bool = True,
-                 prefix: str = '', timeout: Union[int, float] = ClientDefaults.TIMEOUT,
-                 retries: RetryStrategy = None, limits: List[RequestRate] = None):
+    def __init__(
+        self,
+        loop: BaseEventLoop = None,
+        headers: dict = None,
+        follow_redirects: bool = True,
+        max_redirects: int = 30,
+        stream: bool = False,
+        decode: bin = True,
+        ssl=None,
+        keep_alive: bool = True,
+        prefix: str = '',
+        timeout: Union[int, float] = ClientDefaults.TIMEOUT,
+        retries: RetryStrategy = None,
+        limits: List[RequestRate] = None,
+    ):
         self._loop = loop or asyncio.get_event_loop()
         self._engine = HTTPEngine(self, self._loop, limits=limits)
         self._headers = ClientDefaults.HEADERS
@@ -176,28 +245,48 @@ class Session:
                 url = prefix + b'/' + url
 
         if not url.startswith(b'http'):
-            raise MissingSchema(f'Missing schema in {url.decode(URL_ENCODING)}. '
-                                f'Perhaps you meant http://{url.decode(URL_ENCODING)} ?.')
+            raise MissingSchema(
+                f'Missing schema in {url.decode(URL_ENCODING)}. '
+                f'Perhaps you meant http://{url.decode(URL_ENCODING)} ?.'
+            )
         if query:
             url = url + b'?' + urlencode(query).encode(URL_ENCODING)
 
         return url
 
-    async def request(self, url: str = '/', stream: bool = None, follow_redirects: bool = None,
-                      max_redirects: int = 30, decode: bool = True, ssl=None, timeout=ClientDefaults.TIMEOUT,
-                      retries: Union[RetryStrategy, int] = None,
-                      headers: dict = None, method: str = 'GET', query: dict = None,
-                      json: dict = None, ignore_prefix: bool = False, body=None,
-                      form: dict = None) -> Response:
+    async def request(
+        self,
+        url: str = '/',
+        stream: bool = None,
+        follow_redirects: bool = None,
+        max_redirects: int = 30,
+        decode: bool = True,
+        ssl=None,
+        timeout=ClientDefaults.TIMEOUT,
+        retries: Union[RetryStrategy, int] = None,
+        headers: dict = None,
+        method: str = 'GET',
+        query: dict = None,
+        json: dict = None,
+        ignore_prefix: bool = False,
+        body=None,
+        form: dict = None,
+    ) -> Response:
 
         # Asserting the user is not using conflicting params.
         if sum([body is not None, json is not None, form is not None]) > 1:
-            raise ValueError('You cannot set body, json or form together. You must pick one and only one.')
+            raise ValueError(
+                'You cannot set body, json or form together. You must pick one and only one.'
+            )
 
         # Handling default parameters.
         stream = stream if stream is not None else self.stream
-        follow_redirects = follow_redirects if follow_redirects is not None else self.follow_redirects
-        max_redirects = max_redirects if max_redirects is not None else self.max_redirects
+        follow_redirects = (
+            follow_redirects if follow_redirects is not None else self.follow_redirects
+        )
+        max_redirects = (
+            max_redirects if max_redirects is not None else self.max_redirects
+        )
         decode = decode if decode else self.decode
         ssl = ssl if ssl is not None else self.ssl
         retries = retries.clone() if retries is not None else RetryStrategy()
@@ -207,8 +296,11 @@ class Session:
             request_headers.update(headers)
 
         # Constructing the URL.
-        url = self.build_url(prefix=self.prefix if not ignore_prefix else b'', url=url.encode(URL_ENCODING),
-                             query=query)
+        url = self.build_url(
+            prefix=self.prefix if not ignore_prefix else b'',
+            url=url.encode(URL_ENCODING),
+            query=query,
+        )
         parsed_url = parse_url(url)
 
         if json is not None:
@@ -218,14 +310,23 @@ class Session:
         if form is not None:
             boundary = str(uuid.uuid4()).replace('-', '').encode()
             body = MultipartEncoder(delimiter=boundary, params=form)
-            request_headers['Content-Type'] = f'multipart/form-data; boundary={boundary.decode()}'
+            request_headers[
+                'Content-Type'
+            ] = f'multipart/form-data; boundary={boundary.decode()}'
 
         while True:
             try:
                 task = self._engine.request(
-                    url=parsed_url, data=body, method=method, stream=stream,
-                    follow_redirects=follow_redirects, max_redirects=max_redirects, decode=decode,
-                    validate_ssl=ssl, headers=request_headers)
+                    url=parsed_url,
+                    data=body,
+                    method=method,
+                    stream=stream,
+                    follow_redirects=follow_redirects,
+                    max_redirects=max_redirects,
+                    decode=decode,
+                    validate_ssl=ssl,
+                    headers=request_headers,
+                )
                 if timeout:
                     response = await asyncio.wait_for(task, timeout)
                 else:
@@ -240,10 +341,20 @@ class Session:
                     continue
                 raise error
 
-    async def get(self, url: str = '', stream: bool = None, follow_redirects: bool = None, max_redirects: int = 30,
-                  decode: bool = None, ssl=None, timeout=ClientDefaults.TIMEOUT,
-                  retries: RetryStrategy = None, headers: dict = None, query: dict = None,
-                  ignore_prefix: bool = False) -> Response:
+    async def get(
+        self,
+        url: str = '',
+        stream: bool = None,
+        follow_redirects: bool = None,
+        max_redirects: int = 30,
+        decode: bool = None,
+        ssl=None,
+        timeout=ClientDefaults.TIMEOUT,
+        retries: RetryStrategy = None,
+        headers: dict = None,
+        query: dict = None,
+        ignore_prefix: bool = False,
+    ) -> Response:
         """
 
         :param url:
@@ -259,15 +370,38 @@ class Session:
         :param ignore_prefix:
         :return:
         """
-        return await self.request(url=url, stream=stream, follow_redirects=follow_redirects,
-                                  max_redirects=max_redirects, decode=decode, ssl=ssl,
-                                  retries=retries, headers=headers, timeout=timeout, method='GET', query=query,
-                                  ignore_prefix=ignore_prefix)
+        return await self.request(
+            url=url,
+            stream=stream,
+            follow_redirects=follow_redirects,
+            max_redirects=max_redirects,
+            decode=decode,
+            ssl=ssl,
+            retries=retries,
+            headers=headers,
+            timeout=timeout,
+            method='GET',
+            query=query,
+            ignore_prefix=ignore_prefix,
+        )
 
-    async def post(self, url: str = '', stream: bool = None, follow_redirects: bool = None, max_redirects: int = 30,
-                   decode: bool = None, ssl=None, timeout=ClientDefaults.TIMEOUT,
-                   retries: Union[RetryStrategy, int] = None, headers: dict = None, query: dict = None,
-                   body=None, form=None, json=None, ignore_prefix: bool = False) -> Response:
+    async def post(
+        self,
+        url: str = '',
+        stream: bool = None,
+        follow_redirects: bool = None,
+        max_redirects: int = 30,
+        decode: bool = None,
+        ssl=None,
+        timeout=ClientDefaults.TIMEOUT,
+        retries: Union[RetryStrategy, int] = None,
+        headers: dict = None,
+        query: dict = None,
+        body=None,
+        form=None,
+        json=None,
+        ignore_prefix: bool = False,
+    ) -> Response:
         """
 
         :param url:
@@ -286,10 +420,23 @@ class Session:
         :param ignore_prefix:
         :return:
         """
-        return await self.request(url=url, stream=stream, follow_redirects=follow_redirects,
-                                  max_redirects=max_redirects, decode=decode, ssl=ssl,
-                                  retries=retries, headers=headers, timeout=timeout, method='POST', query=query,
-                                  ignore_prefix=ignore_prefix, body=body, form=form, json=json)
+        return await self.request(
+            url=url,
+            stream=stream,
+            follow_redirects=follow_redirects,
+            max_redirects=max_redirects,
+            decode=decode,
+            ssl=ssl,
+            retries=retries,
+            headers=headers,
+            timeout=timeout,
+            method='POST',
+            query=query,
+            ignore_prefix=ignore_prefix,
+            body=body,
+            form=form,
+            json=json,
+        )
 
     def close(self):
         """

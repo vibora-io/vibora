@@ -32,7 +32,7 @@ class WebsocketHandler:
         self.transport.write(frame)
 
 
-def create_single_frame(data, mask=False, opcode: int=None):
+def create_single_frame(data, mask=False, opcode: int = None):
 
     frame = bytearray()
 
@@ -79,7 +79,6 @@ class Status:
 
 
 class FrameParser:
-
     def __init__(self, protocol):
         self.data = bytearray()
         self.protocol = protocol
@@ -168,10 +167,10 @@ class FrameParser:
             print(f'Length: {self.payload_length}')
             print(f'Data: {self.data[:self.payload_length]}')
             decoded = ""
-            for char in bytes(self.data[:self.payload_length]):
+            for char in bytes(self.data[: self.payload_length]):
                 char ^= self.mask[len(decoded) % 4]
                 decoded += chr(char)
-            del self.data[:self.payload_length]
+            del self.data[: self.payload_length]
             await self.opcode_handlers[self.opcode](decoded)
             # await self.handler.on_message(decoded.encode('utf-8'))
             self.clear()

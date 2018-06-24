@@ -22,12 +22,30 @@ class ResponseStatus(Enum):
 
 class Response:
 
-    __slots__ = ('_connection', '_headers', '_content', '_parser', '_parser_status', '_cookies',
-                 '_status_code', '_decode', '_chunk_size', '_decoder', '_encoding',
-                 'request', 'url')
+    __slots__ = (
+        '_connection',
+        '_headers',
+        '_content',
+        '_parser',
+        '_parser_status',
+        '_cookies',
+        '_status_code',
+        '_decode',
+        '_chunk_size',
+        '_decoder',
+        '_encoding',
+        'request',
+        'url',
+    )
 
-    def __init__(self, url: str, connection: Connection,
-                 request: Request, chunk_size: int= 1 * 1024 * 1024, decode: bool=True):
+    def __init__(
+        self,
+        url: str,
+        connection: Connection,
+        request: Request,
+        chunk_size: int = 1 * 1024 * 1024,
+        decode: bool = True,
+    ):
         self._connection = connection
         self._headers = {}
         self._content = bytearray()
@@ -52,7 +70,7 @@ class Response:
             loads = json.loads
         return loads(self.content.decode(self.encoding), *args, **kwargs)
 
-    def text(self, encoding: str=None) -> str:
+    def text(self, encoding: str = None) -> str:
         return self.content.decode(encoding=encoding or self.encoding)
 
     @property
@@ -62,8 +80,10 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
-            raise Exception('Status code not loaded yet. '
-                            'In streaming mode you should manually call load_headers().')
+            raise Exception(
+                'Status code not loaded yet. '
+                'In streaming mode you should manually call load_headers().'
+            )
         return self._status_code
 
     @property
@@ -73,8 +93,10 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
-            raise Exception('Headers not loaded yet. '
-                            'In streaming mode you should manually call load_headers().')
+            raise Exception(
+                'Headers not loaded yet. '
+                'In streaming mode you should manually call load_headers().'
+            )
         return self._headers
 
     @property
@@ -84,8 +106,10 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_BODY:
-            raise Exception('You need to call read_content() '
-                            'before using this in streaming mode.')
+            raise Exception(
+                'You need to call read_content() '
+                'before using this in streaming mode.'
+            )
         return self._content
 
     @property
@@ -99,7 +123,9 @@ class Response:
         if self._cookies is None:
             self._cookies = CookiesJar()
             if self._headers.get('set-cookie'):
-                self._cookies.add_cookie(Cookie.from_header(self._headers['set-cookie']))
+                self._cookies.add_cookie(
+                    Cookie.from_header(self._headers['set-cookie'])
+                )
         return self._cookies
 
     async def read_content(self):
@@ -159,10 +185,16 @@ class Response:
 
         :return:
         """
-        await self._connection.pool.release_connection(self._connection, self._parser.should_keep_alive())
+        await self._connection.pool.release_connection(
+            self._connection, self._parser.should_keep_alive()
+        )
 
-    async def stream(self, chunk_size: int=1*1024*1024, chunk_timeout: int=10,
-                     complete_timeout: int=300):
+    async def stream(
+        self,
+        chunk_size: int = 1 * 1024 * 1024,
+        chunk_timeout: int = 10,
+        complete_timeout: int = 300,
+    ):
         """
 
         :param complete_timeout:
@@ -170,7 +202,10 @@ class Response:
         :param chunk_size:
         :return:
         """
-        if self._parser_status not in (ResponseStatus.PENDING_HEADERS, ResponseStatus.PENDING_BODY):
+        if self._parser_status not in (
+            ResponseStatus.PENDING_HEADERS,
+            ResponseStatus.PENDING_BODY,
+        ):
             raise StreamAlreadyConsumed
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
             await wait_for(self.receive_headers(), chunk_timeout)
@@ -182,7 +217,9 @@ class Response:
                 bytes_to_read = min(remaining, chunk_size)
                 task = self._connection.read_exactly(bytes_to_read)
                 start_time = time.time()
-                self._parser.feed(await wait_for(task, min(chunk_timeout, complete_timeout)))
+                self._parser.feed(
+                    await wait_for(task, min(chunk_timeout, complete_timeout))
+                )
                 complete_timeout -= time.time() - start_time
                 remaining -= bytes_to_read
                 yield bytes(self._content)
@@ -194,9 +231,13 @@ class Response:
                     task = self._connection.read_until(b'\r\n')
                     start_time = time.time()
                     try:
-                        self._parser.feed(await wait_for(task, min(chunk_timeout, complete_timeout)))
+                        self._parser.feed(
+                            await wait_for(task, min(chunk_timeout, complete_timeout))
+                        )
                     except asyncio.LimitOverrunError as error:
-                        self._parser.feed(await self._connection.read_exactly(error.consumed))
+                        self._parser.feed(
+                            await self._connection.read_exactly(error.consumed)
+                        )
                     complete_timeout -= time.time() - start_time
                     while len(self._content) >= chunk_size:
                         yield self._content[:chunk_size]
@@ -248,7 +289,8 @@ class Response:
         except Exception as error:
             print(error)
 
-    def chunk_complete(self): pass
+    def chunk_complete(self):
+        pass
 
     def __repr__(self):
         if 400 > self.status_code >= 300:

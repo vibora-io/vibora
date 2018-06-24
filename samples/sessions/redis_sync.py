@@ -6,9 +6,7 @@ from vibora.sessions import Redis
 from vibora.responses import JsonResponse
 
 
-app = Vibora(
-    sessions=Redis()
-)
+app = Vibora(sessions=Redis())
 
 
 @app.route('/')

@@ -4,7 +4,6 @@ from vibora import client
 
 
 class TestSSLErrors(TestSuite):
-
     async def test_expired_ssl__expects_exception(self):
         try:
             await client.get('https://expired.badssl.com/')
@@ -16,8 +15,10 @@ class TestSSLErrors(TestSuite):
         try:
             await client.get('https://expired.badssl.com/', ssl=False)
         except ssl.SSLError:
-            self.fail('Client raised an exception for an expired SSL certificate '
-                      'even when explicitly told to not do so.')
+            self.fail(
+                'Client raised an exception for an expired SSL certificate '
+                'even when explicitly told to not do so.'
+            )
 
     async def test_wrong_host_ssl__expects_exception(self):
         try:

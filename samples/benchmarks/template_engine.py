@@ -33,6 +33,7 @@ async def render():
             asd += x
     print('Vibora: ', time.time() - t1)
 
+
 loop = uvloop.new_event_loop()
 loop.run_until_complete(render())
 
@@ -41,4 +42,3 @@ t = Template(content, enable_async=True)
 for _ in range(0, rounds):
     t.render({'x': b, 'y': y})
 print('Jinja2: ', time.time() - t1)
-

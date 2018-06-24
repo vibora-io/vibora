@@ -6,7 +6,6 @@ from vibora.responses import Response, StreamingResponse
 
 
 class TimeoutsTestCase(TestSuite):
-
     async def test_simple_case_expects_timeout_response(self):
 
         app = Vibora()
@@ -54,7 +53,9 @@ class TimeoutsTestCase(TestSuite):
                 await client.get('/', timeout=10)
             except Exception as error:
                 print(error)
-                self.fail("Timeout should be canceled because it's a streaming response.")
+                self.fail(
+                    "Timeout should be canceled because it's a streaming response."
+                )
 
     async def test_async_streaming_expects_successful_response(self):
 

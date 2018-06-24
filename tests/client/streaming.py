@@ -4,11 +4,11 @@ from vibora.responses import StreamingResponse, Response
 
 
 class ChunkedStreamingTestCase(TestSuite):
-
     def setUp(self):
         def generate_data():
             yield b'1' * (10 * 1024)
             yield b'2' * 1024
+
         self.data = b''.join(generate_data())
         self.server = Vibora()
 
@@ -41,7 +41,6 @@ class ChunkedStreamingTestCase(TestSuite):
 
 
 class StreamingTestCase(TestSuite):
-
     def setUp(self):
         self.data = b'1' * (10 * 1024) + b'2' * 1024
         self.server = Vibora()

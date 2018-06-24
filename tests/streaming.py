@@ -7,7 +7,6 @@ from vibora.tests import TestSuite
 
 
 class StreamingTestSuite(TestSuite):
-
     async def test_simple_streaming_expects_successful(self):
 
         app = Vibora()
@@ -42,7 +41,9 @@ class StreamingTestSuite(TestSuite):
         with app.test_client() as client:
             try:
                 await client.get('/', timeout=3)
-                self.fail('Vibora should have closed the connection because a streaming timeout is not recoverable.')
+                self.fail(
+                    'Vibora should have closed the connection because a streaming timeout is not recoverable.'
+                )
             except asyncio.IncompleteReadError:
                 pass
             except futures.TimeoutError:
@@ -71,6 +72,8 @@ class StreamingTestSuite(TestSuite):
                         await asyncio.sleep(5)
                         first = False
                     self.assertTrue(len(chunk) <= chunk_size)
-                self.fail('Vibora should have closed the connection because of a chunk timeout.')
+                self.fail(
+                    'Vibora should have closed the connection because of a chunk timeout.'
+                )
             except asyncio.IncompleteReadError:
                 pass

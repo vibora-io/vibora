@@ -86,8 +86,8 @@ def clean_route_name(prefix: str, name: str):
         if prefix[0] == ':':
             prefix = prefix[1:]
         if len(prefix) > 0:
-            if prefix[len(prefix)-1] == ':':
-                prefix = prefix[:len(prefix) - 1]
+            if prefix[len(prefix) - 1] == ':':
+                prefix = prefix[: len(prefix) - 1]
         if len(prefix) > 0:
             return prefix + '.' + name
     return name
@@ -104,7 +104,7 @@ def clean_methods(methods) -> Tuple[bytes]:
             else:
                 raise Exception('Methods should be str or bytes.')
         return tuple(parsed_methods)
-    return b'GET',
+    return (b'GET',)
 
 
 def get_free_port(address='127.0.0.1') -> tuple:
@@ -118,7 +118,7 @@ def get_free_port(address='127.0.0.1') -> tuple:
     return sock, address, sock.getsockname()[1]
 
 
-def wait_server_available(host, port, timeout: int=10):
+def wait_server_available(host, port, timeout: int = 10):
     """
     Wait until the server is available by trying to connect to the same.
     :param timeout:
@@ -141,7 +141,7 @@ def wait_server_available(host, port, timeout: int=10):
     raise SystemError(f'Server is taking too long to get online.')
 
 
-def wait_server_offline(host, port, timeout: int=10):
+def wait_server_offline(host, port, timeout: int = 10):
     """
     Wait until the server is offline.
     :param timeout:
@@ -164,7 +164,7 @@ def wait_server_offline(host, port, timeout: int=10):
     raise SystemError(f'Server is still running after the timeout threshold.')
 
 
-def cprint(message: str, color='\033[35m', mixed: bool=False):
+def cprint(message: str, color='\033[35m', mixed: bool = False):
     if sys.stdout.isatty() or os.environ.get('PYCHARM_HOSTED'):
         if mixed:
             print(message.format(color_=color, end_='\033[0m'))

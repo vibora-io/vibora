@@ -4,7 +4,6 @@ from vibora.schemas.exceptions import ValidationError
 
 
 class StringTestCase(TestCase):
-
     def test_default__expects_successful(self):
         field = String()
         self.assertEqual('Test', field.load('Test'))

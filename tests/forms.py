@@ -6,7 +6,6 @@ from vibora.tests import TestSuite
 
 
 class FormsTestCase(TestSuite):
-
     async def test_simple_form_expects_correctly_parsed(self):
         app = Vibora()
 
@@ -26,20 +25,29 @@ class FormsTestCase(TestSuite):
         @app.route('/', methods=['POST'])
         async def home(request: Request):
             form = await request.form()
-            return JsonResponse({'a': await form['a'].read(), 'b': await form['b'].read(),
-                                 'c': await form['c'].read(), 'd': form['d']})
+            return JsonResponse(
+                {
+                    'a': await form['a'].read(),
+                    'b': await form['b'].read(),
+                    'c': await form['c'].read(),
+                    'd': form['d'],
+                }
+            )
 
         with app.test_client() as client:
             response = await client.post(
-                '/', form={
+                '/',
+                form={
                     'a': FileUpload(content=b'a'),
                     'b': FileUpload(content=b'b'),
                     'c': FileUpload(content=b'c'),
-                    'd': 1
-                }
+                    'd': 1,
+                },
             )
             self.assertEqual(response.status_code, 200)
-            self.assertDictEqual(response.json(), {'a': 'a', 'b': 'b', 'c': 'c', 'd': '1'})
+            self.assertDictEqual(
+                response.json(), {'a': 'a', 'b': 'b', 'c': 'c', 'd': '1'}
+            )
 
     async def test_files_attribute_expects_correctly_parsed(self):
         app = Vibora()
@@ -53,12 +61,13 @@ class FormsTestCase(TestSuite):
 
         with app.test_client() as client:
             response = await client.post(
-                '/', form={
+                '/',
+                form={
                     'a': FileUpload(content=b'a', name='a'),
                     'b': FileUpload(content=b'b', name='b'),
                     'c': FileUpload(content=b'c', name='c'),
-                    'd': 1
-                }
+                    'd': 1,
+                },
             )
             self.assertEqual(response.status_code, 200)
             self.assertDictEqual(response.json(), {'a': 'a', 'b': 'b', 'c': 'c'})

@@ -14,7 +14,10 @@ def is_static(route):
 
     for instruction in dis.get_instructions(route):
 
-        if instruction.opname == 'LOAD_GLOBAL' and instruction.argval in valid_responses:
+        if (
+            instruction.opname == 'LOAD_GLOBAL'
+            and instruction.argval in valid_responses
+        ):
             seen_load_fast_0 = True
             continue
 

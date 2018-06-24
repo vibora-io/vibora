@@ -14,7 +14,9 @@ class Connection:
 
     __slots__ = ('loop', 'reader', 'writer', 'pool')
 
-    def __init__(self, loop: BaseEventLoop, reader: StreamReader, writer: StreamWriter, pool):
+    def __init__(
+        self, loop: BaseEventLoop, reader: StreamReader, writer: StreamWriter, pool
+    ):
         self.loop = loop
         self.reader = reader
         self.writer = writer
@@ -63,7 +65,7 @@ class Connection:
         except TimeoutError:
             return False
 
-    def release(self, keep_alive: bool=False):
+    def release(self, keep_alive: bool = False):
         """
 
         :param keep_alive:

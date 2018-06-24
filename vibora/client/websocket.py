@@ -10,7 +10,6 @@ from .request import WebsocketRequest
 
 
 class WebsocketProtocol(asyncio.Protocol):
-
     def __init__(self, transport, loop):
         self.loop = loop
         self.transport = transport
@@ -28,7 +27,6 @@ class WebsocketProtocol(asyncio.Protocol):
 
 
 class WebsocketHandshake(asyncio.Protocol):
-
     def __init__(self, client, loop):
         self.client = client
         self.loop = loop
@@ -43,7 +41,9 @@ class WebsocketHandshake(asyncio.Protocol):
         :param transport:
         :return:
         """
-        wr = WebsocketRequest(self.client.host, path=self.client.path, origin=self.client.origin)
+        wr = WebsocketRequest(
+            self.client.host, path=self.client.path, origin=self.client.origin
+        )
         transport.write(wr.encode())
         self.transport = transport
         print('connected')
@@ -57,7 +57,8 @@ class WebsocketHandshake(asyncio.Protocol):
         print('Stop the event loop')
 
     # Parser Callbacks
-    def on_body(self): pass
+    def on_body(self):
+        pass
 
     def on_headers_complete(self, headers, status_code):
         self.current_status = status_code
@@ -68,8 +69,9 @@ class WebsocketHandshake(asyncio.Protocol):
 
 
 class WebsocketClient:
-
-    def __init__(self, host: str, port: int, path: str = '/', loop=None, origin: str = None):
+    def __init__(
+        self, host: str, port: int, path: str = '/', loop=None, origin: str = None
+    ):
         self.host = host
         self.port = port
         self.path = path
@@ -80,7 +82,9 @@ class WebsocketClient:
 
     async def connect(self):
         factory = partial(WebsocketHandshake, self, self.loop)
-        await self.loop.create_connection(factory, host=self.host, port=self.port, ssl=True)
+        await self.loop.create_connection(
+            factory, host=self.host, port=self.port, ssl=True
+        )
 
     async def send(self, msg):
         if not self.connected:

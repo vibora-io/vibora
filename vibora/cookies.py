@@ -11,14 +11,32 @@ class Cookie:
         'domain': ('domain', lambda x: x[1]),
         'path': ('path', lambda x: x[1]),
         'max-age': ('max_age', lambda x: int(x[1])),
-        'secure': ('secure', lambda x: True)
+        'secure': ('secure', lambda x: True),
     }
-    __slots__ = ('name', 'value', 'same_site', 'http_only', 'expires_at',
-                 'path', 'domain', 'max_age', 'secure')
+    __slots__ = (
+        'name',
+        'value',
+        'same_site',
+        'http_only',
+        'expires_at',
+        'path',
+        'domain',
+        'max_age',
+        'secure',
+    )
 
-    def __init__(self, name: str, value: str=None, same_site=False,
-                 http_only=False, expires_at=None, path: str=None,
-                 domain: str=None, max_age: int=None, secure: bool=None):
+    def __init__(
+        self,
+        name: str,
+        value: str = None,
+        same_site=False,
+        http_only=False,
+        expires_at=None,
+        path: str = None,
+        domain: str = None,
+        max_age: int = None,
+        secure: bool = None,
+    ):
         self.name = name
         self.value = value if value is not None else ''
         self.same_site = same_site
@@ -68,7 +86,7 @@ class Cookie:
 
 class CookiesJar:
 
-    __slots__ = ('cookies', )
+    __slots__ = ('cookies',)
 
     def __init__(self):
         self.cookies = {}
@@ -108,7 +126,7 @@ class SessionCookiesJar:
     def __init__(self):
         self._domains = defaultdict(CookiesJar)
 
-    def get(self, domain: str, strict: bool=False) -> CookiesJar:
+    def get(self, domain: str, strict: bool = False) -> CookiesJar:
         if not strict:
             unique_jar = CookiesJar()
             for key, jar in self._domains.items():

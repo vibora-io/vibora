@@ -40,7 +40,9 @@ async def stream_response(response: 'StreamingResponse', protocol, chunk_timeout
         protocol.close()
 
 
-async def stream_chunked_response(response: 'StreamingResponse', protocol, chunk_timeout):
+async def stream_chunked_response(
+    response: 'StreamingResponse', protocol, chunk_timeout
+):
     """
 
     :param chunk_timeout:
@@ -57,8 +59,10 @@ async def stream_chunked_response(response: 'StreamingResponse', protocol, chunk
                 await asyncio.wait_for(write(content), chunk_timeout)
         else:
             async for chunk in response.stream():
-                await asyncio.wait_for(write(b''.join([('%X\r\n' % len(chunk)).encode(), chunk, b'\r\n'])),
-                                       chunk_timeout)
+                await asyncio.wait_for(
+                    write(b''.join([('%X\r\n' % len(chunk)).encode(), chunk, b'\r\n'])),
+                    chunk_timeout,
+                )
         await write(b'0\r\n\r\n')
         protocol.after_response(response)
     except TimeoutError:
@@ -83,8 +87,13 @@ def cancel_streaming_task(task, protocol):
 
 
 class Response:
-
-    def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
+    def __init__(
+        self,
+        content: bytes,
+        status_code: int = 200,
+        headers: dict = None,
+        cookies: list = None,
+    ):
         self.status_code = status_code
         self.content = content
         self.headers = headers or {}
@@ -94,7 +103,9 @@ class Response:
         headers = self.headers
         headers['Content-Length'] = len(self.content)
         headers['Date'] = current_time
-        content = f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        content = (
+            f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        )
         for header, value in headers.items():
             content += f'{header}: {value}\r\n'
         if self.cookies:
@@ -108,7 +119,7 @@ class Response:
             'content': self.content,
             'status_code': self.status_code,
             'headers': self.headers,
-            'cookies': self.cookies
+            'cookies': self.cookies,
         }
         params.update(kwargs)
         return self.__class__(**params)
@@ -126,7 +137,8 @@ class Response:
         else:
             protocol.transport.write(
                 f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
-                f'Content-Length: {len(self.content)}\r\nDate: {current_time}\r\n\r\n'.encode() + self.content
+                f'Content-Length: {len(self.content)}\r\nDate: {current_time}\r\n\r\n'.encode()
+                + self.content
             )
         if protocol.writable is False:
             protocol.loop.create_task(wait_client_consume(self, protocol))
@@ -135,8 +147,13 @@ class Response:
 
 
 class CachedResponse(Response):
-
-    def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
+    def __init__(
+        self,
+        content: bytes,
+        status_code: int = 200,
+        headers: dict = None,
+        cookies: list = None,
+    ):
         # Super is skipped on purpose.
         self.status_code = status_code
         self.content = content
@@ -151,7 +168,9 @@ class CachedResponse(Response):
         headers = self.headers
         headers['Content-Length'] = len(self.content)
         headers['Date'] = '$date'
-        content = f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        content = (
+            f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        )
         for header, value in headers.items():
             content += f'{header}: {value}\r\n'
         if self.cookies:
@@ -164,11 +183,13 @@ class CachedResponse(Response):
         if self.cache is None:
             headers = self.encode()
             self.cache = (
-                headers[:headers.find(b'$date')],
-                headers[headers.find(b'$date') + 5:]
+                headers[: headers.find(b'$date')],
+                headers[headers.find(b'$date') + 5 :],
             )
         cache = self.cache
-        protocol.transport.write(cache[0] + current_time.encode() + cache[1] + self.content)
+        protocol.transport.write(
+            cache[0] + current_time.encode() + cache[1] + self.content
+        )
         if protocol.writable:
             protocol.after_response(self)
         else:
@@ -176,8 +197,13 @@ class CachedResponse(Response):
 
 
 class JsonResponse(Response):
-
-    def __init__(self, content: object, status_code: int = 200, headers: dict = None, cookies: list = None):
+    def __init__(
+        self,
+        content: object,
+        status_code: int = 200,
+        headers: dict = None,
+        cookies: list = None,
+    ):
         self.status_code = status_code
         self.content = json.dumps(content).encode()
         self.headers = headers or {}
@@ -186,22 +212,30 @@ class JsonResponse(Response):
 
 
 class RedirectResponse(Response):
-
-    def __init__(self, location, status_code: int = 302, headers: dict = None, cookies: list = None):
+    def __init__(
+        self,
+        location,
+        status_code: int = 302,
+        headers: dict = None,
+        cookies: list = None,
+    ):
         self.status_code = status_code
         self.content = b''
         self.headers = headers or {}
-        self.headers.update({
-            'Location': location,
-            'Content-Length': '0',
-        })
+        self.headers.update({'Location': location, 'Content-Length': '0'})
         self.cookies = cookies or []
 
 
 class StreamingResponse(Response):
-
-    def __init__(self, stream: Callable, status_code: int = 200, headers: dict = None, cookies: list = None,
-                 complete_timeout: int = 30, chunk_timeout: int = 10):
+    def __init__(
+        self,
+        stream: Callable,
+        status_code: int = 200,
+        headers: dict = None,
+        cookies: list = None,
+        complete_timeout: int = 30,
+        chunk_timeout: int = 10,
+    ):
         if not callable(stream):
             raise ValueError('StreamingResponse "stream" must be a callable.')
         self.stream = stream
@@ -219,7 +253,9 @@ class StreamingResponse(Response):
         self.chunk_timeout = chunk_timeout
 
     def encode(self) -> bytes:
-        content = f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        content = (
+            f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
+        )
         for header, value in self.headers.items():
             content += f'{header}: {value}\r\n'
         if self.cookies:
@@ -237,14 +273,17 @@ class StreamingResponse(Response):
 
         # Creating the streaming task.
         f = stream_chunked_response if self.chunked else stream_response
-        task = partial(f, response=self, protocol=protocol, chunk_timeout=self.chunk_timeout)
+        task = partial(
+            f, response=self, protocol=protocol, chunk_timeout=self.chunk_timeout
+        )
         streaming_task = protocol.loop.create_task(task())
 
         # Creating the timeout task and setting it in the protocol so after_response()
         # can correctly cancel it if needed.
         if self.complete_timeout > 0:
             protocol.timeout_task = protocol.loop.call_later(
-                self.complete_timeout, partial(cancel_streaming_task, streaming_task, protocol)
+                self.complete_timeout,
+                partial(cancel_streaming_task, streaming_task, protocol),
             )
 
 
@@ -256,14 +295,16 @@ class WebsocketHandshakeResponse(Response):
         self.headers = {
             'Upgrade': 'websocket',
             'Connection': 'Upgrade',
-            'Sec-Websocket-Accept': key.decode('utf-8')
+            'Sec-Websocket-Accept': key.decode('utf-8'),
         }
 
 
 def render(path: str, **variables):
     loop = asyncio.get_event_loop()
     template = loop.app.jinja_env.get_template(path)
-    return Response(template.render(**variables).encode(), headers={'Content-Type': 'text/html'})
+    return Response(
+        template.render(**variables).encode(), headers={'Content-Type': 'text/html'}
+    )
 
 
 def update_current_time(value):

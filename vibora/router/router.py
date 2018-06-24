@@ -21,8 +21,7 @@ class RouterStrategy:
 
 
 class LRUCache:
-
-    def __init__(self, max_size: int=256):
+    def __init__(self, max_size: int = 256):
         self.values = {}
         self.queue = deque()
         self.max_size = max_size
@@ -78,7 +77,9 @@ class Router:
                     self.dynamic_routes[method] = [route]
         self.reverse_index[route.name] = route
 
-    def add_route(self, route: 'Route', prefixes: dict = None, check_slashes: bool = True):
+    def add_route(
+        self, route: 'Route', prefixes: dict = None, check_slashes: bool = True
+    ):
         """
 
         :param route:
@@ -90,31 +91,46 @@ class Router:
             prefixes = {'': ''}
 
         for name_prefix, pattern_prefix in prefixes.items():
-            clone = route.clone(pattern=pattern_prefix.encode() + route.pattern,
-                                name=clean_route_name(name_prefix, route.name))
+            clone = route.clone(
+                pattern=pattern_prefix.encode() + route.pattern,
+                name=clean_route_name(name_prefix, route.name),
+            )
             self._add_route_to_cache(clone)
 
             # Handling slashes strategy.
             conditions = [
                 not clone.is_dynamic,
                 check_slashes is True,
-                b'GET' in clone.methods
+                b'GET' in clone.methods,
             ]
 
             if all(conditions):
                 if self.strategy == RouterStrategy.CLONE:
-                    pattern = clone.pattern[:-1] if clone.pattern.endswith(b'/') else clone.pattern + b'/'
-                    self.add_route(clone.clone(pattern), check_slashes=False, prefixes={'': ''})
+                    pattern = (
+                        clone.pattern[:-1]
+                        if clone.pattern.endswith(b'/')
+                        else clone.pattern + b'/'
+                    )
+                    self.add_route(
+                        clone.clone(pattern), check_slashes=False, prefixes={'': ''}
+                    )
 
                 elif self.strategy == RouterStrategy.REDIRECT:
+
                     async def redirect_handler():
                         return RedirectResponse(clone.pattern.decode(), status_code=301)
+
                     redirect_route = clone.clone(
-                        handler=redirect_handler, methods=('GET', ),
+                        handler=redirect_handler,
+                        methods=('GET',),
                         dynamic=False,
-                        pattern=clone.pattern[:-1] if clone.pattern.endswith(b'/') else clone.pattern + b'/'
+                        pattern=clone.pattern[:-1]
+                        if clone.pattern.endswith(b'/')
+                        else clone.pattern + b'/',
                     )
-                    self.add_route(redirect_route, check_slashes=False, prefixes={'': ''})
+                    self.add_route(
+                        redirect_route, check_slashes=False, prefixes={'': ''}
+                    )
 
     def build_url(self, _name: str, *args, **kwargs):
         try:
@@ -229,7 +245,9 @@ class Router:
         try:
             if not self.check_host:
                 return self._find_route(request.url, request.method)
-            return self._find_route_by_host(request.url, request.method, request.headers.get('host'))
+            return self._find_route_by_host(
+                request.url, request.method, request.headers.get('host')
+            )
         except MethodNotAllowed as error:
             request.context['allowed_methods'] = error.allowed_methods
             return self.default_handlers[405]
@@ -242,10 +260,20 @@ class Router:
 
 
 class Route:
-
-    def __init__(self, pattern: bytes, handler, methods=None,
-                 parent=None, app=None, dynamic=None, name: str = None,
-                 cache: CacheEngine = None, websocket=False, hosts=None, limits: RouteLimits=None):
+    def __init__(
+        self,
+        pattern: bytes,
+        handler,
+        methods=None,
+        parent=None,
+        app=None,
+        dynamic=None,
+        name: str = None,
+        cache: CacheEngine = None,
+        websocket=False,
+        hosts=None,
+        limits: RouteLimits = None,
+    ):
         self.name = name or str(uuid.uuid4())
         self.handler = handler
         self.app = app
@@ -256,7 +284,9 @@ class Route:
         self.is_coroutine = iscoroutinefunction(handler)
         self.methods = clean_methods(methods)
         self.websocket = websocket
-        self.regex, self.params_book, self.simplified_pattern = PatternParser.extract_params(pattern)
+        self.regex, self.params_book, self.simplified_pattern = PatternParser.extract_params(
+            pattern
+        )
         self.has_parameters = bool(self.params_book)
         self.hosts = hosts
         if dynamic is None:
@@ -271,11 +301,15 @@ class Route:
             try:
                 return native_signatures[handler]
             except KeyError:
-                raise Exception('Native handler not registered in native signatures module.')
+                raise Exception(
+                    'Native handler not registered in native signatures module.'
+                )
         else:
             hints = get_type_hints(handler)
             if not hints and len(signature(handler).parameters) > 0:
-                raise Exception(f'Type hint your route ({self.name}) params so Vibora can optimize stuff.')
+                raise Exception(
+                    f'Type hint your route ({self.name}) params so Vibora can optimize stuff.'
+                )
             return tuple(filter(lambda x: x[0] != 'return', hints.items()))
 
     def call_handler(self, request: Request, components):
@@ -288,7 +322,9 @@ class Route:
             try:
                 for name, type_ in self.components:
                     if name in self.params_book:
-                        function_params[name] = PatternParser.CAST[type_](match.group(name))
+                        function_params[name] = PatternParser.CAST[type_](
+                            match.group(name)
+                        )
                     else:
                         function_params[name] = components.get(type_)
             except MissingComponent as error:
@@ -307,21 +343,31 @@ class Route:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return all([
-                other.pattern == self.pattern,
-                other.handler == self.handler,
-                other.methods == self.methods
-            ])
+            return all(
+                [
+                    other.pattern == self.pattern,
+                    other.handler == self.handler,
+                    other.methods == self.methods,
+                ]
+            )
         return False
 
     def __str__(self):
         return '<Route ("{0}", methods={1})>'.format(self.pattern, self.methods)
 
     def clone(self, pattern=None, name=None, handler=None, methods=None, dynamic=None):
-        return Route(pattern=pattern or self.pattern, handler=handler or self.handler,
-                     methods=methods or self.methods,
-                     parent=self.parent, app=self.app, limits=self.limits, hosts=self.hosts,
-                     dynamic=dynamic or self.is_dynamic, name=name or self.name, cache=self.cache)
+        return Route(
+            pattern=pattern or self.pattern,
+            handler=handler or self.handler,
+            methods=methods or self.methods,
+            parent=self.parent,
+            app=self.app,
+            limits=self.limits,
+            hosts=self.hosts,
+            dynamic=dynamic or self.is_dynamic,
+            name=name or self.name,
+            cache=self.cache,
+        )
 
 
 class WebsocketRoute(Route):
@@ -335,9 +381,17 @@ class WebsocketRoute(Route):
         super().__init__(*args, **kwargs)
 
     def clone(self, pattern=None, name=None):
-        return WebsocketRoute(pattern=pattern or self.pattern, handler=self.handler, methods=self.methods,
-                              parent=self.parent, app=self.app, cache=self.cache,
-                              dynamic=self.is_dynamic, name=name or self.name, websocket_handler=self.websocket_handler)
+        return WebsocketRoute(
+            pattern=pattern or self.pattern,
+            handler=self.handler,
+            methods=self.methods,
+            parent=self.parent,
+            app=self.app,
+            cache=self.cache,
+            dynamic=self.is_dynamic,
+            name=name or self.name,
+            websocket_handler=self.websocket_handler,
+        )
 
 
 def websocket_handshake_handler(request: Request = None):
@@ -351,6 +405,4 @@ def websocket_handshake_handler(request: Request = None):
         return Response(b'', status_code=400)
 
 
-native_signatures = {
-    websocket_handshake_handler: (('request', Request),)
-}
+native_signatures = {websocket_handshake_handler: (('request', Request),)}

@@ -4,7 +4,6 @@ from vibora.tests import TestSuite
 
 
 class ClientInterfaceTestCase(TestSuite):
-
     async def test_form_and_body_combined__expects_exception(self):
         try:
             await client.post('http://google.com', form={}, body=b'')

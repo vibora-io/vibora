@@ -5,7 +5,6 @@ from vibora.multipart import FileUpload
 
 
 class FormsTestCase(TestSuite):
-
     async def test_simple_post__expects_correctly_interpreted(self):
         app = Vibora()
 
@@ -23,9 +22,11 @@ class FormsTestCase(TestSuite):
 
         @app.route('/', methods=['POST'])
         async def home(request: Request):
-            form = (await request.form())
+            form = await request.form()
             return JsonResponse({'a': form['a'], 'b': await form['b'].read()})
 
         with app.test_client() as client:
-            response = await client.post('/', form={'a': 1, 'b': FileUpload(content=b'uploaded_file')})
+            response = await client.post(
+                '/', form={'a': 1, 'b': FileUpload(content=b'uploaded_file')}
+            )
             self.assertDictEqual(response.json(), {'a': '1', 'b': 'uploaded_file'})

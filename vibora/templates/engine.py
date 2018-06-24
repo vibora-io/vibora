@@ -8,9 +8,13 @@ from .compilers.python import PythonTemplateCompiler
 
 
 class TemplateEngine:
-
-    def __init__(self, cache_engine=None, compiler=None, extensions: list=None,
-                 parser: TemplateParser=None):
+    def __init__(
+        self,
+        cache_engine=None,
+        compiler=None,
+        extensions: list = None,
+        parser: TemplateParser = None,
+    ):
 
         # Loaded templates list, caching purposes.
         # {Name: ParsedTemplate}
@@ -69,10 +73,12 @@ class TemplateEngine:
             else:
                 missing_names += 1
                 if missing_names == len(names):
-                    raise ConflictingNames('This template needs a unique name because imports are name based.')
+                    raise ConflictingNames(
+                        'This template needs a unique name because imports are name based.'
+                    )
         return template
 
-    async def render(self, name: str, streaming: bool=False, **template_vars):
+    async def render(self, name: str, streaming: bool = False, **template_vars):
         """
 
         :param streaming:

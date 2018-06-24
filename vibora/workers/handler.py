@@ -1,6 +1,13 @@
 import asyncio
 import signal
-from socket import IPPROTO_TCP, TCP_NODELAY, SO_REUSEADDR, SOL_SOCKET, SO_REUSEPORT, socket
+from socket import (
+    IPPROTO_TCP,
+    TCP_NODELAY,
+    SO_REUSEADDR,
+    SOL_SOCKET,
+    SO_REUSEPORT,
+    socket,
+)
 from multiprocessing import Process
 from functools import partial
 from .reaper import Reaper
@@ -9,7 +16,6 @@ from ..utils import asynclib
 
 
 class RequestHandler(Process):
-
     def __init__(self, app, bind: str, port: int, sock=None):
         super().__init__()
         self.app = app
@@ -40,19 +46,31 @@ class RequestHandler(Process):
         self.app.reaper.start()
 
         # Calling before server start hooks (sync/async)
-        loop.run_until_complete(self.app.call_hooks(Events.BEFORE_SERVER_START, components=self.app.components))
+        loop.run_until_complete(
+            self.app.call_hooks(
+                Events.BEFORE_SERVER_START, components=self.app.components
+            )
+        )
 
         # Creating the server.
         handler = partial(self.app.handler, app=self.app, loop=loop, worker=self)
-        ss = loop.create_server(handler, sock=self.socket, reuse_port=True, backlog=1000)
+        ss = loop.create_server(
+            handler, sock=self.socket, reuse_port=True, backlog=1000
+        )
 
         # Calling after server hooks (sync/async)
         loop.run_until_complete(ss)
-        loop.run_until_complete(self.app.call_hooks(Events.AFTER_SERVER_START, components=self.app.components))
+        loop.run_until_complete(
+            self.app.call_hooks(
+                Events.AFTER_SERVER_START, components=self.app.components
+            )
+        )
 
         async def stop_server(timeout=30):
             # Calling the before server stop hook.
-            await self.app.call_hooks(Events.BEFORE_SERVER_STOP, components=self.app.components)
+            await self.app.call_hooks(
+                Events.BEFORE_SERVER_STOP, components=self.app.components
+            )
 
             # Ordering all connections to finish as soon as possible.
             for connection in self.app.connections.copy():

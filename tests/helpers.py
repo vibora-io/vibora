@@ -4,7 +4,6 @@ from vibora.responses import Response
 
 
 class UrlForTestSuite(TestSuite):
-
     def setUp(self):
         self.app = Vibora()
 

@@ -1,7 +1,4 @@
-
-
 class Headers:
-
     def __init__(self, raw=None):
         self.raw = raw or []
         self.values = None
@@ -31,7 +28,7 @@ class Headers:
             for cookie in header.split(';'):
                 first = cookie.find('=')
                 name = cookie[:first].strip()
-                value = cookie[first + 1:]
+                value = cookie[first + 1 :]
                 cookies[name] = value
         return cookies
 

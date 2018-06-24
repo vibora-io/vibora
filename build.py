@@ -28,7 +28,7 @@ process = subprocess.run(
         sys.executable,
         os.path.join(os.path.dirname(project_path), 'setup.py'),
         'build_ext',
-        '--inplace'
+        '--inplace',
     ]
 )
 if process.returncode != 0:

@@ -3,9 +3,7 @@ from vibora.responses import Response
 from vibora.static import StaticHandler
 
 
-app = Vibora(
-    static=StaticHandler(paths=['/your_static_dir', '/second_static_dir'])
-)
+app = Vibora(static=StaticHandler(paths=['/your_static_dir', '/second_static_dir']))
 
 
 @app.route('/')

@@ -46,7 +46,7 @@ class TemplateCompiler:
     def load_compiled_template(cls, meta: TemplateMeta, content: bytes):
         raise NotImplementedError
 
-    def compile(self, template, verbose: bool=False) -> CompilationResult:
+    def compile(self, template, verbose: bool = False) -> CompilationResult:
         raise NotImplementedError
 
     @classmethod

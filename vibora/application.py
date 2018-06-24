@@ -19,10 +19,19 @@ class Application(Blueprint):
 
     current_time = None
 
-    def __init__(self, template_dirs: list = None, router_strategy=RouterStrategy.CLONE, sessions=None,
-                 server_name: str = None, url_scheme: str = 'http', static=None,
-                 log: Callable = None, server_limits: ServerLimits=None, route_limits: RouteLimits=None,
-                 temporary_dir: str=None):
+    def __init__(
+        self,
+        template_dirs: list = None,
+        router_strategy=RouterStrategy.CLONE,
+        sessions=None,
+        server_name: str = None,
+        url_scheme: str = 'http',
+        static=None,
+        log: Callable = None,
+        server_limits: ServerLimits = None,
+        route_limits: RouteLimits = None,
+        temporary_dir: str = None,
+    ):
         """
 
         :param template_dirs:
@@ -36,8 +45,10 @@ class Application(Blueprint):
         :param route_limits:
         :param temporary_dir:
         """
-        super().__init__(template_dirs=template_dirs or self._get_template_dirs_based_on_stack(),
-                         limits=route_limits)
+        super().__init__(
+            template_dirs=template_dirs or self._get_template_dirs_based_on_stack(),
+            limits=route_limits,
+        )
         self.debug = False
         self.testing = False
         self.server_name = server_name
@@ -140,10 +151,16 @@ class Application(Blueprint):
             for nested_blueprint, nested_prefixes in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
                     if name and nested_name:
-                        merged_prefixes = {name + ':' + nested_name: pattern + nested_pattern}
+                        merged_prefixes = {
+                            name + ':' + nested_name: pattern + nested_pattern
+                        }
                     else:
-                        merged_prefixes = {name or nested_name: pattern + nested_pattern}
-                    self.__register_blueprint_routes(nested_blueprint, prefixes=merged_prefixes)
+                        merged_prefixes = {
+                            name or nested_name: pattern + nested_pattern
+                        }
+                    self.__register_blueprint_routes(
+                        nested_blueprint, prefixes=merged_prefixes
+                    )
         blueprint.app = self
         for route in blueprint.routes:
             route.app = self.app
@@ -158,7 +175,9 @@ class Application(Blueprint):
         :return:
         """
         if blueprint.parent:
-            raise DuplicatedBlueprint('You cannot add blueprint twice. Use more prefixes or a different hierarchy.')
+            raise DuplicatedBlueprint(
+                'You cannot add blueprint twice. Use more prefixes or a different hierarchy.'
+            )
 
         if blueprint != self:
             blueprint.parent = self
@@ -188,7 +207,9 @@ class Application(Blueprint):
             process.terminate()
         self.running = False
 
-    async def handle_exception(self, connection, exception, components, route: Route = None):
+    async def handle_exception(
+        self, connection, exception, components, route: Route = None
+    ):
         """
 
         :param components:
@@ -214,14 +235,18 @@ class Application(Blueprint):
         :return:
         """
         if not self.initialized:
-            raise ValueError('Routes are not registered yet. Please run Vibora or call app.initialize().')
+            raise ValueError(
+                'Routes are not registered yet. Please run Vibora or call app.initialize().'
+            )
         route = self.router.reverse_index.get(_name)
         if not route:
             raise ReverseNotFound(_name)
         root = ''
         if _external:
             if not self.server_name or not self.url_scheme:
-                raise Exception('Please configure the server_name and url_scheme to use external urls.')
+                raise Exception(
+                    'Please configure the server_name and url_scheme to use external urls.'
+                )
             root = self.url_scheme + '://' + self.server_name
         return root + route.build_url(*args, **kwargs).decode()
 

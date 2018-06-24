@@ -4,20 +4,33 @@ import re
 from typing import List, Callable
 from .utils import TemplateMeta
 from .exceptions import InvalidTag, TemplateRenderError
-from .nodes import EvalNode, ForNode, ExtendsNode, BlockNode, IfNode, ElifNode, ElseNode, StaticNode, UrlNode, \
-    MacroNode, IncludeNode, Node, TextNode
+from .nodes import (
+    EvalNode,
+    ForNode,
+    ExtendsNode,
+    BlockNode,
+    IfNode,
+    ElifNode,
+    ElseNode,
+    StaticNode,
+    UrlNode,
+    MacroNode,
+    IncludeNode,
+    Node,
+    TextNode,
+)
 
 
 class Template:
-
     def __init__(self, content: str):
         self.content = content
         self.hash = hashlib.md5(content.encode()).hexdigest()
 
 
 class ParsedTemplate(Template):
-
-    def __init__(self, content: str, ast: Node, dependencies: set = None, prepared: bool = False):
+    def __init__(
+        self, content: str, ast: Node, dependencies: set = None, prepared: bool = False
+    ):
         super().__init__(content=content)
         self.ast = ast
         self.dependencies = dependencies or set()
@@ -32,8 +45,15 @@ class ParsedTemplate(Template):
 
 
 class CompiledTemplate(ParsedTemplate):
-    def __init__(self, content: str, ast: Node, dependencies: set, code: str,
-                 meta: TemplateMeta, render: Callable):
+    def __init__(
+        self,
+        content: str,
+        ast: Node,
+        dependencies: set,
+        code: str,
+        meta: TemplateMeta,
+        render: Callable,
+    ):
         super().__init__(content=content, ast=ast, dependencies=dependencies)
         self.code = code
         self.meta = meta
@@ -60,17 +80,36 @@ class CompiledTemplate(ParsedTemplate):
                 template_line = line[2:]
             if start_counting:
                 counter += 1
-        raise TemplateRenderError(template=self, template_line=template_line, exception=error,
-                                  template_name=name)
+        raise TemplateRenderError(
+            template=self,
+            template_line=template_line,
+            exception=error,
+            template_name=name,
+        )
 
 
 class TemplateParser:
-
-    def __init__(self, nodes: List[Node] = None, tag_start: str = '{%', tag_end: str = '%}',
-                 expression_start: str = '{{', expression_end: str = '}}'):
+    def __init__(
+        self,
+        nodes: List[Node] = None,
+        tag_start: str = '{%',
+        tag_end: str = '%}',
+        expression_start: str = '{{',
+        expression_end: str = '}}',
+    ):
         self.nodes = nodes or [
-            EvalNode, ForNode, ExtendsNode, BlockNode, IfNode, ElifNode, ElseNode, StaticNode, UrlNode,
-            MacroNode, IncludeNode, TextNode
+            EvalNode,
+            ForNode,
+            ExtendsNode,
+            BlockNode,
+            IfNode,
+            ElifNode,
+            ElseNode,
+            StaticNode,
+            UrlNode,
+            MacroNode,
+            IncludeNode,
+            TextNode,
         ]
         self.tags_rgx = re.compile(tag_start + '(.*?)' + tag_end)
         self.expr_rgx = re.compile(expression_start + '(.*?)' + expression_end)
@@ -131,16 +170,20 @@ class TemplateParser:
                 current_nodes[-1].children.append(TextNode(content))
                 break
             else:
-                previous_text = content[:next_node[0].span()[0]]
+                previous_text = content[: next_node[0].span()[0]]
                 if previous_text:
                     current_nodes[-1].children.append(TextNode(previous_text))
-            if stop_tokens and self.token_is_equal(next_node[0].group().strip(), stop_tokens[-1]):
+            if stop_tokens and self.token_is_equal(
+                next_node[0].group().strip(), stop_tokens[-1]
+            ):
                 current_nodes = current_nodes[:-1]
                 stop_tokens = stop_tokens[:-1]
-                content = content[next_node[0].span()[1]:]
+                content = content[next_node[0].span()[1] :]
                 continue
             if next_node:
-                found_node, stop_tag = self.parse_node(next_node[0].group(), next_node[1])
+                found_node, stop_tag = self.parse_node(
+                    next_node[0].group(), next_node[1]
+                )
                 if not found_node:
                     raise InvalidTag(next_node)
                 if stop_tag:
@@ -150,5 +193,5 @@ class TemplateParser:
                     stop_tokens.append(stop_tag)
                 else:
                     current_nodes[-1].children.append(found_node)
-                content = content[next_node[0].span()[1]:]
+                content = content[next_node[0].span()[1] :]
         return parsed_template

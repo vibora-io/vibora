@@ -5,10 +5,27 @@ from .connection import Connection
 
 class Request:
 
-    __slots__ = ('method', 'url', 'headers', 'data', 'cookies', 'streaming', 'chunked',
-                 'encoding', 'origin')
+    __slots__ = (
+        'method',
+        'url',
+        'headers',
+        'data',
+        'cookies',
+        'streaming',
+        'chunked',
+        'encoding',
+        'origin',
+    )
 
-    def __init__(self, method: str, url: URL, headers: dict, data, cookies: CookiesJar, origin=None):
+    def __init__(
+        self,
+        method: str,
+        url: URL,
+        headers: dict,
+        data,
+        cookies: CookiesJar,
+        origin=None,
+    ):
         self.method = method.upper() if method else 'GET'
         self.url = url
         self.headers = headers or {}
@@ -16,7 +33,9 @@ class Request:
             self.headers.update({'Host': url.host})
         self.data = data or b''
         self.cookies = cookies
-        self.streaming = True if data and not isinstance(data, (bytes, bytearray)) else False
+        self.streaming = (
+            True if data and not isinstance(data, (bytes, bytearray)) else False
+        )
         self.chunked = self.streaming
         self.origin = origin
 
@@ -52,7 +71,7 @@ class Request:
 
 
 class WebsocketRequest:
-    def __init__(self, host: str, path: str='/', origin: str=None):
+    def __init__(self, host: str, path: str = '/', origin: str = None):
         self.host = host
         self.path = path
         self.headers = {
@@ -60,7 +79,7 @@ class WebsocketRequest:
             'Connection': 'Upgrade',
             'Upgrade': 'websocket',
             'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ==',
-            'Sec-WebSocket-Version': '13'
+            'Sec-WebSocket-Version': '13',
         }
         if origin:
             self.headers['Origin'] = origin

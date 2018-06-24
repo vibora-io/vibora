@@ -8,7 +8,6 @@ from vibora.tests import TestSuite
 
 
 class HooksTestSuite(TestSuite):
-
     def setUp(self):
         self.app = Vibora()
 
@@ -68,7 +67,9 @@ class HooksTestSuite(TestSuite):
 
         @self.app.route('/')
         async def home(request: Request):
-            return Response(request.app.components.get(RuntimeConfig).secret, status_code=200)
+            return Response(
+                request.app.components.get(RuntimeConfig).secret, status_code=200
+            )
 
         with self.app.test_client() as client:
             response = await client.get('/')
@@ -84,7 +85,9 @@ class HooksTestSuite(TestSuite):
         @self.app.route('/')
         async def home(request: Request):
             try:
-                return Response(request.app.components.get(RuntimeConfig).secret, status_code=200)
+                return Response(
+                    request.app.components.get(RuntimeConfig).secret, status_code=200
+                )
             except MissingComponent:
                 return Response(b'', status_code=500)
 
@@ -108,7 +111,6 @@ class HooksTestSuite(TestSuite):
             self.assertEqual(secret, response.content)
 
     async def test_after_endpoint_modify_response(self):
-
         @self.app.route('/')
         async def home():
             return Response(b'', status_code=500)
@@ -122,7 +124,6 @@ class HooksTestSuite(TestSuite):
             self.assertEqual(response.status_code, 200)
 
     async def test_after_response_sent(self):
-
         class Mock:
             def __init__(self):
                 self.test = 'test'
@@ -162,6 +163,7 @@ class HooksTestSuite(TestSuite):
                 for _ in range(0, 5):
                     yield b'123'
                     await asyncio.sleep(1)
+
             return StreamingResponse(slow_streaming)
 
         with self.app.test_client() as client:

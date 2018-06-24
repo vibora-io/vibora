@@ -8,9 +8,7 @@ from vibora.tests import TestSuite
 
 
 class CacheTestCase(TestSuite):
-
     async def test_async_cache_engine_skipping_hooks(self):
-
         class AsyncEngine(CacheEngine):
             async def get(self, request: Request):
                 return self.cache.get(request.url)
@@ -39,7 +37,6 @@ class CacheTestCase(TestSuite):
         self.assertEqual(response1.content, response2.content)
 
     async def test_async_cache_engine_not_skipping_hooks(self):
-
         class AsyncEngine(CacheEngine):
             async def get(self, request: Request):
                 return self.cache.get(request.url)
@@ -70,7 +67,6 @@ class CacheTestCase(TestSuite):
         client.close()
 
     async def test_custom_cache_engine_not_skipping_hooks(self):
-
         class AsyncEngine(CacheEngine):
             def get(self, request: Request):
                 return self.cache.get(request.url)
@@ -101,7 +97,6 @@ class CacheTestCase(TestSuite):
         client.close()
 
     async def test_custom_cache_engine_skipping_hooks(self):
-
         class AsyncEngine(CacheEngine):
             def get(self, request: Request):
                 return self.cache.get(request.url)

@@ -46,7 +46,9 @@ class Vibora(Application):
         async def method_not_allowed_handler(request: Request):
             raise MethodNotAllowed(request.context['allowed_methods'])
 
-        route_405 = Route(b'', method_not_allowed_handler, parent=self, limits=self.limits)
+        route_405 = Route(
+            b'', method_not_allowed_handler, parent=self, limits=self.limits
+        )
         self.router.default_handlers[405] = route_405
 
         @self.handle(MissingComponent)
@@ -55,30 +57,45 @@ class Vibora(Application):
                 # A hack to help users with component missing exceptions because they are generated
                 # too deep in Cython and there aren't useful stack frames.
                 try:
-                    msg = f"{error.route.handler} needs {error.component} but there isn't any " \
-                          f"component registered with this type."
+                    msg = f"{error.route.handler} needs {error.component} but there isn't any " f"component registered with this type."
                     raise MissingComponent(msg)
                 except Exception as e:
                     traceback.print_exception(MissingComponent, e, e.__traceback__)
-            return Response(b'Internal Server Error', status_code=500, headers={'Content-Type': 'text/html'})
+            return Response(
+                b'Internal Server Error',
+                status_code=500,
+                headers={'Content-Type': 'text/html'},
+            )
 
         if BodyLimitError not in self.exception_handlers:
+
             @self.handle(BodyLimitError)
             async def handle_body_limit():
                 return Response(b'HTTP request body is too big.', status_code=413)
 
         if HeadersLimitError not in self.exception_handlers:
+
             @self.handle(HeadersLimitError)
             async def handle_headers_limit():
-                return Response(b'HTTP request headers are too big. '
-                                b'Maybe there are too many, maybe just few big ones.', status_code=400)
+                return Response(
+                    b'HTTP request headers are too big. '
+                    b'Maybe there are too many, maybe just few big ones.',
+                    status_code=400,
+                )
 
         if Exception not in self.exception_handlers:
+
             @self.handle(Exception)
             async def handle_internal_error(app: Vibora, error: Exception):
                 if app.debug and not app.testing:
-                    traceback.print_exception(MissingComponent, error, error.__traceback__)
-                return Response(b'Internal Server Error', status_code=500, headers={'Content-Type': 'text/html'})
+                    traceback.print_exception(
+                        MissingComponent, error, error.__traceback__
+                    )
+                return Response(
+                    b'Internal Server Error',
+                    status_code=500,
+                    headers={'Content-Type': 'text/html'},
+                )
 
     def configure_static_files(self):
         """
@@ -86,8 +103,13 @@ class Vibora(Application):
         :return:
         """
         if self.static:
-            static_route = Route((self.static.url_prefix + '/.*').encode(), self.static.handle,
-                                 methods=(b'GET', b'HEAD'), parent=self, limits=self.limits)
+            static_route = Route(
+                (self.static.url_prefix + '/.*').encode(),
+                self.static.handle,
+                methods=(b'GET', b'HEAD'),
+                parent=self,
+                limits=self.limits,
+            )
             self.router.add_route(static_route, {'': ''}, check_slashes=False)
 
     def check_integrity(self):
@@ -99,7 +121,9 @@ class Vibora(Application):
             for routes in self.router.routes.values():
                 for route in routes:
                     if not route.is_coroutine:
-                        raise Exception('You cannot use an asynchronous session handler with synchronous views.')
+                        raise Exception(
+                            'You cannot use an asynchronous session handler with synchronous views.'
+                        )
         self.router.check_integrity()
 
     def turn_on_debug_features(self):
@@ -116,7 +140,12 @@ class Vibora(Application):
             :param level:
             :return:
             """
-            if level in (logging.INFO, logging.CRITICAL, logging.ERROR, logging.WARNING):
+            if level in (
+                logging.INFO,
+                logging.CRITICAL,
+                logging.ERROR,
+                logging.WARNING,
+            ):
                 print(f'[{self.current_time}] - {msg}', file=sys.stderr)
 
         if not self.testing:
@@ -133,6 +162,7 @@ class Vibora(Application):
             for path in blueprint.template_dirs:
                 dirs.append(path)
         if self.debug:
+
             def start_template_loader(app: Vibora):
                 tl = TemplateLoader(dirs, app.template_engine)
                 tl.start()
@@ -157,20 +187,26 @@ class Vibora(Application):
         """
 
         if Exception not in self.exception_handlers:
+
             @self.handle(Exception)
             async def internal_server_error():
                 return Response(b'Internal Server Error', status_code=500)
 
         if NotFound not in self.exception_handlers:
+
             @self.handle(NotFound)
             async def internal_server_error():
                 return Response(b'404 Not Found', status_code=404)
 
         if MethodNotAllowed not in self.exception_handlers:
+
             @self.handle(MethodNotAllowed)
             async def internal_server_error(request: Request):
-                return Response(b'Method Not Allowed', status_code=405,
-                                headers={'Allow': request.context['allowed_methods']})
+                return Response(
+                    b'Method Not Allowed',
+                    status_code=405,
+                    headers={'Allow': request.context['allowed_methods']},
+                )
 
         self.sort_error_handlers()
 
@@ -191,10 +227,18 @@ class Vibora(Application):
                 cache.append(current_key)
             else:
                 keys.appendleft(current_key)
-        self.exception_handlers = OrderedDict([(x, self.exception_handlers[x]) for x in reversed(cache)])
+        self.exception_handlers = OrderedDict(
+            [(x, self.exception_handlers[x]) for x in reversed(cache)]
+        )
 
-    def test_client(self, headers: dict = None, follow_redirects: bool = True, max_redirects: int = 30,
-                    stream: bool = False, decode: bool = True) -> Session:
+    def test_client(
+        self,
+        headers: dict = None,
+        follow_redirects: bool = True,
+        max_redirects: int = 30,
+        stream: bool = False,
+        decode: bool = True,
+    ) -> Session:
         """
 
         :param headers:
@@ -209,13 +253,27 @@ class Vibora(Application):
             sock.close()
             if not self.initialized:
                 self.testing = True
-            self.run(host=address, port=port, block=False, verbose=False, necromancer=False, workers=1, debug=True)
-            self._test_client = Session(prefix='http://' + address + ':' + str(port), headers=headers,
-                                        follow_redirects=follow_redirects, max_redirects=max_redirects, stream=stream,
-                                        decode=decode, keep_alive=False)
+            self.run(
+                host=address,
+                port=port,
+                block=False,
+                verbose=False,
+                necromancer=False,
+                workers=1,
+                debug=True,
+            )
+            self._test_client = Session(
+                prefix='http://' + address + ':' + str(port),
+                headers=headers,
+                follow_redirects=follow_redirects,
+                max_redirects=max_redirects,
+                stream=stream,
+                decode=decode,
+                keep_alive=False,
+            )
         return self._test_client
 
-    def initialize(self, debug: bool=False):
+    def initialize(self, debug: bool = False):
         """
 
         :return:
@@ -232,8 +290,17 @@ class Vibora(Application):
         self.initialized = True
         self.load_templates()
 
-    def run(self, host='127.0.0.1', port=5000, workers=None, debug=True, block=True, verbose=True,
-            necromancer: bool = False, sock=None):
+    def run(
+        self,
+        host='127.0.0.1',
+        port=5000,
+        workers=None,
+        debug=True,
+        block=True,
+        verbose=True,
+        necromancer: bool = False,
+        sock=None,
+    ):
         """
 
         :param host:
@@ -258,15 +325,25 @@ class Vibora(Application):
 
         # Watch out for dead workers and bring new ones to life as needed.
         if necromancer:
-            necromancer = Necromancer(self.workers, spawn_function=spawn_function,
-                                      interval=self.server_limits.worker_timeout)
+            necromancer = Necromancer(
+                self.workers,
+                spawn_function=spawn_function,
+                interval=self.server_limits.worker_timeout,
+            )
             necromancer.start()
 
         wait_server_available(host, port)
 
         if verbose:
-            cprint('# Vibora ({color_}' + __version__ + '{end_}) # http://' + str(host) + ':' + str(port),
-                   mixed=True)
+            cprint(
+                '# Vibora ({color_}'
+                + __version__
+                + '{end_}) # http://'
+                + str(host)
+                + ':'
+                + str(port),
+                mixed=True,
+            )
 
         self.running = True
         if block:

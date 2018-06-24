@@ -4,9 +4,7 @@ from vibora.responses import JsonResponse
 from vibora.static import StaticHandler
 
 
-app = Vibora(
-    static=StaticHandler(['/tmp'], url_prefix='/static')
-)
+app = Vibora(static=StaticHandler(['/tmp'], url_prefix='/static'))
 
 
 @app.route('/', methods=['POST'])

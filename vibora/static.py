@@ -8,7 +8,7 @@ from .responses import StreamingResponse, Response, CachedResponse
 from .exceptions import StaticNotFound
 
 
-def streaming_file(path: str, chunk_size: int=1 * 1024 * 1024):
+def streaming_file(path: str, chunk_size: int = 1 * 1024 * 1024):
     with open(path, 'rb') as f:
         while True:
             data = f.read(chunk_size)
@@ -21,7 +21,7 @@ class CacheEntry:
 
     mime = MimeTypes()
 
-    def __init__(self, path: str, available_cache_size: int=0):
+    def __init__(self, path: str, available_cache_size: int = 0):
         self.path = path
         self.content_type = self.mime.guess_type(path)
         self.etag = self.get_hash(path)
@@ -32,13 +32,15 @@ class CacheEntry:
             'ETag': self.etag,
             'Content-Type': self.content_type[0],
             'Content-Length': str(self.content_length),
-            'Accept-Ranges': 'bytes'
+            'Accept-Ranges': 'bytes',
         }
         if available_cache_size > self.content_length:
             with open(path, 'rb') as f:
                 self.response = CachedResponse(f.read(), headers=self.headers)
         else:
-            self.response = StreamingResponse(partial(streaming_file, path), headers=self.headers)
+            self.response = StreamingResponse(
+                partial(streaming_file, path), headers=self.headers
+            )
 
     @property
     def needs_update(self):
@@ -57,8 +59,14 @@ class CacheEntry:
 
 
 class StaticHandler:
-    def __init__(self, paths: list, host=None, url_prefix='/static', max_cache_size=10 * 1024 * 1024,
-                 default_responses: dict=None):
+    def __init__(
+        self,
+        paths: list,
+        host=None,
+        url_prefix='/static',
+        max_cache_size=10 * 1024 * 1024,
+        default_responses: dict = None,
+    ):
         self.paths = paths
         self.host = host
         self.url_prefix = url_prefix
@@ -66,9 +74,7 @@ class StaticHandler:
         self.max_cache_size = max_cache_size
         self.current_cache_size = 0
         self.default_responses = default_responses or {}
-        self.default_responses.update({
-            304: Response(b'', status_code=304)
-        })
+        self.default_responses.update({304: Response(b'', status_code=304)})
 
     @property
     def available_cache_size(self):
@@ -111,15 +117,20 @@ class StaticHandler:
             if len(pieces) == 2:
                 start, end = int(pieces[0]), int(pieces[1])
                 headers = {
-                    'Content-Range': 'bytes {0}-{1}/{2}'.format(start, end, cache.content_length),
+                    'Content-Range': 'bytes {0}-{1}/{2}'.format(
+                        start, end, cache.content_length
+                    ),
                     'Content-Length': str((end - start)),
-                    'Accept-Ranges': 'bytes'
+                    'Accept-Ranges': 'bytes',
                 }
                 if request.method == 'HEAD':
                     return Response(b'', headers=headers, status_code=206)
                 else:
-                    return StreamingResponse(RangeFile(cache.path, start, end).stream,
-                                             headers=headers, status_code=206)
+                    return StreamingResponse(
+                        RangeFile(cache.path, start, end).stream,
+                        headers=headers,
+                        status_code=206,
+                    )
 
         # Handling HEAD requests
         if request.method == 'HEAD':
@@ -129,7 +140,7 @@ class StaticHandler:
 
     @staticmethod
     def get_range_pieces(header: str) -> list:
-        header = header[header.find('=')+1:]
+        header = header[header.find('=') + 1 :]
         values = header.strip().split('-')
         return values
 

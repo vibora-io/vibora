@@ -4,7 +4,6 @@ from vibora.tests import TestSuite
 
 
 class NodesParsingSuite(TestSuite):
-
     def setUp(self):
         self.template_engine = TemplateEngine()
 

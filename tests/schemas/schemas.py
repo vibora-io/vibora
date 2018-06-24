@@ -6,7 +6,6 @@ from vibora.tests import TestSuite
 
 
 class SchemasTestCase(TestSuite):
-
     async def test_basic_schema_loads(self):
         class TestSchema(Schema):
             field1: str
@@ -52,7 +51,9 @@ class SchemasTestCase(TestSuite):
         mock, mock2 = MagicMock(), MagicMock()
 
         class TestSchema(Schema):
-            field1: str = fields.String(validators=[lambda x: mock(x), lambda x: mock2(x)])
+            field1: str = fields.String(
+                validators=[lambda x: mock(x), lambda x: mock2(x)]
+            )
 
         value = 'test_value'
         await TestSchema.load({'field1': value})
@@ -73,7 +74,9 @@ class SchemasTestCase(TestSuite):
             await TestSchema.load({'field1': '123'})
             self.fail('Load() must a raise a function with invalid values.')
         except InvalidSchema as error:
-            self.assertEqual(error.errors, {'field1': [{'msg': 'Test', 'error_code': 0}]})
+            self.assertEqual(
+                error.errors, {'field1': [{'msg': 'Test', 'error_code': 0}]}
+            )
 
     async def test_empty_schema(self):
         class TestSchema(Schema):
@@ -86,7 +89,6 @@ class SchemasTestCase(TestSuite):
             self.fail('An empty schema should be valid although rarely useful.')
 
     async def test_load_from_with_two_fields(self):
-
         class TestSchema(Schema):
             field1: str = fields.String(load_from='special_field')
             field2: str = fields.String(load_from='special_field_2')
@@ -97,7 +99,6 @@ class SchemasTestCase(TestSuite):
         self.assertEqual(schema.field2, values['special_field_2'])
 
     async def test_load_from_same_field(self):
-
         class TestSchema(Schema):
             field1: str = fields.String(load_from='special_field')
             field2: str = fields.String(load_from='special_field')
@@ -108,7 +109,6 @@ class SchemasTestCase(TestSuite):
         self.assertEqual(schema.field2, values['special_field'])
 
     async def test_context_errors_properly_populated(self):
-
         class TestSchema(Schema):
             field1: str
             field2: str = fields.String(required=False)
@@ -117,12 +117,23 @@ class SchemasTestCase(TestSuite):
         try:
             await TestSchema.load({'field2': 'test'})
         except InvalidSchema as error:
-            self.assertDictEqual(error.errors, {
-                'field1': [{'error_code': Messages.MISSING_REQUIRED_FIELD,
-                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]({})}],
-                'field3': [{'error_code': Messages.MISSING_REQUIRED_FIELD,
-                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]({})}]
-            })
+            self.assertDictEqual(
+                error.errors,
+                {
+                    'field1': [
+                        {
+                            'error_code': Messages.MISSING_REQUIRED_FIELD,
+                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]({}),
+                        }
+                    ],
+                    'field3': [
+                        {
+                            'error_code': Messages.MISSING_REQUIRED_FIELD,
+                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]({}),
+                        }
+                    ],
+                },
+            )
 
     async def test_custom_language_with_new_error_code(self):
         class NewMessages(Messages):
@@ -132,10 +143,13 @@ class SchemasTestCase(TestSuite):
 
         def new_message(context: dict):
             return '{}'.format(str(context['custom_attribute']))
+
         new_language[NewMessages.TEST] = new_message
 
         def validator():
-            raise ValidationError(NewMessages.TEST, custom_attribute='Something custom.')
+            raise ValidationError(
+                NewMessages.TEST, custom_attribute='Something custom.'
+            )
 
         class TestSchema(Schema):
             field1: str = fields.String(validators=[validator])
@@ -143,4 +157,7 @@ class SchemasTestCase(TestSuite):
         try:
             await TestSchema.load({'field1': 'test'}, language=new_language)
         except InvalidSchema as error:
-            self.assertDictEqual(error.errors, {'field1': [{'error_code': 100, 'msg': 'Something custom.'}]})
+            self.assertDictEqual(
+                error.errors,
+                {'field1': [{'error_code': 100, 'msg': 'Something custom.'}]},
+            )

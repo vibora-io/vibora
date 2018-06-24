@@ -1,11 +1,13 @@
-__all__ = ('HttpParserError',
-           'HttpParserCallbackError',
-           'HttpParserInvalidStatusError',
-           'HttpParserInvalidMethodError',
-           'HttpParserInvalidURLError',
-           'HttpParserUpgrade',
-           'BodyLimitError',
-           'HeadersLimitError')
+__all__ = (
+    'HttpParserError',
+    'HttpParserCallbackError',
+    'HttpParserInvalidStatusError',
+    'HttpParserInvalidMethodError',
+    'HttpParserInvalidURLError',
+    'HttpParserUpgrade',
+    'BodyLimitError',
+    'HeadersLimitError',
+)
 
 
 class HttpParserError(Exception):

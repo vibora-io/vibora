@@ -7,6 +7,6 @@ class ClientDefaults:
         'User-Agent': 'Vibora',
         'Accept': '*/*',
         'Connection': 'keep-alive',
-        'Accept-Encoding': 'gzip, deflate'
+        'Accept-Encoding': 'gzip, deflate',
     }
     RETRY_STRATEGY = RetryStrategy()

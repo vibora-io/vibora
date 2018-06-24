@@ -7,7 +7,6 @@ from .utils import CompilationResult, TemplateMeta
 
 
 class TemplateCache:
-
     def __init__(self):
         self.loaded_templates = {}
         self.loaded_metas = {}
@@ -46,7 +45,6 @@ class TemplateCache:
 
 
 class InMemoryCache(TemplateCache):
-
     def __init__(self):
         super().__init__()
         self.loaded_templates: Dict[str, CompiledTemplate] = {}
@@ -88,7 +86,6 @@ class InMemoryCache(TemplateCache):
 
 
 class DiskCache(TemplateCache):
-
     def __init__(self, directory: str, compiler: TemplateCompiler, meta_suffix='.json'):
         super().__init__()
         self.directory = os.path.join(directory, '__cache__', compiler.NAME)
@@ -130,7 +127,9 @@ class DiskCache(TemplateCache):
 
         try:
             with open(compiled_template_path, 'rb') as f:
-                self.loaded_templates[meta.template_hash] = self.compiler.load_compiled_template(meta, f.read())
+                self.loaded_templates[
+                    meta.template_hash
+                ] = self.compiler.load_compiled_template(meta, f.read())
                 self.loaded_metas[meta.template_hash] = meta
                 return True
         except FileNotFoundError:
@@ -167,11 +166,13 @@ class DiskCache(TemplateCache):
             if filename.endswith(self.meta_suffix):
                 meta_path = os.path.join(self.directory, filename)
                 if self._load_template(meta_path):
-                    template_path = os.path.join(self.directory, filename.replace(self.meta_suffix, ''))
+                    template_path = os.path.join(
+                        self.directory, filename.replace(self.meta_suffix, '')
+                    )
                     useful_files.append(os.path.basename(template_path))
                     useful_files.append(os.path.basename(meta_path))
 
-        for useless_filename in (files - set(useful_files)):
+        for useless_filename in files - set(useful_files):
             try:
                 os.remove(os.path.join(self.directory, useless_filename))
             except FileNotFoundError:

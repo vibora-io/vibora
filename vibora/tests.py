@@ -14,7 +14,6 @@ def wrapper(f):
 
 
 class TestSuite(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         for key, value in cls.__dict__.items():

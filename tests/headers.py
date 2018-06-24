@@ -9,7 +9,6 @@ from vibora.tests import TestSuite
 
 
 class HeadersTestCase(unittest.TestCase):
-
     def test_headers_obj(self):
         headers = Headers()
         headers['test'] = '1'
@@ -19,7 +18,6 @@ class HeadersTestCase(unittest.TestCase):
 
 
 class IntegrationHeadersTestCase(TestSuite):
-
     async def test_extra_headers__expects_correctly_evaluated(self):
         app = Vibora()
 

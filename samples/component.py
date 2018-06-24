@@ -27,5 +27,6 @@ if __name__ == '__main__':
 
     def create_request(*args, **kwargs) -> 'Request2':
         return Request2(config, *args, **kwargs)
+
     app.override_request(create_request)
     app.run(debug=False, port=8000, host='0.0.0.0')

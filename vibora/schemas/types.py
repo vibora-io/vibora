@@ -1,4 +1,2 @@
-
-
 class Email(str):
     pass

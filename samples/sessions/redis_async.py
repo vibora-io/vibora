@@ -5,9 +5,7 @@ from vibora.sessions import AsyncRedis
 from vibora.responses import Response
 
 
-app = Vibora(
-    sessions=AsyncRedis()
-)
+app = Vibora(sessions=AsyncRedis())
 
 
 @app.route('/', cache=False)

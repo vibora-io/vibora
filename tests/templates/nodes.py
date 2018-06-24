@@ -1,17 +1,26 @@
 from collections import deque
-from vibora.templates import Template, TemplateParser, ForNode, EvalNode, TextNode, IfNode, ElseNode
+from vibora.templates import (
+    Template,
+    TemplateParser,
+    ForNode,
+    EvalNode,
+    TextNode,
+    IfNode,
+    ElseNode,
+)
 from vibora.tests import TestSuite
 
 
 class NodesParsingSuite(TestSuite):
-
     def test_for_node(self):
         """
 
         :return:
         """
         tp = TemplateParser()
-        parsed = tp.parse(Template(content='{% for x in range(0, 10)%}{{x}}{%endfor %}'))
+        parsed = tp.parse(
+            Template(content='{% for x in range(0, 10)%}{{x}}{%endfor %}')
+        )
         expected_types = deque([ForNode, EvalNode])
         generated_nodes = parsed.flat_view(parsed.ast)
         while expected_types:
@@ -25,7 +34,9 @@ class NodesParsingSuite(TestSuite):
         :return:
         """
         tp = TemplateParser()
-        parsed = tp.parse(Template(content='{% for x in range(0, 10)%} {{x}} {%endfor %}'))
+        parsed = tp.parse(
+            Template(content='{% for x in range(0, 10)%} {{x}} {%endfor %}')
+        )
         expected_types = deque([ForNode, TextNode, EvalNode, TextNode])
         generated_nodes = parsed.flat_view(parsed.ast)
         while expected_types:
@@ -39,7 +50,11 @@ class NodesParsingSuite(TestSuite):
         :return:
         """
         tp = TemplateParser()
-        parsed = tp.parse(Template(content='{% for x in range(0, 10)%}{% if x == 0 %}{{ y }}{% endif %}{% endfor %}'))
+        parsed = tp.parse(
+            Template(
+                content='{% for x in range(0, 10)%}{% if x == 0 %}{{ y }}{% endif %}{% endfor %}'
+            )
+        )
         expected_types = deque([ForNode, IfNode, EvalNode])
         generated_nodes = parsed.flat_view(parsed.ast)
         while expected_types:
@@ -61,7 +76,11 @@ class NodesParsingSuite(TestSuite):
                 -
             {% endif %}
         {% endfor %}
-        """.replace('\n', '').replace('  ', '')
+        """.replace(
+            '\n', ''
+        ).replace(
+            '  ', ''
+        )
         parsed = tp.parse(Template(content=content))
         expected_types = deque([ForNode, IfNode, EvalNode, ElseNode, TextNode])
         generated_nodes = parsed.flat_view(parsed.ast)

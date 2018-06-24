@@ -6,7 +6,13 @@ import time
 import datetime
 from setuptools import Extension, setup
 from ..compilers.base import TemplateCompiler
-from ..utils import find_template_binary, CompilerFlavor, TemplateMeta, get_architecture_signature, CompilationResult
+from ..utils import (
+    find_template_binary,
+    CompilerFlavor,
+    TemplateMeta,
+    get_architecture_signature,
+    CompilationResult,
+)
 
 
 # TODO: Remove 'render' hardcoded name.
@@ -18,7 +24,7 @@ class CythonTemplateCompiler(TemplateCompiler):
     VERSION = '0.0.1'
     EXTENSION_NAME = 'compiled_templates'
 
-    def __init__(self, flavor=CompilerFlavor.TEMPLATE, temporary_dir: str=None):
+    def __init__(self, flavor=CompilerFlavor.TEMPLATE, temporary_dir: str = None):
         super().__init__()
         self.content = ''
         self.current_scope = list()
@@ -79,7 +85,7 @@ class CythonTemplateCompiler(TemplateCompiler):
         spec.loader.exec_module(compiled_module)
         return getattr(compiled_module, meta.entry_point)
 
-    def compile(self, template, verbose: bool=False) -> CompilationResult:
+    def compile(self, template, verbose: bool = False) -> CompilationResult:
         """
 
         :param verbose:
@@ -104,7 +110,12 @@ class CythonTemplateCompiler(TemplateCompiler):
             f.write(self.content)
 
         # Building optimized binaries.
-        ext = Extension(self.EXTENSION_NAME, [temp_path], extra_compile_args=['-O3'], include_dirs=['.'])
+        ext = Extension(
+            self.EXTENSION_NAME,
+            [temp_path],
+            extra_compile_args=['-O3'],
+            include_dirs=['.'],
+        )
         build_path = os.path.join(working_dir.name, template_hash)
         trash_dir = os.path.join(working_dir.name, 'trash')
         args = ['build_ext', '-b', build_path, '-t', trash_dir]
@@ -114,7 +125,9 @@ class CythonTemplateCompiler(TemplateCompiler):
 
         # Loading modules.
         compiled_path = find_template_binary(build_path)
-        spec = importlib.util.spec_from_file_location(self.EXTENSION_NAME, compiled_path)
+        spec = importlib.util.spec_from_file_location(
+            self.EXTENSION_NAME, compiled_path
+        )
         compiled_template = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(compiled_template)
 
@@ -128,13 +141,15 @@ class CythonTemplateCompiler(TemplateCompiler):
             created_at=datetime.datetime.now().isoformat(),
             architecture=get_architecture_signature(),
             compilation_time=round(time.time() - started_at, 2),
-            dependencies=template.dependencies
+            dependencies=template.dependencies,
         )
 
         # Compilation result contains the meta data and the render function loaded at runtime.
         compilation = CompilationResult(
             template=template,
-            meta=meta, render_function=compiled_template.render, code=open(compiled_path, 'rb').read()
+            meta=meta,
+            render_function=compiled_template.render,
+            code=open(compiled_path, 'rb').read(),
         )
 
         # Clearing state
