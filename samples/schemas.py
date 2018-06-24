@@ -18,7 +18,7 @@ class BenchmarkSchema(Schema):
 @app.route('/', methods=['POST'])
 async def home(request):
     values = BenchmarkSchema.from_request(request)
-    context = await BenchmarkSchema.load(extra={'db': })
+    context = await BenchmarkSchema.load()
     if context.is_valid:
         return JsonResponse({'msg': 'Successfully validated'})
     return JsonResponse({'errors': context.errors})
