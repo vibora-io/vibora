@@ -35,7 +35,7 @@ class Hook:
         self.event_type = event
         self.handler = handler
         self.local = local
-        self.async = iscoroutinefunction(handler)
+        self.is_async = iscoroutinefunction(handler)
         self.wanted_components = get_type_hints(self.handler)
 
     def call_handler(self, components):

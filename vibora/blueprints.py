@@ -169,7 +169,7 @@ class Blueprint:
         :param hook:
         :return:
         """
-        collection = self.async_hooks if hook.async else self.hooks
+        collection = self.async_hooks if hook.is_async else self.hooks
         collection[hook.event_type].append(hook)
 
     def add_route(self, route: Route):
