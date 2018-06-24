@@ -85,11 +85,12 @@ def clean_route_name(prefix: str, name: str):
     if prefix:
         if prefix[0] == ':':
             prefix = prefix[1:]
-        if len(prefix) > 0:
-            if prefix[len(prefix) - 1] == ':':
-                prefix = prefix[: len(prefix) - 1]
-        if len(prefix) > 0:
+        if prefix:
+            if prefix[-1] == ':':
+                prefix = prefix[:-1]
+        if prefix:
             return prefix + '.' + name
+
     return name
 
 
