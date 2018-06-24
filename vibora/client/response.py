@@ -242,7 +242,7 @@ class Response:
                     while len(self._content) >= chunk_size:
                         yield self._content[:chunk_size]
                         self._content = self._content[chunk_size:]
-                while len(self._content) > 0:
+                while self._content:
                     yield self._content[:chunk_size]
                     self._content = self._content[chunk_size:]
             else:

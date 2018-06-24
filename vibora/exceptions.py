@@ -53,7 +53,7 @@ class ExceptionHandler:
 
     def extract_params(self):
         hints = get_type_hints(self.handler)
-        if not hints and len(signature(self.handler).parameters) > 0:
+        if not hints and signature(self.handler).parameters:
             raise Exception(
                 f'Type hint your handler ({self.handler}) params so Vibora can optimize stuff.'
             )
