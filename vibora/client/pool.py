@@ -63,9 +63,8 @@ class ConnectionPool:
             connection = self.available_connections.pop()
             if not await connection.is_dropped():
                 return connection
-            else:
-                await self.release_connection(connection, keep_alive=False)
-                return await self.create_connection(ssl)
+            await self.release_connection(connection, keep_alive=False)
+            return await self.create_connection(ssl)
         except IndexError:
             return await self.create_connection(ssl)
 
