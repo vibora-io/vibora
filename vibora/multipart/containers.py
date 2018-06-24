@@ -74,10 +74,9 @@ class MultipartEncoder:
             return f'Content-Disposition: form-data; name="{name}"; filename="{value.name}"'.encode(
                 self.encoding
             )
-        else:
-            return f'Content-Disposition: form-data; name="{name}"'.encode(
-                self.encoding
-            )
+        return f'Content-Disposition: form-data; name="{name}"'.encode(
+            self.encoding
+        )
 
     def stream_value(self, value) -> bytes:
         """
