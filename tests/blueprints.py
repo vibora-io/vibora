@@ -17,7 +17,7 @@ class BlueprintsTestCase(TestSuite):
             return Response(b'123')
 
         self.app.add_blueprint(b1)
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/')
             self.assertEqual(response.content, b'123')
 
@@ -29,7 +29,7 @@ class BlueprintsTestCase(TestSuite):
             return Response(b'123')
 
         self.app.add_blueprint(b1, prefixes={'home': '/home'})
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/home/')
             self.assertEqual(response.content, b'123')
 
@@ -43,7 +43,7 @@ class BlueprintsTestCase(TestSuite):
 
         b1.add_blueprint(b2)
         self.app.add_blueprint(b1)
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/123')
             self.assertEqual(response.content, b'123')
 
@@ -57,7 +57,7 @@ class BlueprintsTestCase(TestSuite):
 
         b1.add_blueprint(b2, prefixes={'a': '/a', 'b': '/b'})
         self.app.add_blueprint(b1, prefixes={'a': '/a', 'b': '/b'})
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/a/a/123')
             self.assertEqual(response.content, b'123')
             response = await self.app.test_client().request('/b/b/123')

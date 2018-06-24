@@ -52,7 +52,7 @@ async def home():
     return Response(b'Home')
 ```
 
-To avoid repeting hosts attribute for every route,
+To avoid repeating the `hosts` attribute for every route,
 you can group routes using a Blueprint.
 
 ```py
@@ -77,17 +77,17 @@ A common source of headaches in URL routing are ending slashes.
 Let's take the path `/home` and `/home/` for example.
 
 In a web environment these are two completely different paths,
-it's up to the server interpret those as the same or not.
+it's up to the server to interpret those as the same or not.
 
 Vibora has three different strategies to deal with this problem:
 
     1. **Strict**. Does nothing. If you map your endpoints ending with
-    slashes them if you try to access `/home` instead of `/home/`
+    slashes then if you try to access `/home` instead of `/home/`
     you'll get a 404 response.
 
 
     2. **Redirect (Default)**. If you map your route as `/home` then
-    Vibora will return a 302 response if someone tries to access `/home/'
+    Vibora will return a 302 response if someone tries to access `/home/`
     and vice-versa.
 
 
@@ -106,7 +106,7 @@ app = Vibora(router_strategy=RouterStrategy.Strict)
 ### Caching
 
 Caching can be a tremendous ally when handling performance issues.
-Imagine an API that does a read-only query being hitted by 10k requests/sec,
+Imagine an API that does a read-only query being hit by 10k requests/sec,
 this means that you are stressing your database at 10k queries/sec.
 
 If you start caching the response for at least one second
@@ -114,7 +114,7 @@ you drop from 10k queries/sec to 1 query per second.
 That's a huge improvement with almost no effort.
 
 Vibora has some internal optimizations to speed-up cached APIs
-so instead of handling it all by ourself you should use the `CacheEngine`.
+so instead of handling it all by ourselves, you should use the `CacheEngine`.
 
 ```py
 import time

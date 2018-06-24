@@ -17,13 +17,13 @@ class ChunkedStreamingTestCase(TestSuite):
             return StreamingResponse(generate_data)
 
     async def test_streaming_client_reading_content__expects_successful(self):
-        with self.server.test_client() as client:
+        async with self.server.test_client() as client:
             response = await client.get('/', stream=True)
             await response.read_content()
             self.assertEqual(response.content, self.data)
 
     async def test_streaming_client_reading_stream__expects_successful(self):
-        with self.server.test_client() as client:
+        async with self.server.test_client() as client:
             response = await client.get('/', stream=True)
             received_data = bytearray()
             async for chunk in response.stream():

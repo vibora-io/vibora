@@ -29,7 +29,6 @@ cdef class Connection:
         public object loop
         public object transport
         public bytes protocol
-        public str last_started_processing
         bint writable
         bint readable
         object write_permission
@@ -68,6 +67,7 @@ cdef class Connection:
     cpdef void stop(self)
     cpdef bint is_closed(self)
     cpdef str client_ip(self)
+    cpdef int get_status(self)
 
     # HTTP parser callbacks.
     cdef void on_headers_complete(self, Headers headers, bytes url, bytes method, bint upgrade)

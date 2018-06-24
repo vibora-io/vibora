@@ -44,6 +44,8 @@ cdef class Request:
         object _cookies
         object _parsed_url
         object _args
+        object _session
         dict _form
 
     cpdef str client_ip(self)
+    cpdef session_pending_flush(self)

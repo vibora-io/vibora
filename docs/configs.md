@@ -10,7 +10,7 @@ This method is a little bit harder for beginners when compared to the
 Django approach but it's way more flexible and allows you to build
 whatever suits you better.
 
-Here goes a pratical example:
+Here goes a practical example:
 
 1) Create a file called config.py
 ```py
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         config = Config(json.load(f))
 
         # Registering the config as a component so you can use it
-        later on (as we do in the "before_server_start" hook)
+        # later on (as we do in the "before_server_start" hook)
         app.components.add(config)
 
         # Running the server.
