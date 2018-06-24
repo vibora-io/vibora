@@ -87,7 +87,7 @@ Vibora has three different strategies to deal with this problem:
 
 
     2. **Redirect (Default)**. If you map your route as `/home` then
-    Vibora will return a 302 response if someone tries to access `/home/'
+    Vibora will return a 302 response if someone tries to access `/home/`
     and vice-versa.
 
 
