@@ -13,4 +13,4 @@ The recommend approach to freeze a Vibora app is using docker,
 this way you can build a frozen image locally in your machine, test it
 and upload to wherever you host. This way you skip
 all python packaging problems that you'll find trying to build
-reproducible deployments between differents machines.
+reproducible deployments between different machines.

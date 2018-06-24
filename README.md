@@ -4,7 +4,7 @@
 </p>
 
 -----------------------------------------------------------
-> [Vibora](https://vibora.io) is a **fast, asynchronous and efficient** Python 3.6+ http client/server framework. (Alpha stage)
+> [Vibora](https://vibora.io) is a **fast, asynchronous and elegant** Python 3.6+ http client/server framework. (Alpha stage)
 
 > Before you ask, Vibora means Viper in Portuguese :)
 

@@ -7,7 +7,7 @@ Vibora call these objects `components`
 For now you should pay close attention to the `Request` component:
 
 This is the most important component and will be everywhere in your app.
-It holds all informations related to the current request and
+It holds all information related to the current request and
 also some useful references like the current application and route.
 
 You can ask for components in your route by using type hints:
