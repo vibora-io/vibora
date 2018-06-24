@@ -52,7 +52,7 @@ class TemplateLoader(threading.Thread):
     def check_for_modified_templates(self):
         to_be_notified = []
         for path in self.directories:
-            for root, dirs, files in os.walk(path):
+            for root, _, files in os.walk(path):
                 for file in [f for f in files if f.endswith(self.supported_files)]:
                     path = os.path.join(root, file)
                     try:
@@ -78,7 +78,7 @@ class TemplateLoader(threading.Thread):
 
     def load(self):
         for directory in self.directories:
-            for root, dirs, files in os.walk(directory):
+            for root, _, files in os.walk(directory):
                 for file in files:
                     if file.endswith(self.supported_files):
                         path = os.path.join(root, file)
