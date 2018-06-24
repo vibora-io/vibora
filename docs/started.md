@@ -5,7 +5,7 @@ advantage of some new Python features.
 
 1) Install Vibora: `pip install vibora`
 
-> It's highly recommended to install vibora inside a virtualenv.
+> It's highly recommended to install Vibora inside a virtualenv.
 
 > In case you have trouble with Vibora dependencies: `pip install vibora[pure]`
 
@@ -37,5 +37,5 @@ if __name__ == '__main__':
 The previous example was just to show off how easy is it
 to spin up a server.
 
-The recommended way to start a new project is by letting vibora do it for you.
+The recommended way to start a new project is by letting Vibora do it for you.
 Vibora is also a command-line tool, try it out: `vibora new project_name`

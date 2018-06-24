@@ -10,7 +10,7 @@ This method is a little bit harder for beginners when compared to the
 Django approach but it's way more flexible and allows you to build
 whatever suits you better.
 
-Here goes a pratical example:
+Here goes a practical example:
 
 1) Create a file called config.py
 ```py
