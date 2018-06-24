@@ -26,12 +26,12 @@ engine.compile_templates(verbose=True)
 async def render():
     template = engine.loaded_templates['test']
     c = engine.prepared_calls[template]
-    t1 = time.time()
+    t2 = time.time()
     for _ in range(0, rounds):
         asd = ''
         async for x in c({'x': b, 'y': y}):
             asd += x
-    print('Vibora: ', time.time() - t1)
+    print('Vibora: ', time.time() - t2)
 
 
 loop = uvloop.new_event_loop()
