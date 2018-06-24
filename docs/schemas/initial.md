@@ -61,7 +61,7 @@ users_api = Blueprint()
 async def add_user(request: Request):
 
     # In case the schema is invalid an exception will be raised
-    # and catch by an exception handler, this means you don't need to
+    # and catched by an exception handler, this means you don't need to
     # repeat yourself about handling errors. But in case you want to
     # customize the error message feel free to catch the exception
     # and handle it your way. "from_request" method is just syntatic sugar

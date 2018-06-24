@@ -52,7 +52,7 @@ async def home():
     return Response(b'Home')
 ```
 
-To avoid repeating the hosts attribute for every route,
+To avoid repeating the `hosts` attribute for every route,
 you can group routes using a Blueprint.
 
 ```py
@@ -77,12 +77,12 @@ A common source of headaches in URL routing are ending slashes.
 Let's take the path `/home` and `/home/` for example.
 
 In a web environment these are two completely different paths,
-it's up to the server interpret those as the same or not.
+it's up to the server to interpret those as the same or not.
 
 Vibora has three different strategies to deal with this problem:
 
     1. **Strict**. Does nothing. If you map your endpoints ending with
-    slashes them if you try to access `/home` instead of `/home/`
+    slashes then if you try to access `/home` instead of `/home/`
     you'll get a 404 response.
 
 
