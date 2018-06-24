@@ -60,6 +60,9 @@ class Blueprint:
                 chosen_cache = Static()
             if cache is False:
                 chosen_cache = None
+
+            # Get the function name in case the user doesn't provide one.
+            # Route names are used to create URLs (I.e: links inside templates)
             route_name = handler.__name__ if name is None else name
 
             # Patterns should be bytes.
@@ -80,7 +83,7 @@ class Blueprint:
         def register(*args):
             handler = args[0]
 
-            # Generating route name dynamically in case the user doesn't provide one.
+            # Get the function name in case the user doesn't provide one.
             # Route names are used to create URLs (I.e: links inside templates)
             route_name = handler.__name__ if name is None else name
 
@@ -169,7 +172,7 @@ class Blueprint:
         :param hook:
         :return:
         """
-        collection = self.async_hooks if hook.async else self.hooks
+        collection = self.async_hooks if hook.is_async else self.hooks
         collection[hook.event_type].append(hook)
 
     def add_route(self, route: Route):

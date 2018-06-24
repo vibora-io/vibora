@@ -9,21 +9,16 @@ class RouterPrefixesTestCase(TestSuite):
         data = {'hello': 'world'}
         app = Vibora()
 
-        @app.route('/asd', methods=['GET'])
+        @app.route('/test', methods=['GET'])
         async def home():
             return JsonResponse(data)
 
-        response = await app.test_client().request('/asd/')
+        response = await app.test_client().request('/test/')
         self.assertEqual(response.json(), data)
 
     async def test_root_route_expect_not_found(self):
         app = Vibora()
-        response = await app.test_client().request('/asd')
-        self.assertEqual(response.status_code, 404)
-
-    async def test_root_route_expect_not_found_5(self):
-        app = Vibora()
-        response = await app.test_client().request('/asd')
+        response = await app.test_client().request('/test')
         self.assertEqual(response.status_code, 404)
 
     async def test_add_blueprint_with_one_prefix(self):

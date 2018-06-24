@@ -12,7 +12,7 @@ class UrlForTestSuite(TestSuite):
         async def home():
             return Response(b'')
 
-        self.app.initialize(debug=True)
+        self.app.initialize()
 
     def test_hello_world_situation(self):
         self.assertEqual(self.app.url_for('home'), '/123/')

@@ -4,19 +4,19 @@
 
  - I needed a framework like Flask but async by design.
 
- - Sanic is a good idea with some unforgiven mistakes IMHO.
+ - Sanic is a good idea with questionable design choices (IMHO).
 
  - Aiohttp is solid (and well thought) but I dislike some
-   interfaces and I think it could be a lot sexier (lol).
+   interfaces and I think many of them could be user-friendlier.
 
  - I was unaware of Quart and I have mixed feelings about
    being __compatible__ with Flask.
 
- - Japronto is currently a proof of concept.
+ - Japronto is currently a proof of concept, a very impressive one.
 
  - Apistar, although I like it, is far away from being like Flask.
 
- - Tornado, is too old to be sexy and fast.
+ - I don't like Tornado APIs, they did an awesome job don't get me wrong.
 
  - Big Upload/Downloads is a pain the ass in most frameworks thanks to WSGI.
 
@@ -71,8 +71,6 @@
   - Hand-coded C extensions can be a nightmarish hell to non-expert C devs so I'm not
     willing to replace Cython with baby cared C code. Still I'm willing to replace Cython with Rust extensions
     if they get stable enough.
-
-  - Comparing a proof of concept against a fully featured framework is just dumb.
 
 #### Why don't you export the template engine into a new project ?
 

@@ -113,6 +113,7 @@ cdef class Request:
         self._args = None
         self._parsed_url = None
         self._form = None
+        self._session = None
 
     @property
     def app(self):
@@ -156,7 +157,9 @@ cdef class Request:
 
         :return:
         """
-        return self.app.session_engine.load(self)
+        if not self._session:
+            self._session = await self.app.session_engine.load(self.cookies)
+        return self._session
 
     async def json(self, loads=None, strict: bool=False) -> dict:
         """
@@ -217,3 +220,11 @@ cdef class Request:
         if self._form is None:
             await self._load_form()
         return self._form
+
+    cpdef session_pending_flush(self):
+        """
+        
+        :return: 
+        """
+        if self._session and self._session.pending_flush:
+            return self._session

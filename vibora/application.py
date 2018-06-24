@@ -1,12 +1,11 @@
-import os
-from tempfile import gettempdir
-from typing import Callable, Type
+from typing import Callable, Type, List, Optional
 from collections import defaultdict
-from inspect import stack
 from .request import Request
 from .blueprints import Blueprint
+from .sessions import SessionEngine
 from .router import Router, Route, RouterStrategy, RouteLimits
 from .protocol import Connection
+from .responses import Response
 from .components import ComponentsEngine
 from .exceptions import ReverseNotFound, DuplicatedBlueprint
 from .templates.engine import TemplateEngine
@@ -17,59 +16,48 @@ from .limits import ServerLimits
 
 class Application(Blueprint):
 
-    current_time = None
+    current_time: str = None
 
-    def __init__(self, template_dirs: list = None, router_strategy=RouterStrategy.CLONE, sessions=None,
-                 server_name: str = None, url_scheme: str = 'http', static=None,
-                 log: Callable = None, server_limits: ServerLimits=None, route_limits: RouteLimits=None,
-                 temporary_dir: str=None):
+    def __init__(self, template_dirs: List[str] = None, router_strategy=RouterStrategy.CLONE,
+                 sessions_engine: SessionEngine=None, server_name: str = None, url_scheme: str = 'http',
+                 static: StaticHandler=None, log: Callable = None,
+                 server_limits: ServerLimits=None, route_limits: RouteLimits=None,
+                 request_class: Type[Request]=Request):
         """
 
         :param template_dirs:
         :param router_strategy:
-        :param sessions:
+        :param sessions_engine:
         :param server_name:
         :param url_scheme:
         :param static:
         :param log:
         :param server_limits:
         :param route_limits:
-        :param temporary_dir:
         """
-        super().__init__(template_dirs=template_dirs or self._get_template_dirs_based_on_stack(),
-                         limits=route_limits)
-        self.debug = False
-        self.testing = False
+        super().__init__(template_dirs=template_dirs, limits=route_limits)
+        self.debug_mode = False
+        self.test_mode = False
         self.server_name = server_name
         self.url_scheme = url_scheme
         self.handler = Connection
         self.router = Router(strategy=router_strategy)
         self.template_engine = TemplateEngine(extensions=[ViboraNodes(self)])
-        self.static = static or StaticHandler(self._get_static_dirs_based_on_stack())
+        self.static = static or StaticHandler([])
         self.connections = set()
-        self.logger = None
         self.workers = []
-        # self.session_engine = sessions or FilesSessionEngine()
-        self.session_engine = sessions
         self.components = ComponentsEngine()
         self.loop = None
         self.log = log
         self.initialized = False
-        self.request_class = Request
         self.server_limits = server_limits or ServerLimits()
-        self.temporary_dir = temporary_dir or gettempdir()
         self.running = False
+        if not issubclass(request_class, Request):
+            raise ValueError('class_obj must be a child of the Vibora Request class. '
+                             '(from vibora.request import Request)')
+        self.request_class = request_class
+        self.session_engine = sessions_engine
         self._test_client = None
-
-    def override_request(self, class_obj: Type):
-        """
-
-        :param class_obj:
-        :return:
-        """
-        if not issubclass(class_obj, Request):
-            raise ValueError('You must subclass the Request class to override it.')
-        self.request_class = class_obj
 
     def exists_hook(self, type_id: int) -> bool:
         """
@@ -79,7 +67,7 @@ class Application(Blueprint):
         """
         return bool(self.hooks.get(type_id) or self.async_hooks.get(type_id))
 
-    async def call_hooks(self, type_id: int, components):
+    async def call_hooks(self, type_id: int, components) -> Optional[Response]:
         """
 
         :param type_id:
@@ -94,40 +82,6 @@ class Application(Blueprint):
             response = await listener.call_handler(components)
             if response:
                 return response
-
-    @staticmethod
-    def _get_template_dirs_based_on_stack():
-        chosen_stack = None
-        template_dirs = []
-        for s in reversed(stack()):
-            if s.code_context:
-                for context in s.code_context:
-                    if 'vibora' in context.lower():
-                        chosen_stack = s
-        if chosen_stack:
-            parent_dir = os.path.dirname(chosen_stack.filename)
-            for root, dirs, files in os.walk(parent_dir):
-                for directory_name in dirs:
-                    if directory_name == 'templates':
-                        template_dirs.append(os.path.join(root, directory_name))
-        return template_dirs
-
-    @staticmethod
-    def _get_static_dirs_based_on_stack():
-        chosen_stack = None
-        template_dirs = []
-        for s in reversed(stack()):
-            if s.code_context:
-                for context in s.code_context:
-                    if 'vibora' in context.lower():
-                        chosen_stack = s
-        if chosen_stack:
-            parent_dir = os.path.dirname(chosen_stack.filename)
-            for root, dirs, files in os.walk(parent_dir):
-                for directory_name in dirs:
-                    if directory_name == 'static':
-                        template_dirs.append(os.path.join(root, directory_name))
-        return template_dirs
 
     def __register_blueprint_routes(self, blueprint: Blueprint, prefixes: dict = None):
         """
@@ -183,7 +137,10 @@ class Application(Blueprint):
             blueprint.hooks = local_listeners
 
     def clean_up(self):
-        # self.session_engine.clean_up()
+        """
+
+        :return:
+        """
         for process in self.workers:
             process.terminate()
         self.running = False

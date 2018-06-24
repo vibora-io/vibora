@@ -2,13 +2,10 @@ import time
 import os
 import signal
 import pendulum
-from datetime import datetime
 from email.utils import formatdate
 from threading import Thread
 from ..responses import update_current_time
 from ..protocol import ConnectionStatus
-
-# TODO: Handle concurrency.
 
 
 class Reaper(Thread):
@@ -21,12 +18,12 @@ class Reaper(Thread):
         self.connections = self.app.connections
 
         # How long we allow a connection being idle.
-        self.keep_alive_timeout = self.app.server_limits.keep_alive_timeout
+        self.keep_alive_timeout = 5
 
         # In case the worker is stuck for some crazy reason (sync calls, expensive CPU ops) we gonna kill it.
         self.worker_timeout = self.app.server_limits.worker_timeout
 
-        # After this thread identify that our worker is stuck there is no need to continue running.
+        # Flag to stop this thread.
         self.has_to_work = True
 
     @staticmethod
@@ -54,15 +51,13 @@ class Reaper(Thread):
         :return:
         """
         death_row = list()
-        for connection in self.app.connections:
-            if connection.alive is False:
+        for connection in self.connections:
+            if connection.get_status() == 1:
                 death_row.append(connection)
             else:
                 connection.alive = False
         if death_row:
             self.app.loop.create_task(self.kill_connections(death_row))
-            for connection in death_row:
-                self.app.connections.discard(connection)
 
     def run(self):
         """
@@ -82,6 +77,7 @@ class Reaper(Thread):
             self.app.current_time = now.isoformat()
             update_current_time(formatdate(timeval=now.timestamp(), localtime=False, usegmt=True))
 
+            # WIP
             # if self.keep_alive_timeout > 0:
             #     if counter % self.keep_alive_timeout == 0:
             #         self.kill_idle_connections()

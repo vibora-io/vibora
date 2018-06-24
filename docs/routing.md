@@ -52,7 +52,7 @@ async def home():
     return Response(b'Home')
 ```
 
-To avoid repeting hosts attribute for every route,
+To avoid repeating the hosts attribute for every route,
 you can group routes using a Blueprint.
 
 ```py
@@ -106,7 +106,7 @@ app = Vibora(router_strategy=RouterStrategy.Strict)
 ### Caching
 
 Caching can be a tremendous ally when handling performance issues.
-Imagine an API that does a read-only query being hitted by 10k requests/sec,
+Imagine an API that does a read-only query being hit by 10k requests/sec,
 this means that you are stressing your database at 10k queries/sec.
 
 If you start caching the response for at least one second
@@ -114,7 +114,7 @@ you drop from 10k queries/sec to 1 query per second.
 That's a huge improvement with almost no effort.
 
 Vibora has some internal optimizations to speed-up cached APIs
-so instead of handling it all by ourself you should use the `CacheEngine`.
+so instead of handling it all by ourselves, you should use the `CacheEngine`.
 
 ```py
 import time
