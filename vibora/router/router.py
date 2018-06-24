@@ -237,8 +237,9 @@ class Router:
             return self.default_handlers[404]
 
     def check_integrity(self):
-        if self.default_handlers.get(404) is None:
-            raise NotImplementedError('Please implement the default 404 route.')
+        for http_code in [404, 405]:
+            if self.default_handlers.get(http_code) is None:
+                raise NotImplementedError(f'Please implement the default {http_code} route.')
 
 
 class Route:

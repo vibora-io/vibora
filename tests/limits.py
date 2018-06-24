@@ -17,7 +17,7 @@ class LimitTestCase(TestSuite):
             await request.stream.read()
             return Response(b'Correct. Request should not be blocked.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post('/', body=b'1')
             self.assertEqual(response.status_code, 200)
 
@@ -31,7 +31,7 @@ class LimitTestCase(TestSuite):
             await request.stream.read()
             return Response(b'Wrong. Request should halted earlier.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post('/', body=b'12')
             self.assertEqual(response.status_code, 413)
 
@@ -44,7 +44,7 @@ class LimitTestCase(TestSuite):
         async def home():
             return Response(b'Wrong. Request should halted earlier.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.status_code, 400)
 
@@ -57,7 +57,7 @@ class LimitTestCase(TestSuite):
         async def home():
             return Response(b'Correct. Request should pass without problems.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.status_code, 200)
 
@@ -71,7 +71,7 @@ class LimitTestCase(TestSuite):
             await request.stream.read()
             return Response(b'Correct. Request should pass without problems.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post('/', body=b'11')
             self.assertEqual(response.status_code, 200)
 
@@ -85,6 +85,6 @@ class LimitTestCase(TestSuite):
             await request.stream.read()
             return Response(b'Wrong. Request must be blocked because this route is more restrictive.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post('/', body=b'11')
             self.assertEqual(response.status_code, 413)
