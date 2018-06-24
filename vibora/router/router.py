@@ -306,7 +306,7 @@ class Route:
                 )
         else:
             hints = get_type_hints(handler)
-            if not hints and len(signature(handler).parameters) > 0:
+            if not hints and signature(handler).parameters:
                 raise Exception(
                     f'Type hint your route ({self.name}) params so Vibora can optimize stuff.'
                 )
