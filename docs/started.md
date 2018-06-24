@@ -10,7 +10,6 @@ advantage of some new Python features.
 > In case you have trouble with Vibora dependencies: `pip install vibora[pure]`
 
 
-
 2) Create a file called `anything.py` with the following code:
 
 ```py

@@ -12,7 +12,7 @@ class ViboraExtensionSuiteCase(TestSuite):
         async def home():
             return Response(b'')
 
-        self.app.initialize(debug=True)
+        self.app.initialize()
 
     async def test_url_for_inside_for_node(self):
         template = Template('{% for x in range(0, 10)%}{% url "home" %}{% endfor %}')

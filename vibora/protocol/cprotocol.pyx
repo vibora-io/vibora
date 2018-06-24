@@ -1,5 +1,6 @@
 #!python
 #cython: language_level=3, boundscheck=False, wraparound=False
+import time
 from asyncio import Transport, Event, sleep, Task, CancelledError
 from ..parsers.errors import HttpParserError
 
@@ -21,9 +22,12 @@ from ..responses.responses cimport Response, CachedResponse
 from .cwebsocket cimport WebsocketConnection
 ############################################
 
+cdef int current_time = time.time()
+
 DEF PENDING_STATUS = 1
 DEF RECEIVING_STATUS = 2
 DEF PROCESSING_STATUS = 3
+
 DEF EVENTS_BEFORE_ENDPOINT = 3
 DEF EVENTS_AFTER_ENDPOINT  = 4
 DEF EVENTS_AFTER_RESPONSE_SENT  = 5
@@ -50,7 +54,6 @@ cdef class Connection:
         ###########################
         ## State Machine
         self.transport = None  # type: Transport
-        self.last_started_processing = self.app.current_time
         self.status = PENDING_STATUS
         self.writable = True
         self.readable = True
@@ -262,7 +265,7 @@ cdef class Connection:
 
         # Stop reading from the socket while processing the response.
         # We only start reading again if the user explicitly tries to consume the stream.
-        # This helps to prevent against DoS and give the user a chance to choose what's
+        # This helps to prevent DoS and give the user a chance to choose what's
         # best for him in this situation.
         self.pause_reading()
 
@@ -386,6 +389,13 @@ cdef class Connection:
         """
         return self.closed
 
+    cpdef int get_status(self):
+        """
+        
+        :return: 
+        """
+        return self.status
+
     def eof_received(self, *args):
         """
 
@@ -411,3 +421,12 @@ cdef class Connection:
         while buffer_size() > 0:
             await sleep(0.5)
         self.close()
+
+
+def update_current_time() -> None:
+    """
+    current_time cannot be access from outside this module so we call this function periodically to update this.
+    :return: None
+    """
+    global current_time
+    current_time = time.time()

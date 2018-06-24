@@ -16,7 +16,7 @@ class TimeoutsTestCase(TestSuite):
             await asyncio.sleep(10)
             return Response(b'Wrong. This request should timeout.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/', timeout=4)
             self.assertEqual(response.status_code, 500)
 
@@ -28,7 +28,7 @@ class TimeoutsTestCase(TestSuite):
         async def home():
             return Response(b'Correct.')
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/', timeout=4)
             self.assertEqual(response.status_code, 200)
 
@@ -49,7 +49,7 @@ class TimeoutsTestCase(TestSuite):
         async def home():
             return StreamingResponse(generator)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             try:
                 await client.get('/', timeout=10)
             except Exception as error:
@@ -71,7 +71,7 @@ class TimeoutsTestCase(TestSuite):
         async def home():
             return StreamingResponse(generator)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.content, b'123')
 
@@ -88,6 +88,6 @@ class TimeoutsTestCase(TestSuite):
         async def home():
             return StreamingResponse(generator)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.content, b'123')

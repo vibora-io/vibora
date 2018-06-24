@@ -1,13 +1,13 @@
-from typing import Coroutine, Any
 from .session import Session
 from .response import Response
-from .retries import RetryStrategy
+from . import retries as retries_module
+
 
 __default_session = Session(keep_alive=False)
 
 
 async def get(url: str = '', stream: bool = False, follow_redirects: bool = True, max_redirects: int = 30,
-              decode: bool = True, ssl=None, timeout=None, retries: Session = None,
+              decode: bool = True, ssl=None, timeout=None, retries: retries_module.RetryStrategy = None,
               headers: dict = None, query: dict = None,
               ignore_prefix: bool = False) -> Response:
     return await __default_session.request(url=url, stream=stream, follow_redirects=follow_redirects,
@@ -17,7 +17,7 @@ async def get(url: str = '', stream: bool = False, follow_redirects: bool = True
 
 
 async def post(url: str = '', stream: bool = False, follow_redirects: bool = True, max_redirects: int = 30,
-               decode: bool = True, validate_ssl=None, timeout=None, retries: RetryStrategy = None,
+               decode: bool = True, validate_ssl=None, timeout=None, retries: retries_module.RetryStrategy = None,
                headers: dict = None, query: dict = None, body=None, form=None, json=None,
                ignore_prefix: bool = False) -> Response:
     return await __default_session.request(url=url, stream=stream, follow_redirects=follow_redirects,

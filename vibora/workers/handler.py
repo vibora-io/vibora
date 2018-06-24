@@ -31,13 +31,16 @@ class RequestHandler(Process):
         # Creating a new event loop using a faster loop.
         loop = asynclib.new_event_loop()
         loop.app = self.app
-        self.app.components.add(loop)
         self.app.loop = loop
+        self.app.components.add(loop)
         asyncio.set_event_loop(loop)
 
         # Starting the connection reaper.
         self.app.reaper = Reaper(app=self.app)
         self.app.reaper.start()
+
+        # Registering routes, blueprints, handlers, callbacks, everything is delayed until now.
+        self.app.initialize()
 
         # Calling before server start hooks (sync/async)
         loop.run_until_complete(self.app.call_hooks(Events.BEFORE_SERVER_START, components=self.app.components))
@@ -55,7 +58,7 @@ class RequestHandler(Process):
             # Calling the before server stop hook.
             await self.app.call_hooks(Events.BEFORE_SERVER_STOP, components=self.app.components)
 
-            # Ordering all connections to finish as soon as possible.
+            # Ask all connections to finish as soon as possible.
             for connection in self.app.connections.copy():
                 connection.stop()
 

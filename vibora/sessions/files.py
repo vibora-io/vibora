@@ -42,10 +42,3 @@ class FilesSessionEngine(SessionEngine):
             f.write(session.dumps())
         cookie = f'{self.cookie_name}={session.uuid}; SameSite=Lax'
         response.headers['Set-Cookie'] = cookie
-
-    def clean_up(self):
-        """
-
-        :return:
-        """
-        self.temporary_directory.cleanup()

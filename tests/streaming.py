@@ -21,7 +21,7 @@ class StreamingTestSuite(TestSuite):
         async def home():
             return StreamingResponse(stream)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content, b'1' * 100)
@@ -39,7 +39,7 @@ class StreamingTestSuite(TestSuite):
         async def home():
             return StreamingResponse(stream, complete_timeout=1)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             try:
                 await client.get('/', timeout=3)
                 self.fail('Vibora should have closed the connection because a streaming timeout is not recoverable.')
@@ -61,7 +61,7 @@ class StreamingTestSuite(TestSuite):
         async def home():
             return StreamingResponse(stream, chunk_timeout=3, complete_timeout=999)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/', stream=True)
             try:
                 first = True

@@ -1,14 +1,17 @@
 import platform
 import re
 import pathlib
+import os
 from setuptools import setup, Extension, find_packages
 
 # Uvloop and ujson are notoriously problematic at Windows so they are skipped for Windows users.
 # They still can install and benefit from it... it's just that Vibora doesnt make it mandatory.
+dependencies = ['pendulum']
 if platform.system().lower() == 'linux':
-    dependencies = ['uvloop', 'ujson', 'pendulum']
-else:
-    dependencies = ['pendulum']
+    if os.environ.get('VIBORA_UVLOOP', 1) != '0':
+        dependencies.append('uvloop')
+    if os.environ.get('VIBORA_UJSON', 1) != '0':
+        dependencies.append('ujson')
 
 # Loading version
 here = pathlib.Path(__file__).parent
@@ -19,7 +22,7 @@ version = re.findall(r"^__version__ = '([^']+)'\r?$", txt, re.M)[0]
 setup(
     name="vibora",
     version=version,
-    description='Fast, asynchronous and sexy Python web framework',
+    description='Fast, asynchronous and efficient Python web framework',
     author='Frank Vieira',
     author_email='frank@frankvieira.com.br',
     url='https://vibora.io',

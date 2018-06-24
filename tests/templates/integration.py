@@ -12,7 +12,7 @@ class ViboraExtensionSuiteCase(TestSuite):
         async def home():
             return Response(b'')
 
-        self.app.initialize(debug=True)
+        self.app.initialize()
 
     async def test_empty_template_expects_empty_string(self):
         template = Template('')
