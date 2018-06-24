@@ -6,8 +6,8 @@ from vibora.client.limits import RequestRate
 from aiohttp import ClientSession
 
 
-max = 3_000
-url = 'http://127.0.0.1:8888/'
+max = 20
+url = 'http://127.0.0.1:8000/'
 
 
 async def vibora():

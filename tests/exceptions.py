@@ -18,7 +18,7 @@ class ExceptionsTestCase(TestSuite):
         async def handle_errors():
             return Response(b'Catch!', status_code=500)
 
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.get('/')
 
         self.assertEqual(response.status_code, 500)
@@ -226,7 +226,7 @@ class ExceptionsTestCase(TestSuite):
         async def handle_errors(request: Request):
             return JsonResponse({'called': request.context.get('called')}, status_code=500)
 
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/')
 
         self.assertEqual(response.status_code, 500)

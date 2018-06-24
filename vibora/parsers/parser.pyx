@@ -1,5 +1,11 @@
 #!python
 #cython: language_level=3
+########################################################################
+########################################################################
+# Portions Copyright (c) 2015-present MagicStack Inc.
+# https://github.com/MagicStack/httptools
+########################################################################
+########################################################################
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from cpython cimport PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, Py_buffer
 from .errors import HttpParserError, HttpParserCallbackError, HttpParserInvalidStatusError, \

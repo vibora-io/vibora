@@ -15,7 +15,7 @@ class FormsTestCase(TestSuite):
             form = await request.form()
             return JsonResponse(form)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post('/', form={'a': 1, 'b': 2})
             self.assertEqual(response.status_code, 200)
             self.assertDictEqual(response.json(), {'a': '1', 'b': '2'})
@@ -29,7 +29,7 @@ class FormsTestCase(TestSuite):
             return JsonResponse({'a': await form['a'].read(), 'b': await form['b'].read(),
                                  'c': await form['c'].read(), 'd': form['d']})
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post(
                 '/', form={
                     'a': FileUpload(content=b'a'),
@@ -51,7 +51,7 @@ class FormsTestCase(TestSuite):
                 uploaded_files[file.filename] = await file.read()
             return JsonResponse(uploaded_files)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.post(
                 '/', form={
                     'a': FileUpload(content=b'a', name='a'),
