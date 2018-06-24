@@ -52,7 +52,7 @@ async def home():
     return Response(b'Home')
 ```
 
-To avoid repeting hosts attribute for every route,
+To avoid repeating the hosts attribute for every route,
 you can group routes using a Blueprint.
 
 ```py
