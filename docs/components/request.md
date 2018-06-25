@@ -7,7 +7,8 @@ Json, Forms, Files everything can be accessed through it.
 ### Receiving JSON
 
 ```py
-from vibora import Vibora, JsonResponse, Request
+from vibora import Vibora, Request
+from vibora.responses import JsonResponse
 
 app = Vibora()
 
@@ -16,6 +17,7 @@ async def home(request: Request):
     values = await request.json()
     print(values)
     return JsonResponse(values)
+app.run()
 ```
 
 Note that `request.json()` is actually a coroutine
@@ -47,7 +49,8 @@ by doing way more coding yourself.
 
 ```py
 import uuid
-from vibora import Vibora, JsonResponse, Request
+from vibora import Vibora, Request
+from vibora.responses import JsonResponse
 
 app = Vibora()
 
@@ -106,7 +109,8 @@ The URL is parsed by a
 fast Cython parser so there is no need to you re-invent the wheel.
 
 ```py
-from vibora import Vibora, Request, JsonResponse
+from vibora import Vibora, Request
+from vibora.responses import JsonResponse
 
 app = Vibora()
 
