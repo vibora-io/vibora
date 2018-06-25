@@ -14,17 +14,19 @@ advantage of some new Python features.
 2) Create a file called `anything.py` with the following code:
 
 ```py
-from vibora import Vibora, JsonResponse
+from vibora import Vibora, Request
+from vibora.responses import JsonResponse
 
 app = Vibora()
 
 
 @app.route('/')
-async def home():
+async def home(request: Request):
     return JsonResponse({'hello': 'world'})
 
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8000)
+    app.run(debug=True, host='0.0.0.0', port=8000)
 ```
 
 3) Run the server: `python3 anything.py`
