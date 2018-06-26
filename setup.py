@@ -4,14 +4,6 @@ import pathlib
 import os
 from setuptools import setup, Extension, find_packages
 
-# Uvloop and ujson are notoriously problematic at Windows so they are skipped for Windows users.
-# They still can install and benefit from it... it's just that Vibora doesnt make it mandatory.
-dependencies = ['pendulum']
-if platform.system().lower() == 'linux':
-    if os.environ.get('VIBORA_UVLOOP', 1) != '0':
-        dependencies.append('uvloop')
-    if os.environ.get('VIBORA_UJSON', 1) != '0':
-        dependencies.append('ujson')
 
 # Loading version
 here = pathlib.Path(__file__).parent
@@ -35,7 +27,20 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6'
     ],
-    install_requires=dependencies,
+    install_requires=['pendulum'],
+    extras_require={
+        'dev': [
+            'flake8',
+            'pytest',
+            'tox',
+        ],
+        'ujson': [
+            'ujson',
+        ],
+        'uvloop': [
+            'uvloop',
+        ],
+    },
     ext_modules=[
         Extension(
             "vibora.parsers.parser",
