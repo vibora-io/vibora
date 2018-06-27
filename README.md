@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
 Documentation
 -------------
-[Check it out at Vibora docs website](https://docs.vibora.io/docs).
+[Check it out at Vibora docs website](https://docs.vibora.io).
 
 Performance (Infamous Hello World benchmark)
 -----------
