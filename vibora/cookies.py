@@ -31,17 +31,17 @@ class Cookie:
 
     @property
     def header(self):
-        header = f'Set-Cookie: {self.name}={self.value}; '
+        header = f'Set-Cookie: {self.name}={self.value};'
         if self.same_site:
-            header += 'SameSite; '
+            header += 'SameSite;'
         if self.http_only:
-            header += 'HttpOnly; '
+            header += 'HttpOnly;'
         if self.expires_at:
-            header += f'Expires={self.expires_at}; '
+            header += f'Expires={self.expires_at};'
         if self.domain:
-            header += f'Domain={self.domain}; '
+            header += f'Domain={self.domain};'
         if self.path:
-            header += f'Path={self.path}; '
+            header += f'Path={self.path};'
         return header.encode()
 
     @classmethod
@@ -62,7 +62,8 @@ class Cookie:
                     attribute_name, value = cls.options[sub_pieces[0].lower().strip()]
                 except KeyError as error:
                     pass
-                setattr(instance, attribute_name, value(sub_pieces))
+                else:
+                    setattr(instance, attribute_name, value(sub_pieces))
         return instance
 
 

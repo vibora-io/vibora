@@ -103,7 +103,7 @@ class Response:
             content += f'{header}: {value}\r\n'
         if self.cookies:
             for cookie in self.cookies:
-                content += cookie.header + '\r\n'
+                content += cookie.header.decode() + '\r\n'
         content += '\r\n'
         return content.encode()
 
