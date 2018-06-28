@@ -1,7 +1,7 @@
 ### Data Validation
 
 Data validation is a common task in any web related activity.
-Vibora has a module called `schemas` to build guess what,
+Vibora has a module called `schemas` to build, guess what,
 schemas, and validate your data against them.
 They are very similar to `marshmallow` and
 other famous libraries except they have some speedups written in Cython
