@@ -77,11 +77,10 @@ class Reaper(Thread):
             self.app.current_time = now.isoformat()
             update_current_time(formatdate(timeval=now.timestamp(), localtime=False, usegmt=True))
 
-            # WIP
-            # if self.keep_alive_timeout > 0:
-            #     if counter % self.keep_alive_timeout == 0:
-            #         self.kill_idle_connections()
-            # if counter % self.worker_timeout == 0:
-            #     self.check_if_worker_is_stuck()
+            if self.keep_alive_timeout > 0:
+                if counter % self.keep_alive_timeout == 0:
+                    self.kill_idle_connections()
+            if counter % self.worker_timeout == 0:
+                self.check_if_worker_is_stuck()
 
             time.sleep(1)
