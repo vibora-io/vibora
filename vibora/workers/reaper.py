@@ -5,7 +5,7 @@ import pendulum
 from email.utils import formatdate
 from threading import Thread
 from ..responses import update_current_time
-from ..protocol import ConnectionStatus
+from ..protocol import ConnectionStatus, update_current_time as update_time_protocol
 
 
 class Reaper(Thread):
@@ -15,16 +15,16 @@ class Reaper(Thread):
         self.app = app
 
         # Early bindings
-        self.connections = self.app.connections
+        self.connections: set = self.app.connections
 
         # How long we allow a connection being idle.
-        self.keep_alive_timeout = 5
+        self.keep_alive_timeout: int = self.app.server_limits.keep_alive_timeout
 
         # In case the worker is stuck for some crazy reason (sync calls, expensive CPU ops) we gonna kill it.
-        self.worker_timeout = self.app.server_limits.worker_timeout
+        self.worker_timeout: int = self.app.server_limits.worker_timeout
 
         # Flag to stop this thread.
-        self.has_to_work = True
+        self.has_to_work: bool = True
 
     @staticmethod
     async def kill_connections(connections: list):
@@ -32,12 +32,15 @@ class Reaper(Thread):
             connection.transport.clean_up()
 
     def check_if_worker_is_stuck(self):
+        """
+
+        :return:
+        """
         current_time = time.time()
-        for connection in self.app.connections:
+        for connection in self.app.connections.copy():
             conditions = (
-                connection.status == ConnectionStatus.PROCESSING_REQUEST,
-                current_time != 0,
-                current_time - connection.last_started_processing >= self.worker_timeout
+                connection.get_status() == ConnectionStatus.PROCESSING_REQUEST,
+                current_time - connection.get_last_task_time() >= self.worker_timeout
             )
             if all(conditions):
                 # ###############
@@ -50,14 +53,11 @@ class Reaper(Thread):
 
         :return:
         """
-        death_row = list()
-        for connection in self.connections:
-            if connection.get_status() == 1:
-                death_row.append(connection)
-            else:
-                connection.alive = False
-        if death_row:
-            self.app.loop.create_task(self.kill_connections(death_row))
+        now = time.time()
+        for connection in self.connections.copy():
+            if connection.get_status() == ConnectionStatus.PENDING and \
+                    (now - connection.get_last_task_time() > self.keep_alive_timeout):
+                connection.stop()
 
     def run(self):
         """
@@ -76,10 +76,12 @@ class Reaper(Thread):
             now = pendulum.datetime(now.year, now.month, now.day, now.hour, now.minute, now.second, tz=now.tz)
             self.app.current_time = now.isoformat()
             update_current_time(formatdate(timeval=now.timestamp(), localtime=False, usegmt=True))
+            update_time_protocol()
 
             if self.keep_alive_timeout > 0:
                 if counter % self.keep_alive_timeout == 0:
                     self.kill_idle_connections()
+
             if counter % self.worker_timeout == 0:
                 self.check_if_worker_is_stuck()
 

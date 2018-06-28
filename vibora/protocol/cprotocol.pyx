@@ -1,6 +1,6 @@
 #!python
 #cython: language_level=3, boundscheck=False, wraparound=False
-import time
+from time import time
 from asyncio import Transport, Event, sleep, Task, CancelledError
 from ..parsers.errors import HttpParserError
 
@@ -22,7 +22,7 @@ from ..responses.responses cimport Response, CachedResponse
 from .cwebsocket cimport WebsocketConnection
 ############################################
 
-cdef int current_time = time.time()
+cdef int current_time = time()
 
 DEF PENDING_STATUS = 1
 DEF RECEIVING_STATUS = 2
@@ -61,6 +61,7 @@ cdef class Connection:
         self.current_task = None
         self.timeout_task = None
         self.closed = False
+        self.last_task_time = time()
         self._stopped = False
 
         ##################################
@@ -237,6 +238,9 @@ cdef class Connection:
         # Checking for protocol upgrades (I.e: Websocket connections, HTTP2)
         if not upgrade:
 
+            # Updating last request time.
+            self.last_task_time = current_time
+
             # Optimized path that skips the creation of a async task because
             # the response is already in memory so we can do some neat optimizations.
             cache_engine = route.cache
@@ -246,7 +250,6 @@ cdef class Connection:
                     response.send(self)
                     return
 
-            # Creating a new task to process the request.
             self.current_task = Task(self.handle_request(request, route), loop=self.loop)
             self.current_task.components = self.components
 
@@ -396,6 +399,13 @@ cdef class Connection:
         """
         return self.status
 
+    cpdef int get_last_task_time(self):
+        """
+        
+        :return: 
+        """
+        return self.last_task_time
+
     def eof_received(self, *args):
         """
 
@@ -429,4 +439,4 @@ def update_current_time() -> None:
     :return: None
     """
     global current_time
-    current_time = time.time()
+    current_time = time()
