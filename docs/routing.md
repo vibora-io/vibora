@@ -56,18 +56,22 @@ To avoid repeating the `hosts` attribute for every route,
 you can group routes using a Blueprint.
 
 ```py
-from vibora import Blueprint
+from vibora.blueprints import Blueprint
+from vibora.responses import Response
+
 
 docs = Blueprint(hosts=['docs.vibora.io'])
 main = Blueprint(hosts=['vibora.io'])
+
 
 @docs.route('/')
 async def docs():
     return Response(b'docs')
 
+
 @main.route('/')
 async def home():
-    return Response(b'docs')
+    return Response(b'main')
 ```
 
 ### Router Strategies
@@ -100,7 +104,7 @@ Configuration example:
 from vibora import Vibora
 from vibora.router import RouterStrategy
 
-app = Vibora(router_strategy=RouterStrategy.Strict)
+app = Vibora(router_strategy=RouterStrategy.STRICT)
 ```
 
 ### Caching
@@ -117,11 +121,11 @@ Vibora has some internal optimizations to speed-up cached APIs
 so instead of handling it all by ourselves, you should use the `CacheEngine`.
 
 ```py
-import time
-from vibora import Vibora
+from vibora import Vibora, Response, Request
 from vibora.cache import CacheEngine
 
 app = Vibora()
+
 
 class YourCacheEngine(CacheEngine):
     async def get(self, request: Request):
@@ -130,9 +134,10 @@ class YourCacheEngine(CacheEngine):
     async def store(self, request: Request, response):
         self.cache[request.url] = response
 
+
 @app.route('/', cache=YourCacheEngine(skip_hooks=True))
 def home():
-    return Response(b'123')
+    return Response(b'Hello World')
 ```
 
 > Notice the "skip_hooks" parameter which makes cached responses to
