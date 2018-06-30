@@ -1,5 +1,5 @@
 from .messages import EnglishLanguage
-from vibora.request import Request
+from ..request import Request
 
 
 class Schema:

@@ -93,9 +93,9 @@ cdef inline translate_errors(dict errors, dict language):
             for error in field_errors:
                 if key not in translated_errors:
                     translated_errors[key] = []
-                if error.msg in language:
+                if error.error_code in language:
                     translated_errors[key].append({
-                        'msg': language[error.msg](error.extra), 'error_code': error.msg
+                        'msg': language[error.error_code].format(**error.extra), 'error_code': error.error_code
                     })
                 else:
                     translated_errors[key].append({'msg': error.msg, 'error_code': 0})
@@ -148,7 +148,7 @@ class Schema(metaclass=SchemaCreator):
             elif not field.required:
                 setattr(instance, field.load_into, field.default() if field.default_callable else field.default)
             else:
-                add_error(errors, field.load_from, ValidationError(Messages.MISSING_REQUIRED_FIELD))
+                add_error(errors, field.load_from, ValidationError(error_code=Messages.MISSING_REQUIRED_FIELD))
         if errors:
             raise InvalidSchema(translate_errors(errors, language))
         await instance.after_load()

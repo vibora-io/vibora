@@ -33,3 +33,7 @@ class Connection:
     def on_body(self, body): pass
 
     def on_message_complete(self): pass
+
+
+def update_current_time() -> None:
+    pass

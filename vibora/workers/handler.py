@@ -55,6 +55,9 @@ class RequestHandler(Process):
 
         async def stop_server(timeout=30):
 
+            # Stop the reaper.
+            self.app.reaper.has_to_work = False
+
             # Calling the before server stop hook.
             await self.app.call_hooks(Events.BEFORE_SERVER_STOP, components=self.app.components)
 

@@ -1,9 +1,9 @@
+from itertools import chain
 from typing import Callable, Type, List, Optional
-from collections import defaultdict
 from .request import Request
 from .blueprints import Blueprint
 from .sessions import SessionEngine
-from .router import Router, Route, RouterStrategy, RouteLimits
+from .router import Router, RouterStrategy, RouteLimits
 from .protocol import Connection
 from .responses import Response
 from .components import ComponentsEngine
@@ -20,7 +20,7 @@ class Application(Blueprint):
 
     def __init__(self, template_dirs: List[str] = None, router_strategy=RouterStrategy.CLONE,
                  sessions_engine: SessionEngine=None, server_name: str = None, url_scheme: str = 'http',
-                 static: StaticHandler=None, log: Callable = None,
+                 static: StaticHandler=None, log_handler: Callable=None, access_logs: bool=None,
                  server_limits: ServerLimits=None, route_limits: RouteLimits=None,
                  request_class: Type[Request]=Request):
         """
@@ -31,7 +31,7 @@ class Application(Blueprint):
         :param server_name:
         :param url_scheme:
         :param static:
-        :param log:
+        :param log_handler:
         :param server_limits:
         :param route_limits:
         """
@@ -48,7 +48,8 @@ class Application(Blueprint):
         self.workers = []
         self.components = ComponentsEngine()
         self.loop = None
-        self.log = log
+        self.access_logs = access_logs
+        self.log_handler = log_handler
         self.initialized = False
         self.server_limits = server_limits or ServerLimits()
         self.running = False
@@ -65,23 +66,32 @@ class Application(Blueprint):
         :param type_id:
         :return:
         """
+
+        for blueprint in self.blueprints.keys():
+            if bool(blueprint.hooks.get(type_id)):
+                return True
+            if bool(blueprint.async_hooks.get(type_id)):
+                return True
         return bool(self.hooks.get(type_id) or self.async_hooks.get(type_id))
 
-    async def call_hooks(self, type_id: int, components) -> Optional[Response]:
+    async def call_hooks(self, type_id: int, components, route=None) -> Optional[Response]:
         """
 
+        :param route:
         :param type_id:
         :param components:
         :return:
         """
-        for listener in self.hooks[type_id]:
-            response = listener.call_handler(components)
-            if response:
-                return response
-        for listener in self.async_hooks[type_id]:
-            response = await listener.call_handler(components)
-            if response:
-                return response
+        targets = (route.parent, self) if route and route.parent != self else (self, )
+        for target in targets:
+            for listener in target.hooks.get(type_id, ()):
+                response = listener.call_handler(components)
+                if response:
+                    return response
+            for listener in target.async_hooks.get(type_id, ()):
+                response = await listener.call_handler(components)
+                if response:
+                    return response
 
     def __register_blueprint_routes(self, blueprint: Blueprint, prefixes: dict = None):
         """
@@ -124,17 +134,17 @@ class Application(Blueprint):
 
         self.blueprints[blueprint] = prefixes
 
-        # Non-Local listeners are removed from the blueprint.
+        # Non-Local listeners are removed from the blueprint because they are actually global hooks.
         if blueprint != self:
-            local_listeners = defaultdict(list)
-            for listener_type, listeners in blueprint.hooks.items():
-                for listener in listeners:
-                    if not listener.local:
-                        self.add_hook(listener)
-                    else:
-                        local_listeners[listener_type].append(listener)
-
-            blueprint.hooks = local_listeners
+            for collection, name in ((blueprint.hooks, 'hooks'), (blueprint.async_hooks, 'async_hooks')):
+                local_listeners = {}
+                for listener_type, listeners in collection.items():
+                    for listener in listeners:
+                        if not listener.local:
+                            self.add_hook(listener)
+                        else:
+                            local_listeners.setdefault(listener.event_type, []).append(listener)
+                setattr(blueprint, name, local_listeners)
 
     def clean_up(self):
         """
@@ -144,22 +154,6 @@ class Application(Blueprint):
         for process in self.workers:
             process.terminate()
         self.running = False
-
-    async def handle_exception(self, connection, exception, components, route: Route = None):
-        """
-
-        :param components:
-        :param connection:
-        :param exception:
-        :param route:
-        :return:
-        """
-        response = None
-        if route:
-            response = await route.parent.process_exception(exception, components)
-        if response is None:
-            response = await self.process_exception(exception, components)
-        response.send(connection)
 
     def url_for(self, _name: str, _external=False, *args, **kwargs) -> str:
         """

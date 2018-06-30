@@ -19,15 +19,14 @@ cdef class Response:
         public list cookies
         public bint skip_hooks
 
-    @cython.locals(header=str, content=str, headers=dict)
     cdef bytes encode(self)
 
-    cpdef void send(self, Connection protocol)
+    cdef void send(self, Connection protocol)
 
 
 cdef class CachedResponse(Response):
     cdef tuple cache
-    cpdef void send(self, Connection protocol)
+    cdef void send(self, Connection protocol)
 
 
 cdef class JsonResponse(Response):
@@ -51,7 +50,6 @@ cdef class StreamingResponse(Response):
         public int chunk_timeout
         bint chunked
 
-    @cython.locals(header=str, content=str)
-    cpdef bytes encode(self)
+    cdef bytes encode(self)
 
-    cpdef void send(self, Connection protocol)
+    cdef void send(self, Connection protocol)

@@ -26,8 +26,8 @@ class FormsTestCase(TestSuite):
         @app.route('/', methods=['POST'])
         async def home(request: Request):
             form = await request.form()
-            return JsonResponse({'a': await form['a'].read(), 'b': await form['b'].read(),
-                                 'c': await form['c'].read(), 'd': form['d']})
+            return JsonResponse({'a': (await form['a'].read()).decode(), 'b': (await form['b'].read()).decode(),
+                                 'c': (await form['c'].read()).decode(), 'd': form['d']})
 
         async with app.test_client() as client:
             response = await client.post(
@@ -48,7 +48,7 @@ class FormsTestCase(TestSuite):
         async def home(request: Request):
             uploaded_files = {}
             for file in await request.files():
-                uploaded_files[file.filename] = await file.read()
+                uploaded_files[file.filename] = (await file.read()).decode()
             return JsonResponse(uploaded_files)
 
         async with app.test_client() as client:
