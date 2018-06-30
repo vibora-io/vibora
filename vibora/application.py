@@ -3,7 +3,7 @@ from collections import defaultdict
 from .request import Request
 from .blueprints import Blueprint
 from .sessions import SessionEngine
-from .router import Router, Route, RouterStrategy, RouteLimits
+from .router import Router, RouterStrategy, RouteLimits
 from .protocol import Connection
 from .responses import Response
 from .components import ComponentsEngine
@@ -20,7 +20,7 @@ class Application(Blueprint):
 
     def __init__(self, template_dirs: List[str] = None, router_strategy=RouterStrategy.CLONE,
                  sessions_engine: SessionEngine=None, server_name: str = None, url_scheme: str = 'http',
-                 static: StaticHandler=None, log: Callable = None,
+                 static: StaticHandler=None, log_handler: Callable=None, access_logs: bool=None,
                  server_limits: ServerLimits=None, route_limits: RouteLimits=None,
                  request_class: Type[Request]=Request):
         """
@@ -31,7 +31,7 @@ class Application(Blueprint):
         :param server_name:
         :param url_scheme:
         :param static:
-        :param log:
+        :param log_handler:
         :param server_limits:
         :param route_limits:
         """
@@ -48,7 +48,8 @@ class Application(Blueprint):
         self.workers = []
         self.components = ComponentsEngine()
         self.loop = None
-        self.log = log
+        self.access_logs = access_logs
+        self.log_handler = log_handler
         self.initialized = False
         self.server_limits = server_limits or ServerLimits()
         self.running = False
@@ -144,22 +145,6 @@ class Application(Blueprint):
         for process in self.workers:
             process.terminate()
         self.running = False
-
-    async def handle_exception(self, connection, exception, components, route: Route = None):
-        """
-
-        :param components:
-        :param connection:
-        :param exception:
-        :param route:
-        :return:
-        """
-        response = None
-        if route:
-            response = await route.parent.process_exception(exception, components)
-        if response is None:
-            response = await self.process_exception(exception, components)
-        response.send(connection)
 
     def url_for(self, _name: str, _external=False, *args, **kwargs) -> str:
         """

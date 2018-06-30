@@ -24,17 +24,18 @@ class Node:
 
 class ForNode(Node):
 
-    def __init__(self, var_name: str, target: str, raw: str):
+    def __init__(self, variables: str, target: str, raw: str):
         super().__init__(raw)
         self.target = target
-        self.var_name = var_name
+        self.variables = variables
 
     @staticmethod
     def check(node: str, is_tag: bool):
         if 'for' in node and 'in' in node:
-            var_name = node[node.find('for')+3:node.find('in')].strip()
+            variables = node[node.find('for') + 3:node.find('in')]
+            variables = [x.strip() for x in variables.split(',')]
             target = node[node.find('in')+3:node.rfind('%')].strip()
-            return ForNode(var_name, target, node), '{% endfor %}'
+            return ForNode(variables, target, node), '{% endfor %}'
 
     @staticmethod
     def optimize_stm(content):
@@ -55,17 +56,20 @@ class ForNode(Node):
 
     def compile(self, compiler, recursive: bool=True):
         super().compile(compiler, recursive=False)
+        var_name = ', '.join(self.variables)
         stm = prepare_expression(self.target, compiler.context_var, compiler.current_scope)
         optimized_stm = self.optimize_stm(stm)
         if optimized_stm:
-            compiler.add_statement(f'for {self.var_name} in {stm}:')
+            compiler.add_statement(f'for {var_name} in {stm}:')
         else:
-            compiler.add_statement(f'async for {self.var_name} in {smart_iter.__name__}({stm}):')
+            compiler.add_statement(f'async for {var_name} in {smart_iter.__name__}({stm}):')
         compiler.indent()
-        compiler.current_scope.append(self.var_name)
+        for variable in self.variables:
+            compiler.current_scope.append(variable)
         for child in self.children:
             child.compile(compiler)
-        compiler.current_scope.remove(self.var_name)
+        for variable in self.variables:
+            compiler.current_scope.remove(variable)
         compiler.rollback()
 
 

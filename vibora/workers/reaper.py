@@ -1,7 +1,7 @@
 import time
 import os
 import signal
-import pendulum
+from datetime import datetime, timezone
 from email.utils import formatdate
 from threading import Thread
 from ..responses import update_current_time
@@ -68,12 +68,9 @@ class Reaper(Thread):
         while self.has_to_work:
             counter += 1
 
-            # Getting the current time with pendulum because we want a timezone aware date.
-            now = pendulum.now()
-
             # Removing the microseconds because this time is cached and it could trick the user into believing
             # that two requests were processed at exactly the same time because of the cached time.
-            now = pendulum.datetime(now.year, now.month, now.day, now.hour, now.minute, now.second, tz=now.tz)
+            now = datetime.now(timezone.utc).replace(microsecond=0).astimezone()
             self.app.current_time = now.isoformat()
             update_current_time(formatdate(timeval=now.timestamp(), localtime=False, usegmt=True))
             update_time_protocol()

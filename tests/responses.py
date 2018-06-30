@@ -1,7 +1,7 @@
-import ujson
 from unittest import TestCase
 from vibora.responses import JsonResponse, Response
 from vibora.cookies import Cookie
+from vibora.utils import json
 
 
 class AttributesTestCase(TestCase):
@@ -19,7 +19,7 @@ class AttributesTestCase(TestCase):
         self.assertEqual(response.cookies, cookies)
         self.assertEqual(response.headers['test'], headers['test'])
         self.assertEqual(response.status_code, status_code)
-        self.assertEqual(response.content, ujson.dumps(content).encode('utf-8'))
+        self.assertEqual(response.content, json.dumps(content).encode('utf-8'))
 
     def test_plain_response_attributes(self):
         headers = {'server': 'Vibora'}

@@ -79,7 +79,7 @@ cdef class String(Field):
         if isinstance(value, str):
             return value
         elif self.strict and not isinstance(value, (int, float)):
-            raise ValidationError(Messages.MUST_BE_STRING)
+            raise ValidationError(error_code=Messages.MUST_BE_STRING)
         return str(value)
 
 
@@ -94,11 +94,11 @@ cdef class Integer(Field):
         if isinstance(value, int):
             return value
         elif self.strict and not isinstance(value, (str, float)):
-            raise ValidationError(Messages.MUST_BE_INTEGER, self.load_from)
+            raise ValidationError(error_code=Messages.MUST_BE_INTEGER, field=self.load_from)
         try:
             return int(value)
         except ValueError:
-            raise ValidationError(Messages.MUST_BE_INTEGER, self.load_from)
+            raise ValidationError(error_code=Messages.MUST_BE_INTEGER, field=self.load_from)
 
 
 cdef class Number(Field):
@@ -112,11 +112,11 @@ cdef class Number(Field):
         if isinstance(value, int):
             return value
         elif self.strict:
-            raise ValidationError(Messages.MUST_BE_NUMBER, self.load_from)
+            raise ValidationError(error_code=Messages.MUST_BE_NUMBER, field=self.load_from)
         try:
             return float(value)
         except ValueError:
-            raise ValidationError(Messages.MUST_BE_NUMBER, self.load_from)
+            raise ValidationError(error_code=Messages.MUST_BE_NUMBER, field=self.load_from)
 
 
 cdef class List(Field):
@@ -141,7 +141,7 @@ cdef class List(Field):
                 else:
                     processed_list.append(self.field.pipeline(item))
             except ValidationError as error:
-                raise ValidationError(f'{index}º element: {error.msg}', self.load_from)
+                raise ValidationError(f'{index}º element: {error.msg}', field=self.load_from)
         value = processed_list
         if self.validators:
             await self._call_validators(value, context)
@@ -162,7 +162,7 @@ cdef class Nested(Field):
         :return:
         """
         if not isinstance(value, dict):
-            raise ValidationError(Messages.MUST_BE_DICT, self.load_from)
+            raise ValidationError(error_code=Messages.MUST_BE_DICT, field=self.load_from)
         nested_context = await self.schema.load(value, silent=True)
         if nested_context.errors:
             raise NestedValidationError(context=nested_context.context)
@@ -179,7 +179,7 @@ cdef class Nested(Field):
         :return:
         """
         if not isinstance(value, dict):
-            raise ValidationError(Messages.MUST_BE_DICT, self.load_from)
+            raise ValidationError(error_code=Messages.MUST_BE_DICT, field=self.load_from)
         nested_context = self.schema.load(value, silent=True)
         if nested_context.errors:
             raise NestedValidationError(context=nested_context.context)

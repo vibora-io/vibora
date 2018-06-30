@@ -27,14 +27,9 @@ cdef int current_time = time()
 DEF PENDING_STATUS = 1
 DEF RECEIVING_STATUS = 2
 DEF PROCESSING_STATUS = 3
-
 DEF EVENTS_BEFORE_ENDPOINT = 3
 DEF EVENTS_AFTER_ENDPOINT  = 4
 DEF EVENTS_AFTER_RESPONSE_SENT  = 5
-
-DEF LOGGING_INFO = 20
-DEF LOGGING_WARNING = 30
-DEF LOGGING_ERROR = 40
 
 
 cdef class Connection:
@@ -69,7 +64,7 @@ cdef class Connection:
         self.keep_alive = app.server_limits.keep_alive_timeout > 0
         self.request_class = self.app.request_class
         self.router = self.app.router
-        self.log = self.app.log
+        self.log = self.app.log_handler
         self.queue = self.stream.queue
         self.write_buffer = app.server_limits.write_buffer
 
@@ -101,13 +96,6 @@ cdef class Connection:
         Handle network flow after a response is sent. Must be called after each response.
         :return: None.
         """
-        if self.log:
-            request = self.components.get(self.request_class)
-            msg = f'{self.client_ip()} - "{request.method.decode()} ' \
-                  f'{request.parsed_url.path.decode()}" - {response.status_code} - ' \
-                  f'{request.headers.get("user-agent")}'
-            self.log(msg, LOGGING_INFO)
-
         self.status = PENDING_STATUS
         if not self.keep_alive:
             self.close()
@@ -204,7 +192,7 @@ cdef class Connection:
             pass
         except Exception as error:
             self.components.ephemeral_index[type(error)] = error
-            task = self.app.handle_exception(self, error, self.components, route=route)
+            task = self.handle_exception(error, self.components, route=route)
             self.loop.create_task(task)
 
     #######################################################################
@@ -219,6 +207,7 @@ cdef class Connection:
         :param upgrade:
         :return:
         """
+        cdef Response response
         cdef CacheEngine cache_engine
         cdef dict ephemeral_components = self.components.ephemeral_index
 
@@ -310,7 +299,7 @@ cdef class Connection:
         except HttpParserError as error:
             self.pause_reading()
             self.components.ephemeral_index[type(error)] = error
-            task = self.app.handle_exception(self, error, self.components)
+            task = self.handle_exception(error, self.components)
             self.loop.create_task(task)
             # self.close()
 
@@ -373,7 +362,7 @@ cdef class Connection:
         self.current_task.cancel()
         error = TimeoutError()
         self.components.ephemeral_index[TimeoutError] = error
-        task = self.app.handle_exception(self, error, self.components)
+        task = self.handle_exception(error, self.components)
         self.loop.create_task(task)
 
     cpdef void stop(self):
@@ -431,6 +420,21 @@ cdef class Connection:
         while buffer_size() > 0:
             await sleep(0.5)
         self.close()
+
+    async def handle_exception(self, object exception, object components, Route route = None):
+        """
+
+        :param exception:
+        :param components:
+        :param route:
+        :return:
+        """
+        cdef Response response = None
+        if route:
+            response = await route.parent.process_exception(exception, components)
+        if response is None:
+            response = await self.app.process_exception(exception, components)
+        response.send(self)
 
 
 def update_current_time() -> None:

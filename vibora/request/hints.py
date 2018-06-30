@@ -1,7 +1,8 @@
-####################################################################################################
-# === Warning ===
-# This is a file stub to provide type hints to the Request object because it's a pure cython module.
-####################################################################################################
+"""
+|===== Warning ================================================================================|
+| This is a stub file to provide type hints because this module is fully implemented in Cython |
+|==============================================================================================|
+"""
 from ..headers import Headers
 from ..multipart import UploadedFile
 from ..sessions import Session

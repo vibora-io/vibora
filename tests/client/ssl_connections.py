@@ -1,9 +1,18 @@
 import ssl
+import logging
 from vibora.tests import TestSuite
 from vibora import client
 
 
 class TestSSLErrors(TestSuite):
+
+    def setUp(self):
+        # Python always warns about SSL errors but since where are forcing them to occur
+        # there is no reason to fill the testing console with these messages.
+        logging.disable(logging.CRITICAL)
+
+    def tearDown(self):
+        logging.disable(logging.NOTSET)
 
     async def test_expired_ssl__expects_exception(self):
         try:
