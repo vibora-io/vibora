@@ -3,7 +3,7 @@ from urllib.parse import urlparse, parse_qs, ParseResult
 from asyncio import Event
 from queue import deque
 from ..multipart import DiskFile, MemoryFile, UploadedFile
-from ..exceptions import InvalidJSON
+from ..exceptions import InvalidJSON, StreamAlreadyConsumed
 from ..sessions import Session
 from ..utils import RequestParams
 from ..utils import json
@@ -66,14 +66,16 @@ cdef class Stream:
         self.connection = connection
 
     async def read(self) -> bytearray:
-        data = bytearray()
         if self.consumed:
-            raise Exception('Stream already consumed.')
+            raise StreamAlreadyConsumed()
+        data = bytearray()
         async for chunk in self:
             data.extend(chunk)
         return data
 
     async def __aiter__(self):
+        if self.consumed:
+            raise StreamAlreadyConsumed()
         while True:
             self.connection.resume_reading()
             data = await self.queue.get()

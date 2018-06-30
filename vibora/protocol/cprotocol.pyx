@@ -341,8 +341,9 @@ cdef class Connection:
          
         :return: 
         """
-        self.writable = True
-        self.write_permission.set()
+        if not self.writable:
+            self.writable = True
+            self.write_permission.set()
 
     cpdef void close(self):
         """
