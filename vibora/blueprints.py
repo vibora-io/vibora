@@ -34,6 +34,9 @@ class Blueprint:
         Decorator to register a hook.
         :return: None
         """
+        if value in (Events.BEFORE_SERVER_START, Events.AFTER_SERVER_START, Events.BEFORE_SERVER_STOP):
+            local = False
+
         def wrapper(*args):
             handler = args[0]
             values = value if isinstance(value, (list, tuple)) else [value]

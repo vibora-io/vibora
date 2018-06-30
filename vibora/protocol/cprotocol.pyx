@@ -153,7 +153,7 @@ cdef class Connection:
 
             # Before endpoint hooks can halt the request (and prevent more hooks from being called)
             if self.before_endpoint_hooks:
-                response = await self.app.call_hooks(EVENTS_BEFORE_ENDPOINT, self.components)
+                response = await self.app.call_hooks(EVENTS_BEFORE_ENDPOINT, self.components, route=route)
                 if response:
                     response.send(self)
                     return
@@ -177,7 +177,7 @@ cdef class Connection:
 
             if self.after_endpoint_hooks:
                 self.components.ephemeral_index[response.__class__] = response
-                new_response = await self.app.call_hooks(EVENTS_AFTER_ENDPOINT, self.components)
+                new_response = await self.app.call_hooks(EVENTS_AFTER_ENDPOINT, self.components, route=route)
                 if new_response:
                     response = new_response
                     self.components.ephemeral_index[response.__class__] = response
@@ -185,7 +185,7 @@ cdef class Connection:
             response.send(self)
 
             if self.after_send_response_hooks:
-                await self.app.call_hooks(EVENTS_AFTER_RESPONSE_SENT, self.components)
+                await self.app.call_hooks(EVENTS_AFTER_RESPONSE_SENT, self.components, route=route)
         except CancelledError as error:
             # In case the task is cancelled (probably a timeout)
             # we do nothing.
