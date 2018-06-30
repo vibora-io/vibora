@@ -23,8 +23,8 @@ class FormsTestCase(TestSuite):
 
         @app.route('/', methods=['POST'])
         async def home(request: Request):
-            form = (await request.form())
-            return JsonResponse({'a': form['a'], 'b': await form['b'].read()})
+            form = await request.form()
+            return JsonResponse({'a': form['a'], 'b': (await form['b'].read()).decode()})
 
         async with app.test_client() as client:
             response = await client.post('/', form={'a': 1, 'b': FileUpload(content=b'uploaded_file')})
