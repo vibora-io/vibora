@@ -28,6 +28,7 @@ class Config:
 ```py
 from vibora import Vibora
 from vibora.blueprints import Blueprint
+from vibora.hooks import Events
 from aioredis import ConnectionsPool
 from config import Config
 
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     app = Vibora()
 
     # Registering our API
-    app.add_blueprint(api, prefixes={'v1: '/v1'})
+    app.add_blueprint(api, prefixes={'v1': '/v1'})
 
     # Opening the configuration file.
     with open('config.json') as f:
