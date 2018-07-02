@@ -10,7 +10,7 @@
 
 > **Disclaimer: Still at an early stage of development. Rapidly evolving APIs.**
 
-> Because of Uvloop, The Framework do not support Windows yet. We're working on it
+> Because of Uvloop, The Framework does not support Windows yet. We're working on it
 
 
 Server Features
