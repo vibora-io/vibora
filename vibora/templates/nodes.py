@@ -6,7 +6,7 @@ from .compilers.helpers import smart_iter
 
 
 class Node:
-    def __init__(self, raw: str=''):
+    def __init__(self, raw: str = ''):
         self.children = []
         self.raw = raw
 
@@ -14,7 +14,7 @@ class Node:
     def check(node: str, is_tag: bool):
         return None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         if self.raw:
             compiler.add_comment(self.raw)
         if recursive:
@@ -23,7 +23,6 @@ class Node:
 
 
 class ForNode(Node):
-
     def __init__(self, variables: str, target: str, raw: str):
         super().__init__(raw)
         self.target = target
@@ -34,7 +33,7 @@ class ForNode(Node):
         if 'for' in node and 'in' in node:
             variables = node[node.find('for') + 3:node.find('in')]
             variables = [x.strip() for x in variables.split(',')]
-            target = node[node.find('in')+3:node.rfind('%')].strip()
+            target = node[node.find('in') + 3:node.rfind('%')].strip()
             return ForNode(variables, target, node), '{% endfor %}'
 
     @staticmethod
@@ -54,15 +53,17 @@ class ForNode(Node):
         except (AttributeError, ValueError):
             return None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
         var_name = ', '.join(self.variables)
-        stm = prepare_expression(self.target, compiler.context_var, compiler.current_scope)
+        stm = prepare_expression(self.target, compiler.context_var,
+                                 compiler.current_scope)
         optimized_stm = self.optimize_stm(stm)
         if optimized_stm:
             compiler.add_statement(f'for {var_name} in {stm}:')
         else:
-            compiler.add_statement(f'async for {var_name} in {smart_iter.__name__}({stm}):')
+            compiler.add_statement(
+                f'async for {var_name} in {smart_iter.__name__}({stm}):')
         compiler.indent()
         for variable in self.variables:
             compiler.current_scope.append(variable)
@@ -87,9 +88,10 @@ class IfNode(Node):
         if found:
             return IfNode(found.groups()[0], node), '{% endif %}'
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
-        expr = prepare_expression(self.expression, compiler.content_var, compiler.current_scope)
+        expr = prepare_expression(self.expression, compiler.content_var,
+                                  compiler.current_scope)
         compiler.add_statement('if ' + expr + ':')
         compiler.indent()
         for child in self.children:
@@ -118,9 +120,10 @@ class ElifNode(Node):
         if found:
             return ElifNode(found.groups()[0], node), None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
-        expr = prepare_expression(self.expression, compiler.content_var, compiler.current_scope)
+        expr = prepare_expression(self.expression, compiler.content_var,
+                                  compiler.current_scope)
         compiler.add_statement('elif ' + expr + ':')
         compiler.indent()
         rollback = True
@@ -147,12 +150,11 @@ class ElseNode(Node):
         if found:
             return ElseNode(found.groups()[0], node), None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         raise SyntaxError('ElseNodes should not be compiled')
 
 
 class EvalNode(Node):
-
     def __init__(self, code: str, raw: str):
         super().__init__(raw)
         self.code = code
@@ -171,7 +173,8 @@ class EvalNode(Node):
             raise Exception('Macros do not have access to the context.')
 
     def _compile_template(self, compiler):
-        stm = prepare_expression(self.code, compiler.context_var, compiler.current_scope)
+        stm = prepare_expression(self.code, compiler.context_var,
+                                 compiler.current_scope)
         compiler.add_statement(f'__temp__ = {stm}')
         compiler.add_statement(f'if iscoroutine(__temp__):')
         compiler.indent()
@@ -182,7 +185,7 @@ class EvalNode(Node):
         compiler.add_eval(f'str({stm})')
         compiler.rollback()
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
         if compiler.flavor == CompilerFlavor.MACRO:
             self._compile_macro(compiler)
@@ -191,7 +194,6 @@ class EvalNode(Node):
 
 
 class TextNode(Node):
-
     def __init__(self, text: str):
         super().__init__('')
         self.text = text
@@ -262,7 +264,9 @@ class StaticNode(Node):
                 return StaticNode(groups[0], node), None
 
     def compile(self, compiler, recursive: bool = True):
-        raise SyntaxError('Static nodes should not be compiled. An extension should process them.')
+        raise SyntaxError(
+            'Static nodes should not be compiled. An extension should process them.'
+        )
 
 
 class UrlNode(Node):
@@ -281,7 +285,9 @@ class UrlNode(Node):
                 return UrlNode(match.groups()[0], node), None
 
     def compile(self, compiler, recursive: bool = True):
-        raise SyntaxError('URL nodes should not be compiled. An extension should deal with them.')
+        raise SyntaxError(
+            'URL nodes should not be compiled. An extension should deal with them.'
+        )
 
 
 class MacroNode(Node):
@@ -306,5 +312,6 @@ class MacroNode(Node):
         new_compiler.current_scope += scope
         for child in self.children:
             child.compile(new_compiler)
-        new_compiler.add_statement('return \'\'.join(' + new_compiler.content_var + ')')
+        new_compiler.add_statement('return \'\'.join(' +
+                                   new_compiler.content_var + ')')
         compiler.functions.append(new_compiler.content)

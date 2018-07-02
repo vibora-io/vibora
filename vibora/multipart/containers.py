@@ -19,10 +19,16 @@ class BufferedIterable:
 
 
 class FileUpload:
-    def __init__(self, name: str=None, path: str=None, content: bytes=None, iterable=None,
-                 f=None, headers: list=None):
+    def __init__(self,
+                 name: str = None,
+                 path: str = None,
+                 content: bytes = None,
+                 iterable=None,
+                 f=None,
+                 headers: list = None):
         if not any([path, content, iterable, f]):
-            raise Exception('You must supply either: path, content, iterable, f')
+            raise Exception(
+                'You must supply either: path, content, iterable, f')
         self.name = name
         if f:
             self.f = f
@@ -41,9 +47,12 @@ class FileUpload:
 
 
 class MultipartEncoder:
-
-    def __init__(self, delimiter: bytes, params: dict, chunk_size: int=1*1024*1024,
-                 loop=None, encoding: str='utf-8'):
+    def __init__(self,
+                 delimiter: bytes,
+                 params: dict,
+                 chunk_size: int = 1 * 1024 * 1024,
+                 loop=None,
+                 encoding: str = 'utf-8'):
         self.delimiter = b'--' + delimiter
         self.params = params
         self.chunk_size = chunk_size
@@ -59,9 +68,11 @@ class MultipartEncoder:
         :return:
         """
         if isinstance(value, FileUpload):
-            return f'Content-Disposition: form-data; name="{name}"; filename="{value.name}"'.encode(self.encoding)
+            return f'Content-Disposition: form-data; name="{name}"; filename="{value.name}"'.encode(
+                self.encoding)
         else:
-            return f'Content-Disposition: form-data; name="{name}"'.encode(self.encoding)
+            return f'Content-Disposition: form-data; name="{name}"'.encode(
+                self.encoding)
 
     def stream_value(self, value) -> bytes:
         """
@@ -72,7 +83,8 @@ class MultipartEncoder:
         if isinstance(value, FileUpload):
             while True:
                 if value.is_async:
-                    chunk = self.loop.run_until_complete(value.f.read(self.chunk_size))
+                    chunk = self.loop.run_until_complete(
+                        value.f.read(self.chunk_size))
                 else:
                     chunk = value.f.read(self.chunk_size)
                 size = len(chunk)
@@ -95,7 +107,8 @@ class MultipartEncoder:
         if self.evaluated:
             raise Exception('Streaming encoder cannot be evaluated twice.')
         for name, value in self.params.items():
-            header = self.delimiter + b'\r\n' + self.create_headers(name, value) + b'\r\n\r\n'
+            header = self.delimiter + b'\r\n' + self.create_headers(
+                name, value) + b'\r\n\r\n'
             yield header
             for chunk in self.stream_value(value):
                 yield chunk
