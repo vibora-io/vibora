@@ -7,7 +7,7 @@ advantage of some new Python features.
 
 > It's highly recommended to install Vibora inside a virtualenv.
 
-> In case you have trouble with Vibora dependencies: `pip install vibora` to install it without the extra libraries.
+> If you have trouble with Vibora's dependencies try to install it without the extra libraries: `pip install vibora`
 
 
 2. Create a file called `anything.py` with the following code:
@@ -30,13 +30,14 @@ if __name__ == '__main__':
 3. Run the server: `python3 anything.py`
 
 
-4. Open your browser at `http://127.0.0.1:8000`
+4. Open your browser and go to `http://127.0.0.1:8000`
 
 
 ### Creating a project
 
-The previous example was just to show off how easy is it
-to spin up a server.
+The previous example shows how quickly you can spin up a server, but
+Vibora has an integrated command-line tool that makes getting a server
+up and running even easier.
 
-The recommended way to start a new project is by letting Vibora do it for you.
-Vibora is also a command-line tool, try it out: `vibora new project_name`
+Using the command-line tool is the recommended way to start a new project,
+try it out: `vibora new project_name`
