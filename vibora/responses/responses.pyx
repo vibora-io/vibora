@@ -11,11 +11,16 @@ from inspect import isasyncgenfunction
 from email.utils import formatdate
 from functools import partial
 from concurrent.futures import TimeoutError
-from ..constants import ALL_STATUS_CODES
+from .. import constants
 from ..utils import json
 
+# C IMPORTS
+# noinspection PyUnresolvedReferences
+from ..protocol.cprotocol cimport Connection
+###############################################
 
-current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
+cdef str current_time = formatdate(timeval=None, localtime=False, usegmt=True)
+cdef dict ALL_STATUS_CODES = constants.ALL_STATUS_CODES
 
 
 async def stream_response(response: 'StreamingResponse', protocol, chunk_timeout):
@@ -82,7 +87,7 @@ def cancel_streaming_task(task, protocol):
     protocol.close()
 
 
-class Response:
+cdef class Response:
 
     def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
         self.status_code = status_code
@@ -90,7 +95,7 @@ class Response:
         self.headers = headers or {}
         self.cookies = cookies or []
 
-    def encode(self) -> bytes:
+    cdef bytes encode(self):
         headers = self.headers
         headers['Content-Length'] = len(self.content)
         headers['Date'] = current_time
@@ -113,7 +118,7 @@ class Response:
         params.update(kwargs)
         return self.__class__(**params)
 
-    def send(self, protocol):
+    cdef void send(self, Connection protocol):
         # We check if the protocol is writable because we wanna make sure we aren't making the write buffer
         # surpass the high-mark. To actually process the next response we need to call after_response()
         # but if we don't know yet if the client consumed the response we could be generating responses too fast
@@ -134,7 +139,7 @@ class Response:
             protocol.after_response(self)
 
 
-class CachedResponse(Response):
+cdef class CachedResponse(Response):
 
     def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
         # Super is skipped on purpose.
@@ -147,7 +152,7 @@ class CachedResponse(Response):
         self.cookies = cookies or []
         self.cache = None
 
-    def encode(self) -> bytes:
+    cdef bytes encode(self):
         headers = self.headers
         headers['Content-Length'] = len(self.content)
         headers['Date'] = '$date'
@@ -160,7 +165,7 @@ class CachedResponse(Response):
         content += '\r\n'
         return content.encode()
 
-    def send(self, protocol):
+    cdef void send(self, Connection protocol):
         if self.cache is None:
             headers = self.encode()
             self.cache = (
@@ -175,7 +180,7 @@ class CachedResponse(Response):
             protocol.loop.create_task(wait_client_consume(self, protocol))
 
 
-class JsonResponse(Response):
+cdef class JsonResponse(Response):
 
     def __init__(self, content: object, status_code: int = 200, headers: dict = None, cookies: list = None):
         self.status_code = status_code
@@ -185,7 +190,7 @@ class JsonResponse(Response):
         self.cookies = cookies or []
 
 
-class RedirectResponse(Response):
+cdef class RedirectResponse(Response):
 
     def __init__(self, location, status_code: int = 302, headers: dict = None, cookies: list = None):
         self.status_code = status_code
@@ -198,7 +203,7 @@ class RedirectResponse(Response):
         self.cookies = cookies or []
 
 
-class StreamingResponse(Response):
+cdef class StreamingResponse(Response):
 
     def __init__(self, stream: Callable, status_code: int = 200, headers: dict = None, cookies: list = None,
                  complete_timeout: int = 30, chunk_timeout: int = 10):
@@ -218,7 +223,7 @@ class StreamingResponse(Response):
         self.complete_timeout = complete_timeout
         self.chunk_timeout = chunk_timeout
 
-    def encode(self) -> bytes:
+    cdef bytes encode(self):
         content = f'HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n'
         for header, value in self.headers.items():
             content += f'{header}: {value}\r\n'
@@ -228,7 +233,7 @@ class StreamingResponse(Response):
         content += '\r\n'
         return content.encode()
 
-    def send(self, protocol):
+    cdef void send(self, Connection protocol):
         # Streaming responses make use of a custom timeout function because
         # we don't to send a response in case a timeout.
         # The client could handle the timeout response as part of the stream and a luck enough
@@ -248,7 +253,7 @@ class StreamingResponse(Response):
             )
 
 
-class WebsocketHandshakeResponse(Response):
+cdef class WebsocketHandshakeResponse(Response):
     def __init__(self, key: bytes):
         self.status_code = 101
         self.content = b''
@@ -258,12 +263,6 @@ class WebsocketHandshakeResponse(Response):
             'Connection': 'Upgrade',
             'Sec-Websocket-Accept': key.decode('utf-8')
         }
-
-
-def render(path: str, **variables):
-    loop = asyncio.get_event_loop()
-    template = loop.app.jinja_env.get_template(path)
-    return Response(template.render(**variables).encode(), headers={'Content-Type': 'text/html'})
 
 
 def update_current_time(value):

@@ -7,6 +7,7 @@ def wrapper(f):
     def async_runner(*args, **kwargs):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(f(*args, **kwargs))
+        loop.run_until_complete(asyncio.sleep(0))
         loop.stop()
         loop.run_forever()
 

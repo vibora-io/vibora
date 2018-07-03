@@ -7,18 +7,18 @@ Vibora call these objects `components`
 For now you should pay close attention to the `Request` component:
 
 This is the most important component and will be everywhere in your app.
-It holds all informations related to the current request and
+It holds all information related to the current request and
 also some useful references like the current application and route.
 
 You can ask for components in your route by using type hints:
 
 ```py
-from vibora import Vibora, Response
+from vibora import Vibora, Request, Response
 
 app = Vibora()
 
 @app.route('/')
-async def home(request: Request)
+async def home(request: Request):
     print(request.headers)
     return Response(b'123')
 ```
@@ -27,13 +27,13 @@ The request object has a special method that allows you to ask
 for more components as you go.
 
 ```py
-from vibora import Vibora, Response
+from vibora import Vibora, Request, Response
 from vibora import Route
 
 app = Vibora()
 
 @app.route('/')
-async def home(request: Request)
+async def home(request: Request):
     current_route = request.get_component(Route)
     return Response(current_route.pattern.encode())
 ```
@@ -59,7 +59,7 @@ encouraging the use of type hints which brings many benefits
 in the long-term and also make your routes much easier to test.
 
 ```py
-from vibora import Vibora, Response
+from vibora import Vibora, Request, Response
 from vibora import Route
 
 # Config will be a new component.
@@ -73,7 +73,7 @@ app = Vibora()
 app.add_component(Config())
 
 @app.route('/')
-async def home(request: Request, config: Config)
+async def home(request: Request, config: Config):
     """
     Notice that if you specify a parameter of type "Config"
     Vibora will automatically provide the config instance registered previously.

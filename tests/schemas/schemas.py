@@ -2,6 +2,7 @@ from unittest.mock import Mock, MagicMock
 from vibora.schemas import Schema, fields
 from vibora.schemas.exceptions import ValidationError, InvalidSchema
 from vibora.schemas.messages import Messages, EnglishLanguage
+from vibora.schemas.validators import Length
 from vibora.tests import TestSuite
 
 
@@ -119,9 +120,9 @@ class SchemasTestCase(TestSuite):
         except InvalidSchema as error:
             self.assertDictEqual(error.errors, {
                 'field1': [{'error_code': Messages.MISSING_REQUIRED_FIELD,
-                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]({})}],
+                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]}],
                 'field3': [{'error_code': Messages.MISSING_REQUIRED_FIELD,
-                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]({})}]
+                            'msg': EnglishLanguage[Messages.MISSING_REQUIRED_FIELD]}]
             })
 
     async def test_custom_language_with_new_error_code(self):
@@ -144,3 +145,14 @@ class SchemasTestCase(TestSuite):
             await TestSchema.load({'field1': 'test'}, language=new_language)
         except InvalidSchema as error:
             self.assertDictEqual(error.errors, {'field1': [{'error_code': 100, 'msg': 'Something custom.'}]})
+
+    async def test_schema_calling_builtin_validator(self):
+
+        class TestSchema(Schema):
+            field1: str = fields.String(validators=[Length(min=1)])
+
+        try:
+            await TestSchema.load({'field1': ''})
+            self.fail('Schema failed to call length validator.')
+        except InvalidSchema:
+            pass

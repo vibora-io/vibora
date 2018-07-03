@@ -1,5 +1,6 @@
 #!python
 #cython: language_level=3, boundscheck=False, wraparound=False
+from time import time
 from asyncio import Transport, Event, sleep, Task, CancelledError
 from ..parsers.errors import HttpParserError
 
@@ -21,16 +22,14 @@ from ..responses.responses cimport Response, CachedResponse
 from .cwebsocket cimport WebsocketConnection
 ############################################
 
+cdef int current_time = time()
+
 DEF PENDING_STATUS = 1
 DEF RECEIVING_STATUS = 2
 DEF PROCESSING_STATUS = 3
 DEF EVENTS_BEFORE_ENDPOINT = 3
 DEF EVENTS_AFTER_ENDPOINT  = 4
 DEF EVENTS_AFTER_RESPONSE_SENT  = 5
-
-DEF LOGGING_INFO = 20
-DEF LOGGING_WARNING = 30
-DEF LOGGING_ERROR = 40
 
 
 cdef class Connection:
@@ -50,7 +49,6 @@ cdef class Connection:
         ###########################
         ## State Machine
         self.transport = None  # type: Transport
-        self.last_started_processing = self.app.current_time
         self.status = PENDING_STATUS
         self.writable = True
         self.readable = True
@@ -58,6 +56,7 @@ cdef class Connection:
         self.current_task = None
         self.timeout_task = None
         self.closed = False
+        self.last_task_time = time()
         self._stopped = False
 
         ##################################
@@ -65,7 +64,7 @@ cdef class Connection:
         self.keep_alive = app.server_limits.keep_alive_timeout > 0
         self.request_class = self.app.request_class
         self.router = self.app.router
-        self.log = self.app.log
+        self.log = self.app.log_handler
         self.queue = self.stream.queue
         self.write_buffer = app.server_limits.write_buffer
 
@@ -97,13 +96,6 @@ cdef class Connection:
         Handle network flow after a response is sent. Must be called after each response.
         :return: None.
         """
-        if self.log:
-            request = self.components.get(self.request_class)
-            msg = f'{self.client_ip()} - "{request.method.decode()} ' \
-                  f'{request.parsed_url.path.decode()}" - {response.status_code} - ' \
-                  f'{request.headers.get("user-agent")}'
-            self.log(msg, LOGGING_INFO)
-
         self.status = PENDING_STATUS
         if not self.keep_alive:
             self.close()
@@ -161,7 +153,7 @@ cdef class Connection:
 
             # Before endpoint hooks can halt the request (and prevent more hooks from being called)
             if self.before_endpoint_hooks:
-                response = await self.app.call_hooks(EVENTS_BEFORE_ENDPOINT, self.components)
+                response = await self.app.call_hooks(EVENTS_BEFORE_ENDPOINT, self.components, route=route)
                 if response:
                     response.send(self)
                     return
@@ -185,7 +177,7 @@ cdef class Connection:
 
             if self.after_endpoint_hooks:
                 self.components.ephemeral_index[response.__class__] = response
-                new_response = await self.app.call_hooks(EVENTS_AFTER_ENDPOINT, self.components)
+                new_response = await self.app.call_hooks(EVENTS_AFTER_ENDPOINT, self.components, route=route)
                 if new_response:
                     response = new_response
                     self.components.ephemeral_index[response.__class__] = response
@@ -193,14 +185,14 @@ cdef class Connection:
             response.send(self)
 
             if self.after_send_response_hooks:
-                await self.app.call_hooks(EVENTS_AFTER_RESPONSE_SENT, self.components)
+                await self.app.call_hooks(EVENTS_AFTER_RESPONSE_SENT, self.components, route=route)
         except CancelledError as error:
             # In case the task is cancelled (probably a timeout)
             # we do nothing.
             pass
         except Exception as error:
             self.components.ephemeral_index[type(error)] = error
-            task = self.app.handle_exception(self, error, self.components, route=route)
+            task = self.handle_exception(error, self.components, route=route)
             self.loop.create_task(task)
 
     #######################################################################
@@ -215,6 +207,7 @@ cdef class Connection:
         :param upgrade:
         :return:
         """
+        cdef Response response
         cdef CacheEngine cache_engine
         cdef dict ephemeral_components = self.components.ephemeral_index
 
@@ -234,6 +227,9 @@ cdef class Connection:
         # Checking for protocol upgrades (I.e: Websocket connections, HTTP2)
         if not upgrade:
 
+            # Updating last request time.
+            self.last_task_time = current_time
+
             # Optimized path that skips the creation of a async task because
             # the response is already in memory so we can do some neat optimizations.
             cache_engine = route.cache
@@ -243,7 +239,6 @@ cdef class Connection:
                     response.send(self)
                     return
 
-            # Creating a new task to process the request.
             self.current_task = Task(self.handle_request(request, route), loop=self.loop)
             self.current_task.components = self.components
 
@@ -262,7 +257,7 @@ cdef class Connection:
 
         # Stop reading from the socket while processing the response.
         # We only start reading again if the user explicitly tries to consume the stream.
-        # This helps to prevent against DoS and give the user a chance to choose what's
+        # This helps to prevent DoS and give the user a chance to choose what's
         # best for him in this situation.
         self.pause_reading()
 
@@ -304,7 +299,7 @@ cdef class Connection:
         except HttpParserError as error:
             self.pause_reading()
             self.components.ephemeral_index[type(error)] = error
-            task = self.app.handle_exception(self, error, self.components)
+            task = self.handle_exception(error, self.components)
             self.loop.create_task(task)
             # self.close()
 
@@ -346,8 +341,9 @@ cdef class Connection:
          
         :return: 
         """
-        self.writable = True
-        self.write_permission.set()
+        if not self.writable:
+            self.writable = True
+            self.write_permission.set()
 
     cpdef void close(self):
         """
@@ -367,7 +363,7 @@ cdef class Connection:
         self.current_task.cancel()
         error = TimeoutError()
         self.components.ephemeral_index[TimeoutError] = error
-        task = self.app.handle_exception(self, error, self.components)
+        task = self.handle_exception(error, self.components)
         self.loop.create_task(task)
 
     cpdef void stop(self):
@@ -385,6 +381,20 @@ cdef class Connection:
         :return: 
         """
         return self.closed
+
+    cpdef int get_status(self):
+        """
+        
+        :return: 
+        """
+        return self.status
+
+    cpdef int get_last_task_time(self):
+        """
+        
+        :return: 
+        """
+        return self.last_task_time
 
     def eof_received(self, *args):
         """
@@ -411,3 +421,27 @@ cdef class Connection:
         while buffer_size() > 0:
             await sleep(0.5)
         self.close()
+
+    async def handle_exception(self, object exception, object components, Route route = None):
+        """
+
+        :param exception:
+        :param components:
+        :param route:
+        :return:
+        """
+        cdef Response response = None
+        if route:
+            response = await route.parent.process_exception(exception, components)
+        if response is None:
+            response = await self.app.process_exception(exception, components)
+        response.send(self)
+
+
+def update_current_time() -> None:
+    """
+    current_time cannot be access from outside this module so we call this function periodically to update this.
+    :return: None
+    """
+    global current_time
+    current_time = time()

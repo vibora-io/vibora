@@ -29,7 +29,6 @@ cdef class Connection:
         public object loop
         public object transport
         public bytes protocol
-        public str last_started_processing
         bint writable
         bint readable
         object write_permission
@@ -41,6 +40,7 @@ cdef class Connection:
         object current_task
         object timeout_task
         ComponentsEngine components
+        int last_task_time
 
         # Caching the existence of hooks.
         bint before_endpoint_hooks
@@ -68,6 +68,10 @@ cdef class Connection:
     cpdef void stop(self)
     cpdef bint is_closed(self)
     cpdef str client_ip(self)
+
+    # Reaper related.
+    cpdef int get_status(self)
+    cpdef int get_last_task_time(self)
 
     # HTTP parser callbacks.
     cdef void on_headers_complete(self, Headers headers, bytes url, bytes method, bint upgrade)

@@ -298,14 +298,14 @@ class Session:
         """
         self._engine.close()
 
-    def __enter__(self):
+    async def __aenter__(self):
         """
 
         :return:
         """
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         """
 
         :param exc_type:
@@ -314,5 +314,6 @@ class Session:
         :return:
         """
         self.close()
+        await asyncio.sleep(0)
         if exc_val:
             raise exc_val

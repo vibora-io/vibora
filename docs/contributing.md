@@ -1,19 +1,19 @@
 ### Contributing
 
-Vibora is developed at Github and pull requests are welcome but there
+Vibora is developed on GitHub and pull requests are welcome but there
 are few guidelines:
 
-1) Introduction of new external dependencies is highly disencouraged
+1) Introduction of new external dependencies is highly discouraged
 and will probably not be merged.
 
-2) Patches that downgrade the overral framework performance, unless
+2) Patches that downgrade the overall framework performance, unless
 security/fix ones, will need to prove great value in functionality
 to be merged.
 
 3) Bug fixes must include tests that fail/pass in respective versions.
 
-4) PEP8 must be followed strictly with the exception of the
-line size which is acceptable to be a little bit longer when needed.
+4) PEP 8 must be followed with the exception of the
+max line size which is currently 120 instead of 80 chars wide.
 
 ### Reporting an issue
 

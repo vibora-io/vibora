@@ -2,8 +2,8 @@ import socket
 import sys
 import time
 import os
-from typing import Tuple
-
+import signal
+from typing import Tuple, Iterable, Union
 
 if os.environ.get('VIBORA_UJSON', 1) == '0':
     # noinspection PyUnresolvedReferences
@@ -81,7 +81,7 @@ class RangeFile:
             yield chunk
 
 
-def clean_route_name(prefix: str, name: str):
+def clean_route_name(prefix: str, name: str) -> str:
     if prefix:
         if prefix[0] == ':':
             prefix = prefix[1:]
@@ -93,21 +93,26 @@ def clean_route_name(prefix: str, name: str):
     return name
 
 
-def clean_methods(methods) -> Tuple[bytes]:
+def clean_methods(methods: Iterable[Union[str, bytes]]) -> Tuple[bytes]:
+    """
+    Prepares the HTTP methods tuple.
+    :param methods: iter
+    :return: A tuple of bytes with each HTTP method.
+    """
     if methods:
-        parsed_methods = []
+        parsed_methods = set()
         for method in methods:
             if isinstance(method, str):
-                parsed_methods.append(method.upper().encode())
+                parsed_methods.add(method.upper().encode())
             elif isinstance(method, bytes):
-                parsed_methods.append(method.upper())
+                parsed_methods.add(method.upper())
             else:
                 raise Exception('Methods should be str or bytes.')
         return tuple(parsed_methods)
     return b'GET',
 
 
-def get_free_port(address='127.0.0.1') -> tuple:
+def get_free_port(address: str='127.0.0.1') -> tuple:
     """
     The reference of the socket is returned, otherwise the port could
     theoretically (highly unlikely) be used be someone else.
@@ -118,12 +123,12 @@ def get_free_port(address='127.0.0.1') -> tuple:
     return sock, address, sock.getsockname()[1]
 
 
-def wait_server_available(host, port, timeout: int=10):
+def wait_server_available(host: str, port: int, timeout: int=10) -> None:
     """
     Wait until the server is available by trying to connect to the same.
-    :param timeout:
-    :param host:
-    :param port:
+    :param timeout: How many seconds wait before giving up.
+    :param host: Host to connect to and wait until it goes offline.
+    :param port: TCP port used to connect.
     :return:
     """
     sock = socket.socket()
@@ -134,41 +139,70 @@ def wait_server_available(host, port, timeout: int=10):
             sock.connect((host, port))
             sock.close()
             return
-        except (ConnectionRefusedError, ConnectionAbortedError, ConnectionResetError):
+        except OSError:
             time.sleep(0.001)
             timeout -= time.time() - start_time
     sock.close()
-    raise SystemError(f'Server is taking too long to get online.')
+    raise TimeoutError(f'Server is taking too long to get online.')
 
 
-def wait_server_offline(host, port, timeout: int=10):
+def wait_server_offline(host: str, port: int, timeout: int=10) -> None:
     """
     Wait until the server is offline.
-    :param timeout:
-    :param host:
-    :param port:
+    :param timeout: How many seconds wait before giving up.
+    :param host: Host to connect to and wait until it goes offline.
+    :param port: TCP port used to connect.
     :return:
     """
     while timeout > 0:
+        start_time = time.time()
+        sock = socket.socket()
         try:
-            start_time = time.time()
-            sock = socket.socket()
             sock.settimeout(1)
             sock.connect((host, port))
-            time.sleep(1)
+            time.sleep(0.1)
             timeout -= time.time() - start_time
-        except (ConnectionRefusedError, ConnectionAbortedError, ConnectionResetError):
+        except OSError:
             return
         finally:
             sock.close()
-    raise SystemError(f'Server is still running after the timeout threshold.')
+    raise TimeoutError(f'Server is still running after the timeout threshold.')
 
 
-def cprint(message: str, color='\033[35m', mixed: bool=False):
+def cprint(message: str, color: str= '\033[35m', custom: bool=False) -> None:
+    """
+    Colored prints in interactive terminals and PyCharm.
+    :return: None
+    """
     if sys.stdout.isatty() or os.environ.get('PYCHARM_HOSTED'):
-        if mixed:
+        if custom:
             print(message.format(color_=color, end_='\033[0m'))
         else:
             print(color + message + '\033[0m')
     else:
-        print(message)
+        print(message.format(color_='', end_=''))
+
+
+def pause() -> None:
+    """
+    Pauses the process until a signed is received.
+    Windows does not have a signal.pause() so we waste a few more cpu cycles.
+    :return: None
+    """
+    if os.name == 'nt':
+        while True:
+            time.sleep(60)
+    else:
+        signal.pause()
+
+
+def format_access_log(request, response) -> str:
+    """
+
+    :param request:
+    :param response:
+    :return:
+    """
+    return f'{request.client_ip()} - "{request.method.decode()} ' \
+           f'{request.parsed_url.path.decode()}" - {response.status_code} - ' \
+           f'{request.headers.get("user-agent")}'

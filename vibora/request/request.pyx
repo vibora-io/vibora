@@ -3,7 +3,7 @@ from urllib.parse import urlparse, parse_qs, ParseResult
 from asyncio import Event
 from queue import deque
 from ..multipart import DiskFile, MemoryFile, UploadedFile
-from ..exceptions import InvalidJSON
+from ..exceptions import InvalidJSON, StreamAlreadyConsumed
 from ..sessions import Session
 from ..utils import RequestParams
 from ..utils import json
@@ -66,14 +66,16 @@ cdef class Stream:
         self.connection = connection
 
     async def read(self) -> bytearray:
-        data = bytearray()
         if self.consumed:
-            raise Exception('Stream already consumed.')
+            raise StreamAlreadyConsumed()
+        data = bytearray()
         async for chunk in self:
             data.extend(chunk)
         return data
 
     async def __aiter__(self):
+        if self.consumed:
+            raise StreamAlreadyConsumed()
         while True:
             self.connection.resume_reading()
             data = await self.queue.get()
@@ -113,6 +115,7 @@ cdef class Request:
         self._args = None
         self._parsed_url = None
         self._form = None
+        self._session = None
 
     @property
     def app(self):
@@ -156,7 +159,9 @@ cdef class Request:
 
         :return:
         """
-        return self.app.session_engine.load(self)
+        if not self._session:
+            self._session = await self.app.session_engine.load(self.cookies)
+        return self._session
 
     async def json(self, loads=None, strict: bool=False) -> dict:
         """
@@ -217,3 +222,11 @@ cdef class Request:
         if self._form is None:
             await self._load_form()
         return self._form
+
+    cpdef session_pending_flush(self):
+        """
+        
+        :return: 
+        """
+        if self._session and self._session.pending_flush:
+            return self._session

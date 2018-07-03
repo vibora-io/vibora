@@ -16,7 +16,7 @@ class BlueprintsTestCase(TestSuite):
             return Response(b'123')
 
         self.app.add_blueprint(b1)
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/')
             self.assertEqual(response.content, b'123')
 
@@ -28,7 +28,7 @@ class BlueprintsTestCase(TestSuite):
             return Response(b'123')
 
         self.app.add_blueprint(b1)
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/', headers={'Host': 'test.vibora.io'})
             self.assertEqual(response.content, b'123')
 
@@ -40,7 +40,7 @@ class BlueprintsTestCase(TestSuite):
             return Response(b'123')
 
         self.app.add_blueprint(b1)
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/', headers={'Host': 'test2.vibora.io'})
             self.assertEqual(response.status_code, 404)
 
@@ -58,7 +58,7 @@ class BlueprintsTestCase(TestSuite):
 
         self.app.add_blueprint(b1)
         self.app.add_blueprint(b2)
-        with self.app.test_client() as client:
+        async with self.app.test_client() as client:
             response = await client.request('/', headers={'Host': 'test.vibora.io'})
             self.assertEqual(response.status_code, 200)
             response = await client.request('/', headers={'Host': 'test2.vibora.io'})

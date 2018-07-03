@@ -13,6 +13,7 @@ class CacheTestCase(TestSuite):
 
         class AsyncEngine(CacheEngine):
             async def get(self, request: Request):
+                request.client_ip()
                 return self.cache.get(request.url)
 
             async def store(self, request: Request, response):
@@ -31,7 +32,7 @@ class CacheTestCase(TestSuite):
         async def home():
             return JsonResponse({'now': time.time()})
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response1 = await client.get('/')
             response2 = await client.get('/')
 
@@ -164,14 +165,12 @@ class CacheTestCase(TestSuite):
     async def test_default_expects_static_cache(self):
         app = Vibora()
 
-        @app.route('/')
+        @app.route('/', cache=False)
         async def home():
             return JsonResponse({'now': time.time()})
 
-        client = app.test_client()
-        response1 = await client.get('/')
-        response2 = await client.get('/')
+        async with app.test_client() as client:
+            response1 = await client.get('/')
+            response2 = await client.get('/')
 
         self.assertNotEqual(response1.content, response2.content)
-
-        client.close()

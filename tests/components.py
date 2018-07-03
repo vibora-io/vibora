@@ -30,7 +30,7 @@ class ComponentsTestSuite(TestSuite):
         async def home(config: Config):
             return Response(config.name)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.content, app.components[Config].name)
 
@@ -51,7 +51,7 @@ class ComponentsTestSuite(TestSuite):
         async def home(test: TestComponent, test2: TestComponent2):
             return Response(test.name + test2.name)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.content,
                              app.components[TestComponent].name +
@@ -74,7 +74,7 @@ class ComponentsTestSuite(TestSuite):
         async def home(test: TestComponent, test2: TestComponent2, name: str):
             return Response(test.name + test2.name + name.encode())
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/test')
             self.assertEqual(
                 response.content,
@@ -104,13 +104,13 @@ class ComponentsTestSuite(TestSuite):
                 return 'test'
 
         app = Vibora()
-        app.override_request(Request2)
+        app.request_class = Request2
 
         @app.route('/')
         async def home(request: Request2):
             return Response(request.test.encode())
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.content, b'test')
 
@@ -123,12 +123,12 @@ class ComponentsTestSuite(TestSuite):
                 return 'test'
 
         app = Vibora()
-        app.override_request(Request2)
+        app.request_class = Request2
 
         @app.route('/')
         async def home(request: Request):
             return Response(request.url)
 
-        with app.test_client() as client:
+        async with app.test_client() as client:
             response = await client.get('/')
             self.assertEqual(response.content, b'/')

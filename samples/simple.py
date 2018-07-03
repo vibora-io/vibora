@@ -1,5 +1,3 @@
-import asyncio
-import time
 from vibora import Vibora
 from vibora.responses import Response
 
@@ -7,11 +5,10 @@ from vibora.responses import Response
 app = Vibora()
 
 
-@app.route('/', cache=False)
+@app.route('/')
 async def home():
-    await asyncio.sleep(0)
-    return Response(str(time.time()).encode())
+    return Response(b'123')
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8888)
+    app.run(debug=False, port=8000)

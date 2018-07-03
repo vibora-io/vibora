@@ -1,6 +1,6 @@
 ### Vibora Template Engine (VTE)
 
-Although server-side rendering is not main-stream nowdays Vibora has
+Although server-side rendering is not main-stream nowadays, Vibora has
 its own template engine. The idea was to build something like Jinja2
 but with async users as first class citizens. Jinja2 is already heavily
 optimized but we tried to beat it in benchmarks.
@@ -18,5 +18,4 @@ VTE has hot-reloading so we can swap templates at run-time.
 This is enabled by default in debug mode so you have a fast iteration
 cycle while building your app.
 
-Although VTE do not aims to be **sandboxed** it tries hard to
-prevent the templates from leaking access to outside context.
+Although VTE **do not aim to be sandboxed** it tries hard to prevent the templates from leaking access to outside context.

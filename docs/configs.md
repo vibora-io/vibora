@@ -10,7 +10,7 @@ This method is a little bit harder for beginners when compared to the
 Django approach but it's way more flexible and allows you to build
 whatever suits you better.
 
-Here goes a pratical example:
+Here goes a practical example:
 
 1) Create a file called config.py
 ```py
@@ -28,6 +28,7 @@ class Config:
 ```py
 from vibora import Vibora
 from vibora.blueprints import Blueprint
+from vibora.hooks import Events
 from aioredis import ConnectionsPool
 from config import Config
 
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     app = Vibora()
 
     # Registering our API
-    app.add_blueprint(api, prefixes={'v1: '/v1'})
+    app.add_blueprint(api, prefixes={'v1': '/v1'})
 
     # Opening the configuration file.
     with open('config.json') as f:
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         config = Config(json.load(f))
 
         # Registering the config as a component so you can use it
-        later on (as we do in the "before_server_start" hook)
+        # later on (as we do in the "before_server_start" hook)
         app.components.add(config)
 
         # Running the server.
@@ -101,8 +102,8 @@ databases drivers, for example, often need to be instantiated
 after the server is forked so you'll need the config after
 the "run script".
 
-Also our config class is this example is a mere wrapper for our JSON
-config but in a real app you could be using the config class as
+Also, our config class in this example is a mere wrapper for our JSON
+config but in a real app, you could be using the config class as
 a components wrapper. You'll just need to add references to many
 important components so you don't need to repeat yourself by
 importing many different components in every route.
