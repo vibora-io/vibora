@@ -40,29 +40,53 @@ class WebsocketHandshake(asyncio.Protocol):
         :param transport:
         :return:
         """
-        wr = WebsocketRequest(
+        websocket_response = WebsocketRequest(
             self.client.host, path=self.client.path, origin=self.client.origin)
-        transport.write(wr.encode())
+        transport.write(websocket_response.encode())
         self.transport = transport
         print('connected')
 
     def data_received(self, data):
+        """
+
+        :param data:
+        :return:
+        """
         self.parser.feed(data)
         print(f'Data received: {data}')
 
     def connection_lost(self, exc):
+        """
+
+        :param exc:
+        :return:
+        """
         print('The server closed the connection')
         print('Stop the event loop')
 
     # Parser Callbacks
     def on_body(self):
+        """
+
+        :return:
+        """
         pass
 
     def on_headers_complete(self, headers, status_code):
+        """
+
+        :param headers:
+        :param status_code:
+        :return:
+        """
         self.current_status = status_code
         self.current_headers = headers
 
     def on_message_complete(self):
+        """
+
+        :return:
+        """
         self.transport.set_protocol(
             WebsocketProtocol(self.transport, self.loop))
 
@@ -95,4 +119,10 @@ class WebsocketClient:
     async def receive(self,
                       max_size: int = 1 * 1024 * 1024,
                       stream: bool = False):
+        """
+
+        :param max_size:
+        :param stream:
+        :return:
+        """
         pass

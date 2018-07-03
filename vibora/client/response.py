@@ -264,6 +264,10 @@ class Response:
             print(error)
 
     def chunk_complete(self):
+        """
+        
+        :return:
+        """
         pass
 
     def __repr__(self):

@@ -15,18 +15,39 @@ class Connection:
         pass
 
     def data_received(self, data):
+        """
+
+        :param data:
+        :return:
+        """
         pass
 
     def write_response(self, response):
+        """
+
+        :param response:
+        :return:
+        """
         pass
 
     async def call_async_hooks(self, type_id: int, **kwargs) -> bool:
+        """
+
+        :param type_id:
+        :param kwargs:
+        :return:
+        """
         pass
 
     async def process_async_request(self, route, request, stream):
         pass
 
     def connection_lost(self, exc):
+        """
+
+        :param exc:
+        :return:
+        """
         pass
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -39,6 +60,10 @@ class Connection:
         pass
 
     def on_message_complete(self):
+        """
+
+        :return:
+        """
         pass
 
 
