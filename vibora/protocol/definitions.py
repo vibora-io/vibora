@@ -59,6 +59,11 @@ class Connection:
         pass
 
     def on_body(self, body):
+        """
+
+        :param body:
+        :return:
+        """
         pass
 
     def on_message_complete(self):
