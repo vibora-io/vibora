@@ -16,7 +16,6 @@ class Connection:
 
     def data_received(self, data):
         """
-
         :param data:
         :return:
         """
@@ -24,7 +23,6 @@ class Connection:
 
     def write_response(self, response):
         """
-
         :param response:
         :return:
         """
@@ -32,7 +30,6 @@ class Connection:
 
     async def call_async_hooks(self, type_id: int, **kwargs) -> bool:
         """
-
         :param type_id:
         :param kwargs:
         :return:
@@ -44,7 +41,6 @@ class Connection:
 
     def connection_lost(self, exc):
         """
-
         :param exc:
         :return:
         """
@@ -54,6 +50,12 @@ class Connection:
     # HTTP PARSER CALLBACKS
 
     def on_headers_complete(self, headers: dict, url: bytes, method: bytes):
+        """
+        :param headers:
+        :param url:
+        :param method:
+        :return:
+        """
         pass
 
     def on_body(self, body):
@@ -61,7 +63,6 @@ class Connection:
 
     def on_message_complete(self):
         """
-
         :return:
         """
         pass

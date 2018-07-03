@@ -265,7 +265,7 @@ class Response:
 
     def chunk_complete(self):
         """
-        
+
         :return:
         """
         pass
