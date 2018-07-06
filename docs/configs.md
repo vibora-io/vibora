@@ -70,6 +70,7 @@ async def initialize_db(app: Vibora, config: Config):
 import json
 from vibora import Vibora
 from api import api
+from config import Config
 
 
 if __name__ == "__main__":
