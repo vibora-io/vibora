@@ -32,3 +32,15 @@ class RouterPrefixesTestCase(TestSuite):
         app.add_blueprint(bp, prefixes={'test': '/test'})
         response = await app.test_client().request('/test')
         self.assertEqual(response.json(), data)
+
+    async def test_prefix_with_dynamic_route(self):
+        data, app = {'hello': 'world'}, Vibora()
+        bp = Blueprint()
+
+        @bp.route('/<name>')
+        async def home(name: str):
+            return JsonResponse({'name': name})
+
+        app.add_blueprint(bp, prefixes={'test': '/test'})
+        response = await app.test_client().request('/test/test')
+        self.assertEqual(response.json(), {'name': 'test'})

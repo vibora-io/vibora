@@ -101,7 +101,7 @@ class StrictStrategyTestCase(TestSuite):
         self.assertEqual(404, (await client.request('/123/')).status_code)
 
     async def test_dynamic_route_expect_found(self):
-        @self.app.route('/.*/a')
+        @self.app.route('/<anything>/a')
         async def home():
             return Response(b'123')
 

@@ -24,12 +24,12 @@ async def show_product(product_id: int):
 ```
 
 Not usually you'll need something more sophisticated.
-Vibora allows regular expressions as route patterns.
+Vibora patterns are actually regular expressions.
 
 ```py
 import re
 
-@app.route(re.compile('/product/(?P<product_id>[0-9]+)'))
+@app.route('/product/(?P<product_id>[0-9]+)')
 async def show_product(product_id: int):
     return Response(f'Chosen product: {product_id}'.encode())
 ```

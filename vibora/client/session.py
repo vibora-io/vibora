@@ -298,7 +298,7 @@ class Session:
         """
         self._engine.close()
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> 'Session':
         """
 
         :return:

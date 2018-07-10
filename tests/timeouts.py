@@ -8,7 +8,6 @@ from vibora.responses import Response, StreamingResponse
 class TimeoutsTestCase(TestSuite):
 
     async def test_simple_case_expects_timeout_response(self):
-
         app = Vibora()
 
         @app.route('/', limits=RouteLimits(timeout=2))

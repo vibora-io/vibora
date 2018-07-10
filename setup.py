@@ -11,7 +11,7 @@ version = re.findall(r"^__version__ = '([^']+)'\r?$", txt, re.M)[0]
 setup(
     name="vibora",
     version=version,
-    description='Fast, asynchronous and efficient Python web framework',
+    description='Fast, asynchronous and elegant Python web framework',
     author='Frank Vieira',
     author_email='frank@frankvieira.com.br',
     url='https://vibora.io',
@@ -35,8 +35,7 @@ setup(
                 "vibora/parsers/parser.c",
                 "vendor/http-parser-2.8.1/http_parser.c",
             ],
-            extra_compile_args=['-O3'],
-            include_dirs=['.', '/git/vibora/vibora']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.parsers.response",
@@ -45,79 +44,66 @@ setup(
                 "vendor/http-parser-2.8.1/http_parser.c"
             ],
             extra_compile_args=['-O3'],
-            include_dirs=['.', '/git/vibora/vibora']
         ),
         Extension(
             "vibora.router.router",
             ["vibora/router/router.c"],
             extra_compile_args=['-O3'],
-            include_dirs=['.']
         ),
         Extension(
             "vibora.responses.responses",
             ["vibora/responses/responses.c"],
             extra_compile_args=['-O3'],
-            include_dirs=['.']
         ),
         Extension(
             "vibora.protocol.cprotocol",
             ["vibora/protocol/cprotocol.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.protocol.cwebsocket",
             ["vibora/protocol/cwebsocket.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.request.request",
             ["vibora/request/request.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.cache.cache",
             ["vibora/cache/cache.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.headers.headers",
             ["vibora/headers/headers.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.schemas.extensions.fields",
             ["vibora/schemas/extensions/fields.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.', 'vibora/schemas']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.schemas.extensions.schemas",
             ["vibora/schemas/extensions/schemas.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.', 'vibora/schemas']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.schemas.extensions.validator",
             ["vibora/schemas/extensions/validator.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.', 'vibora/schemas']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.components.components",
             ["vibora/components/components.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         ),
         Extension(
             "vibora.multipart.parser",
             ["vibora/multipart/parser.c"],
-            extra_compile_args=['-O3'],
-            include_dirs=['.']
+            extra_compile_args=['-O3']
         )
     ],
     packages=find_packages()

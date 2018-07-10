@@ -9,9 +9,19 @@ from .parser import PatternParser
 from ..limits import RouteLimits
 from ..utils import clean_route_name, clean_methods
 from ..exceptions import ReverseNotFound, NotFound, MethodNotAllowed, MissingComponent
-from ..request.request import Request
 from ..cache.cache import CacheEngine
-from ..responses.responses import Response, RedirectResponse, WebsocketHandshakeResponse
+
+############################################
+# C IMPORTS
+# noinspection PyUnresolvedReferences
+from ..request.request cimport Request
+# noinspection PyUnresolvedReferences
+from ..cache.cache cimport CacheEngine
+# noinspection PyUnresolvedReferences
+from ..responses.responses cimport Response, RedirectResponse, WebsocketHandshakeResponse
+# noinspection PyUnresolvedReferences
+from ..components.components cimport ComponentsEngine
+############################################
 
 
 class RouterStrategy:
@@ -20,7 +30,17 @@ class RouterStrategy:
     CLONE = 3
 
 
-class LRUCache:
+cdef inline bytes clean_url(bytes url):
+    cdef bytes char
+    cdef int count = 0
+    for char in url:
+        if char == b'?' or char == b'#':
+            return url[:count]
+        count += 1
+    return url
+
+
+cdef class RouterCache:
 
     def __init__(self, max_size: int=256):
         self.values = {}
@@ -28,23 +48,24 @@ class LRUCache:
         self.max_size = max_size
         self.current_size = 0
 
-    def set(self, key: tuple, route: 'Route'):
+    cdef set(self, tuple key, Route route):
         if self.current_size > self.max_size:
             key = self.queue.pop()
             del self.values[key]
+        else:
+            self.current_size += 1
         self.queue.appendleft(key)
         self.values[key] = route
-        self.current_size += 1
 
 
-class Router:
+cdef class Router:
     def __init__(self, strategy: int):
         self.strategy = strategy
         self.reverse_index = {}
         self.routes = {}
         self.dynamic_routes = {}
         self.default_handlers = {}
-        self.cache = LRUCache(max_size=1024 * 1024)
+        self.cache = RouterCache(max_size=1024)
         self.hosts = {}
         self.check_host = False
 
@@ -114,7 +135,7 @@ class Router:
         except KeyError:
             raise ReverseNotFound('Failed to build url for {0}'.format(_name))
 
-    def check_not_allowed_method(self, url: bytes, method: bytes):
+    cdef bint check_not_allowed_method(self, bytes url, bytes method) except -1:
         """
 
         :param url:
@@ -142,7 +163,7 @@ class Router:
         if allowed_methods:
             raise MethodNotAllowed(allowed_methods=allowed_methods)
 
-    def _find_route_by_host(self, url: bytes, method: bytes, host: str) -> 'Route':
+    cdef Route _find_route_by_host(self, bytes url, bytes method, str host):
         """
 
         :param url:
@@ -187,17 +208,19 @@ class Router:
 
         return self._find_route(url, method)
 
-    def _find_route(self, url: bytes, method: bytes) -> 'Route':
+    cdef Route _find_route(self, bytes url, bytes method):
         """
 
         :param url:
         :param method:
         :return:
         """
-        key = (url, method)
-        route = self.cache.values.get(key)
-        if route:
-            return route
+        url = clean_url(url)
+        cdef tuple key = (url, method)
+        try:
+            return self.cache.values[key]
+        except KeyError:
+            pass
 
         try:
             route = self.routes[method][url]
@@ -206,17 +229,19 @@ class Router:
         except KeyError:
             pass
 
-        if method in self.dynamic_routes:
+        try:
             for route in self.dynamic_routes[method]:
                 if route.regex.fullmatch(url):
                     self.cache.set(key, route)
                     return route
+        except KeyError:
+            pass
 
         self.check_not_allowed_method(url, method)
 
         raise NotFound()
 
-    def get_route(self, request: Request) -> 'Route':
+    cdef Route get_route(self, request: Request):
         try:
             if not self.check_host:
                 return self._find_route(request.url, request.method)
@@ -233,10 +258,10 @@ class Router:
                 raise NotImplementedError(f'Please implement the default {http_code} route.')
 
 
-class Route:
+cdef class Route:
 
-    def __init__(self, pattern: bytes, handler, methods=None,
-                 parent=None, app=None, dynamic=None, name: str = None,
+    def __init__(self, pattern, handler, methods=None,
+                 parent=None, app=None, dynamic=None, str name = None,
                  cache: CacheEngine = None, websocket=False, hosts=None, limits: RouteLimits=None):
         self.name = name or str(uuid.uuid4())
         self.handler = handler
@@ -249,7 +274,6 @@ class Route:
         self.methods = clean_methods(methods)
         self.websocket = websocket
         self.regex, self.params_book, self.simplified_pattern = PatternParser.extract_params(pattern)
-        self.has_parameters = bool(self.params_book)
         self.hosts = hosts
         if dynamic is None:
             self.is_dynamic = PatternParser.is_dynamic_pattern(self.regex.pattern)
@@ -270,22 +294,26 @@ class Route:
                 raise Exception(f'Type hint your route ({self.name}) params so Vibora can optimize stuff.')
             return tuple(filter(lambda x: x[0] != 'return', hints.items()))
 
-    def call_handler(self, request: Request, components):
+    cdef call_handler(self, Request request, ComponentsEngine components):
+        cdef str name
+        cdef dict function_params = {}
         if not self.receive_params:
             return self.handler()
         else:
-            if self.has_parameters:
-                match = self.regex.match(request.url)
-            function_params = {}
             try:
-                for name, type_ in self.components:
-                    if name in self.params_book:
-                        function_params[name] = PatternParser.CAST[type_](match.group(name))
-                    else:
+                if self.params_book:
+                    match = self.regex.match(request.url)
+                    for name, type_ in self.components:
+                        if name in self.params_book:
+                            function_params[name] = PatternParser.CAST[type_](match.group(name))
+                        else:
+                            function_params[name] = components.get(type_)
+                else:
+                    for name, type_ in self.components:
                         function_params[name] = components.get(type_)
             except MissingComponent as error:
-                error.route = self
-                raise error
+                    error.route = self
+                    raise error
             return self.handler(**function_params)
 
     def build_url(self, **kwargs):

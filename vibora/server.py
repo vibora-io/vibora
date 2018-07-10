@@ -257,6 +257,7 @@ class Vibora(Application):
         self._add_default_error_handlers()
         self._configure_static_files()
         self._configure_sessions()
+        self._configure_logging()
         self.check_integrity()
         self.load_templates()
         self.initialized = True

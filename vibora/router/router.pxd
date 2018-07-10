@@ -14,7 +14,7 @@ from ..components.components cimport ComponentsEngine
 ############################################
 
 
-cdef class LRUCache:
+cdef class RouterCache:
     cdef:
         dict values
         object queue
@@ -40,7 +40,6 @@ cdef class Route:
         public object regex
         public list params_book
         public object simplified_pattern
-        public bint has_parameters
         public list hosts
         public bint is_dynamic
         CacheEngine cache
@@ -56,7 +55,7 @@ cdef class Router:
         dict routes
         dict dynamic_routes
         public dict default_handlers
-        LRUCache cache
+        RouterCache cache
         dict hosts
         bint check_host
 
