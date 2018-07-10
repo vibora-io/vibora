@@ -70,6 +70,7 @@ async def initialize_db(app: Vibora, config: Config):
 import json
 from vibora import Vibora
 from api import api
+from config import Config
 
 
 if __name__ == "__main__":
@@ -93,9 +94,8 @@ if __name__ == "__main__":
         app.run(host=config.host, port=config.port)
 ```
 
-This example shows how to load your configuration from JSON files but
-you could also load it from environment variables or
-whatever do you think it's best.
+The previous example loads your configuration from JSON files, but
+other approaches, such as environment variables, can be used.
 
 Notice that we register the config instance as a component because
 databases drivers, for example, often need to be instantiated
