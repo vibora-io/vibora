@@ -1,3 +1,5 @@
 pytest
 cython
 pytest-asyncio
+flake8
+black
