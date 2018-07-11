@@ -24,12 +24,7 @@ if process.returncode != 0:
 
 # Building native extensions.
 process = subprocess.run(
-    [
-        sys.executable,
-        os.path.join(os.path.dirname(project_path), "setup.py"),
-        "build_ext",
-        "--inplace",
-    ]
+    [sys.executable, os.path.join(os.path.dirname(project_path), "setup.py"), "build_ext", "--inplace"]
 )
 if process.returncode != 0:
     raise SystemExit(f"Failed to build native modules.")

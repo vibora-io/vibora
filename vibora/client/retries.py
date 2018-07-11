@@ -21,6 +21,4 @@ class RetryStrategy:
         self.responses = responses or {}
 
     def clone(self) -> "RetryStrategy":
-        return RetryStrategy(
-            network_failures=self.network_failures.copy(), responses=self.responses.copy()
-        )
+        return RetryStrategy(network_failures=self.network_failures.copy(), responses=self.responses.copy())

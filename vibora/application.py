@@ -63,8 +63,7 @@ class Application(Blueprint):
         self.running = False
         if not issubclass(request_class, Request):
             raise ValueError(
-                "class_obj must be a child of the Vibora Request class. "
-                "(from vibora.request import Request)"
+                "class_obj must be a child of the Vibora Request class. " "(from vibora.request import Request)"
             )
         self.request_class = request_class
         self.session_engine = sessions_engine
@@ -132,9 +131,7 @@ class Application(Blueprint):
         :return:
         """
         if blueprint.parent:
-            raise DuplicatedBlueprint(
-                "You cannot add blueprint twice. Use more prefixes or a different hierarchy."
-            )
+            raise DuplicatedBlueprint("You cannot add blueprint twice. Use more prefixes or a different hierarchy.")
 
         if blueprint != self:
             blueprint.parent = self
@@ -148,10 +145,7 @@ class Application(Blueprint):
 
         # Non-Local listeners are removed from the blueprint because they are actually global hooks.
         if blueprint != self:
-            for collection, name in (
-                (blueprint.hooks, "hooks"),
-                (blueprint.async_hooks, "async_hooks"),
-            ):
+            for collection, name in ((blueprint.hooks, "hooks"), (blueprint.async_hooks, "async_hooks")):
                 local_listeners = {}
                 for listener_type, listeners in collection.items():
                     for listener in listeners:
@@ -180,18 +174,14 @@ class Application(Blueprint):
         :return:
         """
         if not self.initialized:
-            raise ValueError(
-                "Routes are not registered yet. Please run Vibora or call app.initialize()."
-            )
+            raise ValueError("Routes are not registered yet. Please run Vibora or call app.initialize().")
         route = self.router.reverse_index.get(_name)
         if not route:
             raise ReverseNotFound(_name)
         root = ""
         if _external:
             if not self.server_name or not self.url_scheme:
-                raise Exception(
-                    "Please configure the server_name and url_scheme to use external urls."
-                )
+                raise Exception("Please configure the server_name and url_scheme to use external urls.")
             root = self.url_scheme + "://" + self.server_name
         return root + route.build_url(*args, **kwargs).decode()
 

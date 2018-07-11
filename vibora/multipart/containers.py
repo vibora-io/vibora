@@ -20,13 +20,7 @@ class BufferedIterable:
 
 class FileUpload:
     def __init__(
-        self,
-        name: str = None,
-        path: str = None,
-        content: bytes = None,
-        iterable=None,
-        f=None,
-        headers: list = None,
+        self, name: str = None, path: str = None, content: bytes = None, iterable=None, f=None, headers: list = None
     ):
         if not any([path, content, iterable, f]):
             raise Exception("You must supply either: path, content, iterable, f")
@@ -49,12 +43,7 @@ class FileUpload:
 
 class MultipartEncoder:
     def __init__(
-        self,
-        delimiter: bytes,
-        params: dict,
-        chunk_size: int = 1 * 1024 * 1024,
-        loop=None,
-        encoding: str = "utf-8",
+        self, delimiter: bytes, params: dict, chunk_size: int = 1 * 1024 * 1024, loop=None, encoding: str = "utf-8"
     ):
         self.delimiter = b"--" + delimiter
         self.params = params
@@ -71,9 +60,7 @@ class MultipartEncoder:
         :return:
         """
         if isinstance(value, FileUpload):
-            return f'Content-Disposition: form-data; name="{name}"; filename="{value.name}"'.encode(
-                self.encoding
-            )
+            return f'Content-Disposition: form-data; name="{name}"; filename="{value.name}"'.encode(self.encoding)
         else:
             return f'Content-Disposition: form-data; name="{name}"'.encode(self.encoding)
 

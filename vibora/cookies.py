@@ -13,17 +13,7 @@ class Cookie:
         "max-age": ("max_age", lambda x: int(x[1])),
         "secure": ("secure", lambda x: True),
     }
-    __slots__ = (
-        "name",
-        "value",
-        "same_site",
-        "http_only",
-        "expires_at",
-        "path",
-        "domain",
-        "max_age",
-        "secure",
-    )
+    __slots__ = ("name", "value", "same_site", "http_only", "expires_at", "path", "domain", "max_age", "secure")
 
     def __init__(
         self,

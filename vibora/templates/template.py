@@ -42,15 +42,7 @@ class ParsedTemplate(Template):
 
 
 class CompiledTemplate(ParsedTemplate):
-    def __init__(
-        self,
-        content: str,
-        ast: Node,
-        dependencies: set,
-        code: str,
-        meta: TemplateMeta,
-        render: Callable,
-    ):
+    def __init__(self, content: str, ast: Node, dependencies: set, code: str, meta: TemplateMeta, render: Callable):
         super().__init__(content=content, ast=ast, dependencies=dependencies)
         self.code = code
         self.meta = meta
@@ -77,9 +69,7 @@ class CompiledTemplate(ParsedTemplate):
                 template_line = line[2:]
             if start_counting:
                 counter += 1
-        raise TemplateRenderError(
-            template=self, template_line=template_line, exception=error, template_name=name
-        )
+        raise TemplateRenderError(template=self, template_line=template_line, exception=error, template_name=name)
 
 
 class TemplateParser:

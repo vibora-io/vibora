@@ -60,9 +60,7 @@ class Vibora(Application):
                     raise MissingComponent(msg)
                 except Exception as e:
                     traceback.print_exception(MissingComponent, e, e.__traceback__)
-            return Response(
-                b"Internal Server Error", status_code=500, headers={"Content-Type": "text/html"}
-            )
+            return Response(b"Internal Server Error", status_code=500, headers={"Content-Type": "text/html"})
 
         if BodyLimitError not in self.exception_handlers:
 
@@ -75,8 +73,7 @@ class Vibora(Application):
             @self.handle(HeadersLimitError)
             async def handle_headers_limit():
                 return Response(
-                    b"HTTP request headers are too big. "
-                    b"Maybe there are too many, maybe just few big ones.",
+                    b"HTTP request headers are too big. " b"Maybe there are too many, maybe just few big ones.",
                     status_code=400,
                 )
 
@@ -86,9 +83,7 @@ class Vibora(Application):
             async def handle_internal_error(app: Vibora, error: Exception):
                 if app.debug_mode and not app.test_mode:
                     traceback.print_exception(MissingComponent, error, error.__traceback__)
-                return Response(
-                    b"Internal Server Error", status_code=500, headers={"Content-Type": "text/html"}
-                )
+                return Response(b"Internal Server Error", status_code=500, headers={"Content-Type": "text/html"})
 
     def _configure_static_files(self):
         """
@@ -185,9 +180,7 @@ class Vibora(Application):
 
             async def handle_405(request: Request):
                 return Response(
-                    b"Method Not Allowed",
-                    status_code=405,
-                    headers={"Allow": request.context["allowed_methods"]},
+                    b"Method Not Allowed", status_code=405, headers={"Allow": request.context["allowed_methods"]}
                 )
 
             self.add_exception_handler(handle_405, MethodNotAllowed)
@@ -211,9 +204,7 @@ class Vibora(Application):
                 cache.append(current_key)
             else:
                 keys.appendleft(current_key)
-        self.exception_handlers = OrderedDict(
-            [(x, self.exception_handlers[x]) for x in reversed(cache)]
-        )
+        self.exception_handlers = OrderedDict([(x, self.exception_handlers[x]) for x in reversed(cache)])
 
     def test_client(
         self,
@@ -238,13 +229,7 @@ class Vibora(Application):
             if not self.initialized:
                 self.test_mode = True
             self.run(
-                host=address,
-                port=port,
-                block=False,
-                necromancer=False,
-                workers=1,
-                debug=True,
-                startup_message=False,
+                host=address, port=port, block=False, necromancer=False, workers=1, debug=True, startup_message=False
             )
             self._test_client = Session(
                 prefix="http://" + address + ":" + str(port),
@@ -273,9 +258,7 @@ class Vibora(Application):
                 app.components.add(app.session_engine)
 
                 @app.handle(Events.AFTER_ENDPOINT)
-                async def flush_session(
-                    request: Request, response: Response, sessions: SessionEngine
-                ):
+                async def flush_session(request: Request, response: Response, sessions: SessionEngine):
                     pending_session = request.session_pending_flush()
                     if pending_session:
                         await sessions.save(pending_session, response)
@@ -346,9 +329,7 @@ class Vibora(Application):
         # Watch out for dead workers and bring new ones to life as needed.
         if necromancer:
             necromancer = Necromancer(
-                self.workers,
-                spawn_function=spawn_function,
-                interval=self.server_limits.worker_timeout,
+                self.workers, spawn_function=spawn_function, interval=self.server_limits.worker_timeout
             )
             necromancer.start()
 
@@ -357,15 +338,7 @@ class Vibora(Application):
             wait_server_available(host, port)
 
         if startup_message:
-            cprint(
-                "# Vibora ({color_}"
-                + __version__
-                + "{end_}) # http://"
-                + str(host)
-                + ":"
-                + str(port),
-                custom=True,
-            )
+            cprint("# Vibora ({color_}" + __version__ + "{end_}) # http://" + str(host) + ":" + str(port), custom=True)
 
         self.running = True
         if block:

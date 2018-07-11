@@ -39,11 +39,7 @@ class NodesParsingSuite(TestSuite):
         :return:
         """
         tp = TemplateParser()
-        parsed = tp.parse(
-            Template(
-                content="{% for x in range(0, 10)%}{% if x == 0 %}{{ y }}{% endif %}{% endfor %}"
-            )
-        )
+        parsed = tp.parse(Template(content="{% for x in range(0, 10)%}{% if x == 0 %}{{ y }}{% endif %}{% endfor %}"))
         expected_types = deque([ForNode, IfNode, EvalNode])
         generated_nodes = parsed.flat_view(parsed.ast)
         while expected_types:

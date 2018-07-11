@@ -10,9 +10,7 @@ app = Vibora()
 async def set_up_sessions(current_app: Vibora):
     # In this example every time the server is restart a new key will be generated, which means
     # you lose all your sessions... you may want to have a fixed key instead.
-    current_app.session_engine = EncryptedCookiesEngine(
-        "cookie_name", secret_key=Fernet.generate_key()
-    )
+    current_app.session_engine = EncryptedCookiesEngine("cookie_name", secret_key=Fernet.generate_key())
 
 
 @app.route("/")

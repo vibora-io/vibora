@@ -35,49 +35,23 @@ setup(
             extra_compile_args=["-O3"],
         ),
         Extension("vibora.router.router", ["vibora/router/router.c"], extra_compile_args=["-O3"]),
-        Extension(
-            "vibora.responses.responses",
-            ["vibora/responses/responses.c"],
-            extra_compile_args=["-O3"],
-        ),
-        Extension(
-            "vibora.protocol.cprotocol", ["vibora/protocol/cprotocol.c"], extra_compile_args=["-O3"]
-        ),
-        Extension(
-            "vibora.protocol.cwebsocket",
-            ["vibora/protocol/cwebsocket.c"],
-            extra_compile_args=["-O3"],
-        ),
-        Extension(
-            "vibora.request.request", ["vibora/request/request.c"], extra_compile_args=["-O3"]
-        ),
+        Extension("vibora.responses.responses", ["vibora/responses/responses.c"], extra_compile_args=["-O3"]),
+        Extension("vibora.protocol.cprotocol", ["vibora/protocol/cprotocol.c"], extra_compile_args=["-O3"]),
+        Extension("vibora.protocol.cwebsocket", ["vibora/protocol/cwebsocket.c"], extra_compile_args=["-O3"]),
+        Extension("vibora.request.request", ["vibora/request/request.c"], extra_compile_args=["-O3"]),
         Extension("vibora.cache.cache", ["vibora/cache/cache.c"], extra_compile_args=["-O3"]),
+        Extension("vibora.headers.headers", ["vibora/headers/headers.c"], extra_compile_args=["-O3"]),
         Extension(
-            "vibora.headers.headers", ["vibora/headers/headers.c"], extra_compile_args=["-O3"]
+            "vibora.schemas.extensions.fields", ["vibora/schemas/extensions/fields.c"], extra_compile_args=["-O3"]
         ),
         Extension(
-            "vibora.schemas.extensions.fields",
-            ["vibora/schemas/extensions/fields.c"],
-            extra_compile_args=["-O3"],
+            "vibora.schemas.extensions.schemas", ["vibora/schemas/extensions/schemas.c"], extra_compile_args=["-O3"]
         ),
         Extension(
-            "vibora.schemas.extensions.schemas",
-            ["vibora/schemas/extensions/schemas.c"],
-            extra_compile_args=["-O3"],
+            "vibora.schemas.extensions.validator", ["vibora/schemas/extensions/validator.c"], extra_compile_args=["-O3"]
         ),
-        Extension(
-            "vibora.schemas.extensions.validator",
-            ["vibora/schemas/extensions/validator.c"],
-            extra_compile_args=["-O3"],
-        ),
-        Extension(
-            "vibora.components.components",
-            ["vibora/components/components.c"],
-            extra_compile_args=["-O3"],
-        ),
-        Extension(
-            "vibora.multipart.parser", ["vibora/multipart/parser.c"], extra_compile_args=["-O3"]
-        ),
+        Extension("vibora.components.components", ["vibora/components/components.c"], extra_compile_args=["-O3"]),
+        Extension("vibora.multipart.parser", ["vibora/multipart/parser.c"], extra_compile_args=["-O3"]),
     ],
     packages=find_packages(),
 )

@@ -39,12 +39,7 @@ class Response:
     )
 
     def __init__(
-        self,
-        url: str,
-        connection: Connection,
-        request: Request,
-        chunk_size: int = 1 * 1024 * 1024,
-        decode: bool = True,
+        self, url: str, connection: Connection, request: Request, chunk_size: int = 1 * 1024 * 1024, decode: bool = True
     ):
         self._connection = connection
         self._headers = {}
@@ -80,10 +75,7 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
-            raise Exception(
-                "Status code not loaded yet. "
-                "In streaming mode you should manually call load_headers()."
-            )
+            raise Exception("Status code not loaded yet. " "In streaming mode you should manually call load_headers().")
         return self._status_code
 
     @property
@@ -93,10 +85,7 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
-            raise Exception(
-                "Headers not loaded yet. "
-                "In streaming mode you should manually call load_headers()."
-            )
+            raise Exception("Headers not loaded yet. " "In streaming mode you should manually call load_headers().")
         return self._headers
 
     @property
@@ -106,9 +95,7 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_BODY:
-            raise Exception(
-                "You need to call read_content() " "before using this in streaming mode."
-            )
+            raise Exception("You need to call read_content() " "before using this in streaming mode.")
         return self._content
 
     @property
@@ -182,16 +169,9 @@ class Response:
 
         :return:
         """
-        await self._connection.pool.release_connection(
-            self._connection, self._parser.should_keep_alive()
-        )
+        await self._connection.pool.release_connection(self._connection, self._parser.should_keep_alive())
 
-    async def stream(
-        self,
-        chunk_size: int = 1 * 1024 * 1024,
-        chunk_timeout: int = 10,
-        complete_timeout: int = 300,
-    ):
+    async def stream(self, chunk_size: int = 1 * 1024 * 1024, chunk_timeout: int = 10, complete_timeout: int = 300):
         """
 
         :param complete_timeout:
@@ -223,9 +203,7 @@ class Response:
                     task = self._connection.read_until(b"\r\n")
                     start_time = time.time()
                     try:
-                        self._parser.feed(
-                            await wait_for(task, min(chunk_timeout, complete_timeout))
-                        )
+                        self._parser.feed(await wait_for(task, min(chunk_timeout, complete_timeout)))
                     except asyncio.LimitOverrunError as error:
                         self._parser.feed(await self._connection.read_exactly(error.consumed))
                     complete_timeout -= time.time() - start_time

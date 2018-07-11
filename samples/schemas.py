@@ -15,9 +15,7 @@ class BenchmarkSchema(Schema):
 async def home(request: Request):
     try:
         values = await BenchmarkSchema.load_json(request)
-        return JsonResponse(
-            {"msg": "Successfully validated", "field1": values.field1, "field2": values.field2}
-        )
+        return JsonResponse({"msg": "Successfully validated", "field1": values.field1, "field2": values.field2})
     except InvalidSchema:
         return JsonResponse({"msg": "Data is invalid"})
 

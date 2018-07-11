@@ -70,9 +70,7 @@ class LimitTestCase(TestSuite):
         @app.route("/", methods=["POST"], limits=RouteLimits(max_body_size=1))
         async def home(request: Request):
             await request.stream.read()
-            return Response(
-                b"Wrong. Request must be blocked because this route is more restrictive."
-            )
+            return Response(b"Wrong. Request must be blocked because this route is more restrictive.")
 
         async with app.test_client() as client:
             response = await client.post("/", body=b"11")

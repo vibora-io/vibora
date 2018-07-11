@@ -49,10 +49,7 @@ class ComponentsTestSuite(TestSuite):
 
         async with app.test_client() as client:
             response = await client.get("/")
-            self.assertEqual(
-                response.content,
-                app.components[TestComponent].name + app.components[TestComponent2].name,
-            )
+            self.assertEqual(response.content, app.components[TestComponent].name + app.components[TestComponent2].name)
 
     async def test_multiple_components_with_parameters_in_route(self):
         class TestComponent:
@@ -73,8 +70,7 @@ class ComponentsTestSuite(TestSuite):
         async with app.test_client() as client:
             response = await client.get("/test")
             self.assertEqual(
-                response.content,
-                app.components[TestComponent].name + app.components[TestComponent2].name + b"test",
+                response.content, app.components[TestComponent].name + app.components[TestComponent2].name + b"test"
             )
 
     def test_loaded_component_class_instead_of_instance_expects_exception(self):

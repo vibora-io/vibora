@@ -5,21 +5,9 @@ from .connection import Connection
 
 class Request:
 
-    __slots__ = (
-        "method",
-        "url",
-        "headers",
-        "data",
-        "cookies",
-        "streaming",
-        "chunked",
-        "encoding",
-        "origin",
-    )
+    __slots__ = ("method", "url", "headers", "data", "cookies", "streaming", "chunked", "encoding", "origin")
 
-    def __init__(
-        self, method: str, url: URL, headers: dict, data, cookies: CookiesJar, origin=None
-    ):
+    def __init__(self, method: str, url: URL, headers: dict, data, cookies: CookiesJar, origin=None):
         self.method = method.upper() if method else "GET"
         self.url = url
         self.headers = headers or {}

@@ -46,11 +46,7 @@ class HTTPEngine:
             return self.pools[key]
         except KeyError:
             self.pools[key] = ConnectionPool(
-                loop=self.loop,
-                host=host,
-                port=port,
-                protocol=protocol,
-                keep_alive=self.session.keep_alive,
+                loop=self.loop, host=host, port=port, protocol=protocol, keep_alive=self.session.keep_alive
             )
         return self.pools[key]
 
@@ -143,9 +139,7 @@ class HTTPEngine:
             await self.throttle(url.raw)
         pool = self.get_pool(url.schema, url.host, url.port)
         connection = await pool.get_connection(validate_ssl)
-        request = Request(
-            method, url, headers, data, self.session.cookies.get(domain=url.host), origin=origin
-        )
+        request = Request(method, url, headers, data, self.session.cookies.get(domain=url.host), origin=origin)
         await request.encode(connection)
         response = Response(request.url, connection, request=request, decode=decode)
         await response.receive_headers()
@@ -154,14 +148,7 @@ class HTTPEngine:
             if response.is_redirect():
                 await response.read_content()
                 return await self.handle_redirect(
-                    request,
-                    response,
-                    stream,
-                    follow_redirects,
-                    max_redirects,
-                    decode,
-                    validate_ssl,
-                    headers,
+                    request, response, stream, follow_redirects, max_redirects, decode, validate_ssl, headers
                 )
         if not stream:
             await response.read_content()
@@ -268,15 +255,11 @@ class Session:
 
         # Asserting the user is not using conflicting params.
         if sum([body is not None, json is not None, form is not None]) > 1:
-            raise ValueError(
-                "You cannot set body, json or form together. You must pick one and only one."
-            )
+            raise ValueError("You cannot set body, json or form together. You must pick one and only one.")
 
         # Handling default parameters.
         stream = stream if stream is not None else self.stream
-        follow_redirects = (
-            follow_redirects if follow_redirects is not None else self.follow_redirects
-        )
+        follow_redirects = follow_redirects if follow_redirects is not None else self.follow_redirects
         max_redirects = max_redirects if max_redirects is not None else self.max_redirects
         decode = decode if decode else self.decode
         ssl = ssl if ssl is not None else self.ssl
@@ -288,9 +271,7 @@ class Session:
 
         # Constructing the URL.
         url = self.build_url(
-            prefix=self.prefix if not ignore_prefix else b"",
-            url=url.encode(URL_ENCODING),
-            query=query,
+            prefix=self.prefix if not ignore_prefix else b"", url=url.encode(URL_ENCODING), query=query
         )
         parsed_url = parse_url(url)
 

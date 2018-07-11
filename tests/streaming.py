@@ -41,9 +41,7 @@ class StreamingTestSuite(TestSuite):
         async with app.test_client() as client:
             try:
                 await client.get("/", timeout=3)
-                self.fail(
-                    "Vibora should have closed the connection because a streaming timeout is not recoverable."
-                )
+                self.fail("Vibora should have closed the connection because a streaming timeout is not recoverable.")
             except asyncio.IncompleteReadError:
                 pass
             except futures.TimeoutError:

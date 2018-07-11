@@ -122,9 +122,7 @@ class StaticHandler:
                 if request.method == "HEAD":
                     return Response(b"", headers=headers, status_code=206)
                 else:
-                    return StreamingResponse(
-                        RangeFile(cache.path, start, end).stream, headers=headers, status_code=206
-                    )
+                    return StreamingResponse(RangeFile(cache.path, start, end).stream, headers=headers, status_code=206)
 
         # Handling HEAD requests
         if request.method == "HEAD":

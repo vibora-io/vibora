@@ -18,9 +18,7 @@ class ConnectionPool:
         "wait_connection_available",
     )
 
-    def __init__(
-        self, loop: BaseEventLoop, host: str, port: int, protocol: str, keep_alive: bool = True
-    ):
+    def __init__(self, loop: BaseEventLoop, host: str, port: int, protocol: str, keep_alive: bool = True):
         self.loop = loop
         self.host = host
         self.port = port

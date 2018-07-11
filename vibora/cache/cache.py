@@ -21,6 +21,4 @@ class Static(CacheEngine):
         return self.cache.get(1)
 
     def store(self, request: Request, response: Response):
-        self.cache[1] = CachedResponse(
-            response.content, headers=response.headers, cookies=response.cookies
-        )
+        self.cache[1] = CachedResponse(response.content, headers=response.headers, cookies=response.cookies)

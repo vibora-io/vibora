@@ -152,9 +152,7 @@ class SchemasTestCase(TestSuite):
         try:
             await TestSchema.load({"field1": "test"}, language=new_language)
         except InvalidSchema as error:
-            self.assertDictEqual(
-                error.errors, {"field1": [{"error_code": 100, "msg": "Something custom."}]}
-            )
+            self.assertDictEqual(error.errors, {"field1": [{"error_code": 100, "msg": "Something custom."}]})
 
     async def test_schema_calling_builtin_validator(self):
         class TestSchema(Schema):

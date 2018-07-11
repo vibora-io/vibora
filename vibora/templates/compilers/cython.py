@@ -6,13 +6,7 @@ import time
 import datetime
 from setuptools import Extension, setup
 from ..compilers.base import TemplateCompiler
-from ..utils import (
-    find_template_binary,
-    CompilerFlavor,
-    TemplateMeta,
-    get_architecture_signature,
-    CompilationResult,
-)
+from ..utils import find_template_binary, CompilerFlavor, TemplateMeta, get_architecture_signature, CompilationResult
 
 # TODO: Remove 'render' hardcoded name.
 
@@ -109,9 +103,7 @@ class CythonTemplateCompiler(TemplateCompiler):
             f.write(self.content)
 
         # Building optimized binaries.
-        ext = Extension(
-            self.EXTENSION_NAME, [temp_path], extra_compile_args=["-O3"], include_dirs=["."]
-        )
+        ext = Extension(self.EXTENSION_NAME, [temp_path], extra_compile_args=["-O3"], include_dirs=["."])
         build_path = os.path.join(working_dir.name, template_hash)
         trash_dir = os.path.join(working_dir.name, "trash")
         args = ["build_ext", "-b", build_path, "-t", trash_dir]

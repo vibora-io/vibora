@@ -33,10 +33,7 @@ class RouteLimits:
     __slots__ = ("timeout", "max_body_size", "in_memory_threshold")
 
     def __init__(
-        self,
-        max_body_size: int = 1 * 1024 * 1024,
-        timeout: int = 30,
-        in_memory_threshold: int = 1 * 1024 * 1024,
+        self, max_body_size: int = 1 * 1024 * 1024, timeout: int = 30, in_memory_threshold: int = 1 * 1024 * 1024
     ):
         """
 

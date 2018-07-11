@@ -14,9 +14,7 @@ class Schema:
         pass
 
     @classmethod
-    async def load(
-        cls, values: dict, language: dict = EnglishLanguage, context: dict = None
-    ) -> "Schema":
+    async def load(cls, values: dict, language: dict = EnglishLanguage, context: dict = None) -> "Schema":
         """
 
         :param context:
@@ -27,9 +25,7 @@ class Schema:
         pass
 
     @classmethod
-    async def load_form(
-        cls, request: Request, language: dict = EnglishLanguage, context: dict = None
-    ) -> "Schema":
+    async def load_form(cls, request: Request, language: dict = EnglishLanguage, context: dict = None) -> "Schema":
         """
 
         :param context:
@@ -40,9 +36,7 @@ class Schema:
         pass
 
     @classmethod
-    async def load_json(
-        cls, request: Request, language: dict = EnglishLanguage, context: dict = None
-    ) -> "Schema":
+    async def load_json(cls, request: Request, language: dict = EnglishLanguage, context: dict = None) -> "Schema":
         """
 
         :param context:

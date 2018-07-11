@@ -54,9 +54,7 @@ class ExceptionHandler:
     def extract_params(self):
         hints = get_type_hints(self.handler)
         if not hints and len(signature(self.handler).parameters) > 0:
-            raise Exception(
-                f"Type hint your handler ({self.handler}) params so Vibora can optimize stuff."
-            )
+            raise Exception(f"Type hint your handler ({self.handler}) params so Vibora can optimize stuff.")
         return tuple(filter(lambda x: x[0] != "return", hints.items()))
 
 

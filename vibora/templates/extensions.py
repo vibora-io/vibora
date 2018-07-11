@@ -34,6 +34,4 @@ class ViboraNodes(EngineExtension):
             url = self.app.static.url_for(node.url)
             return TextNode(url)
 
-        replace_on_tree(
-            lambda x: isinstance(x, StaticNode), replace_static, current_node=template.ast
-        )
+        replace_on_tree(lambda x: isinstance(x, StaticNode), replace_static, current_node=template.ast)

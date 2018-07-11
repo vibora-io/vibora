@@ -36,11 +36,7 @@ class Blueprint:
         Decorator to register a hook.
         :return: None
         """
-        if value in (
-            Events.BEFORE_SERVER_START,
-            Events.AFTER_SERVER_START,
-            Events.BEFORE_SERVER_STOP,
-        ):
+        if value in (Events.BEFORE_SERVER_START, Events.AFTER_SERVER_START, Events.BEFORE_SERVER_STOP):
             local = False
 
         def wrapper(*args):
@@ -56,23 +52,13 @@ class Blueprint:
 
         return wrapper
 
-    def route(
-        self,
-        pattern,
-        methods=None,
-        cache=None,
-        name=None,
-        hosts: list = None,
-        limits: RouteLimits = None,
-    ):
+    def route(self, pattern, methods=None, cache=None, name=None, hosts: list = None, limits: RouteLimits = None):
         def register(*args):
             handler = args[0]
 
             # Checking if handler is co-routine.
             if not iscoroutinefunction(handler):
-                raise SyntaxError(
-                    f"Your route handler must be an async function. (Handler: {handler})"
-                )
+                raise SyntaxError(f"Your route handler must be an async function. (Handler: {handler})")
 
             # If the route it's simple enough let the static cache kicks in.
             chosen_cache = cache
@@ -175,9 +161,7 @@ class Blueprint:
         :param template_vars:
         :return:
         """
-        content = await self.app.template_engine.render(
-            template_name, streaming=True, **template_vars
-        )
+        content = await self.app.template_engine.render(template_name, streaming=True, **template_vars)
         return StreamingResponse(content)
 
     def add_blueprint(self, blueprint, prefixes: dict = None):
@@ -191,9 +175,7 @@ class Blueprint:
             prefixes = {"": ""}
 
         if blueprint.parent:
-            raise DuplicatedBlueprint(
-                "You cannot add a blueprint twice. Use more prefixes or different hierarchy."
-            )
+            raise DuplicatedBlueprint("You cannot add a blueprint twice. Use more prefixes or different hierarchy.")
 
         for key in prefixes.keys():
             for existent_prefix in self.blueprints.values():

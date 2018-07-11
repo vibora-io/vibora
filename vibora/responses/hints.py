@@ -9,9 +9,7 @@ from ..utils import json
 
 
 class Response:
-    def __init__(
-        self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None
-    ):
+    def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
         self.status_code: int = status_code
         self.content: bytes = content
         self.headers: dict = headers or {}
@@ -19,30 +17,21 @@ class Response:
 
 
 class CachedResponse(Response):
-    def __init__(
-        self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None
-    ):
+    def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
         super().__init__(content=content, status_code=status_code, headers=headers, cookies=cookies)
         self.content = content
         self.cache = None
 
 
 class JsonResponse(Response):
-    def __init__(
-        self, content: object, status_code: int = 200, headers: dict = None, cookies: list = None
-    ):
+    def __init__(self, content: object, status_code: int = 200, headers: dict = None, cookies: list = None):
         super().__init__(
-            content=json.dumps(content).encode(),
-            status_code=status_code,
-            headers=headers,
-            cookies=cookies,
+            content=json.dumps(content).encode(), status_code=status_code, headers=headers, cookies=cookies
         )
 
 
 class RedirectResponse(Response):
-    def __init__(
-        self, location: str, status_code: int = 302, headers: dict = None, cookies: list = None
-    ):
+    def __init__(self, location: str, status_code: int = 302, headers: dict = None, cookies: list = None):
         super().__init__(b"", status_code=status_code, headers=headers, cookies=cookies)
 
 
