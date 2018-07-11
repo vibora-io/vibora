@@ -4,8 +4,7 @@ from typing import Callable
 
 
 class Necromancer(threading.Thread):
-
-    def __init__(self, app, spawn_function: Callable, interval: int=5):
+    def __init__(self, app, spawn_function: Callable, interval: int = 5):
         super().__init__()
         self.app = app
         self.spawn_function = spawn_function

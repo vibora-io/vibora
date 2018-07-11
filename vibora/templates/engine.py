@@ -8,9 +8,13 @@ from .compilers.python import PythonTemplateCompiler
 
 
 class TemplateEngine:
-
-    def __init__(self, cache_engine=None, compiler=None, extensions: list=None,
-                 parser: TemplateParser=None):
+    def __init__(
+        self,
+        cache_engine=None,
+        compiler=None,
+        extensions: list = None,
+        parser: TemplateParser = None,
+    ):
 
         # Loaded templates list, caching purposes.
         # {Name: ParsedTemplate}
@@ -69,10 +73,12 @@ class TemplateEngine:
             else:
                 missing_names += 1
                 if missing_names == len(names):
-                    raise ConflictingNames('This template needs a unique name because imports are name based.')
+                    raise ConflictingNames(
+                        "This template needs a unique name because imports are name based."
+                    )
         return template
 
-    async def render(self, name: str, streaming: bool=False, **template_vars):
+    async def render(self, name: str, streaming: bool = False, **template_vars):
         """
 
         :param streaming:
@@ -88,14 +94,14 @@ class TemplateEngine:
                 if streaming:
                     return template_generator
                 try:
-                    content = ''
+                    content = ""
                     async for chunk in template_generator:
                         content += chunk
                     return content
                 except Exception as error:
                     raise compiled_template.render_exception(error, name=name)
             except KeyError:
-                raise Exception('You need to compile your templates first.')
+                raise Exception("You need to compile your templates first.")
         except KeyError:
             raise TemplateNotFound(name)
 
@@ -119,7 +125,7 @@ class TemplateEngine:
         try:
             return self.compiled_templates[template.hash]
         except KeyError:
-            raise TemplateNotFound(f'You need to compile this template first.')
+            raise TemplateNotFound(f"You need to compile this template first.")
 
     def prepare_template(self, template: ParsedTemplate):
         """

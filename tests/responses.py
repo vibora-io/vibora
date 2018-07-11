@@ -11,23 +11,23 @@ class AttributesTestCase(TestCase):
     """
 
     def test_json_response_attributes(self):
-        headers = {'test': 'test'}
-        cookies = [Cookie('server', 'Vibora')]
+        headers = {"test": "test"}
+        cookies = [Cookie("server", "Vibora")]
         status_code = 404
-        content = {'a': 1}
+        content = {"a": 1}
         response = JsonResponse(content, headers=headers, cookies=cookies, status_code=status_code)
         self.assertEqual(response.cookies, cookies)
-        self.assertEqual(response.headers['test'], headers['test'])
+        self.assertEqual(response.headers["test"], headers["test"])
         self.assertEqual(response.status_code, status_code)
-        self.assertEqual(response.content, json.dumps(content).encode('utf-8'))
+        self.assertEqual(response.content, json.dumps(content).encode("utf-8"))
 
     def test_plain_response_attributes(self):
-        headers = {'server': 'Vibora'}
-        cookies = [Cookie('server', 'Vibora')]
+        headers = {"server": "Vibora"}
+        cookies = [Cookie("server", "Vibora")]
         status_code = 404
-        content = b'HelloWorld'
+        content = b"HelloWorld"
         response = Response(content, headers=headers, cookies=cookies, status_code=status_code)
         self.assertEqual(response.cookies, cookies)
-        self.assertEqual(response.headers['server'], headers['server'])
+        self.assertEqual(response.headers["server"], headers["server"])
         self.assertEqual(response.status_code, status_code)
         self.assertEqual(response.content, content)

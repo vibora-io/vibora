@@ -10,7 +10,6 @@ from typing import List, Callable
 
 
 class Request:
-
     def __init__(self, url: bytes, headers: Headers, method: bytes, stream, protocol):
         self.url = url
         self.headers = headers
@@ -56,7 +55,7 @@ class Request:
         """
         pass
 
-    async def json(self, loads: Callable=None, strict: bool = False) -> dict:
+    async def json(self, loads: Callable = None, strict: bool = False) -> dict:
         """
 
         :param loads:

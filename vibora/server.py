@@ -17,7 +17,7 @@ from .templates.loader import TemplateLoader
 from .templates.extensions import ViboraNodes
 from .exceptions import NotFound, MethodNotAllowed, MissingComponent
 from .parsers.errors import BodyLimitError, HeadersLimitError
-from .utils import wait_server_available, get_free_port, cprint, pause, format_access_log
+from .utils import wait_server_available, get_free_port, cprint, format_access_log
 from .hooks import Hook, Events
 from .application import Application
 
@@ -36,14 +36,14 @@ class Vibora(Application):
         async def not_found_handler():
             raise NotFound()
 
-        route_404 = Route(b'', not_found_handler, parent=self, limits=self.limits)
+        route_404 = Route(b"", not_found_handler, parent=self, limits=self.limits)
         self.router.default_handlers[404] = route_404
 
         # 405 Method Not Allowed.
         async def method_not_allowed_handler(request: Request):
-            raise MethodNotAllowed(request.context['allowed_methods'])
+            raise MethodNotAllowed(request.context["allowed_methods"])
 
-        route_405 = Route(b'', method_not_allowed_handler, parent=self, limits=self.limits)
+        route_405 = Route(b"", method_not_allowed_handler, parent=self, limits=self.limits)
         self.router.default_handlers[405] = route_405
 
         @self.handle(MissingComponent)
@@ -52,31 +52,43 @@ class Vibora(Application):
                 # A hack to help users with component missing exceptions because they are generated
                 # too deep in Cython and there aren't useful stack frames.
                 try:
-                    msg = f"{error.route.handler if error.route else 'A hook'} needs " \
-                          f"{error.component} but there isn't any " \
-                          f"component registered with this type."
+                    handler = str(error.route.handler) or "A hook"
+                    msg = (
+                        f"{handler} needs {error.component} but there isn't any "
+                        f"component registered with this type."
+                    )
                     raise MissingComponent(msg)
                 except Exception as e:
                     traceback.print_exception(MissingComponent, e, e.__traceback__)
-            return Response(b'Internal Server Error', status_code=500, headers={'Content-Type': 'text/html'})
+            return Response(
+                b"Internal Server Error", status_code=500, headers={"Content-Type": "text/html"}
+            )
 
         if BodyLimitError not in self.exception_handlers:
+
             @self.handle(BodyLimitError)
             async def handle_body_limit():
-                return Response(b'HTTP request body is too big.', status_code=413)
+                return Response(b"HTTP request body is too big.", status_code=413)
 
         if HeadersLimitError not in self.exception_handlers:
+
             @self.handle(HeadersLimitError)
             async def handle_headers_limit():
-                return Response(b'HTTP request headers are too big. '
-                                b'Maybe there are too many, maybe just few big ones.', status_code=400)
+                return Response(
+                    b"HTTP request headers are too big. "
+                    b"Maybe there are too many, maybe just few big ones.",
+                    status_code=400,
+                )
 
         if Exception not in self.exception_handlers:
+
             @self.handle(Exception)
             async def handle_internal_error(app: Vibora, error: Exception):
                 if app.debug_mode and not app.test_mode:
                     traceback.print_exception(MissingComponent, error, error.__traceback__)
-                return Response(b'Internal Server Error', status_code=500, headers={'Content-Type': 'text/html'})
+                return Response(
+                    b"Internal Server Error", status_code=500, headers={"Content-Type": "text/html"}
+                )
 
     def _configure_static_files(self):
         """
@@ -84,9 +96,14 @@ class Vibora(Application):
         :return:
         """
         if self.static:
-            static_route = Route((self.static.url_prefix + '/.*').encode(), self.static.handle,
-                                 methods=(b'GET', b'HEAD'), parent=self, limits=self.limits)
-            self.router.add_route(static_route, {'': ''}, check_slashes=False)
+            static_route = Route(
+                (self.static.url_prefix + "/.*").encode(),
+                self.static.handle,
+                methods=(b"GET", b"HEAD"),
+                parent=self,
+                limits=self.limits,
+            )
+            self.router.add_route(static_route, {"": ""}, check_slashes=False)
 
     def check_integrity(self):
         """
@@ -110,7 +127,7 @@ class Vibora(Application):
             :return:
             """
             if level in (logging.INFO, logging.CRITICAL, logging.ERROR, logging.WARNING):
-                print(f'[{self.current_time}] - {msg}', file=sys.stderr)
+                print(f"[{self.current_time}] - {msg}", file=sys.stderr)
 
         if not self.test_mode:
             self.log = default_log
@@ -126,6 +143,7 @@ class Vibora(Application):
             for path in blueprint.template_dirs:
                 dirs.append(path)
         if self.debug_mode:
+
             def start_template_loader(app: Vibora):
                 tl = TemplateLoader(dirs, app.template_engine)
                 tl.start()
@@ -150,20 +168,29 @@ class Vibora(Application):
         """
 
         if Exception not in self.exception_handlers:
-            @self.handle(Exception)
-            async def internal_server_error():
-                return Response(b'Internal Server Error', status_code=500)
+
+            async def handle_500():
+                return Response(b"Internal Server Error", status_code=500)
+
+            self.add_exception_handler(handle_500, Exception)
 
         if NotFound not in self.exception_handlers:
-            @self.handle(NotFound)
-            async def internal_server_error():
-                return Response(b'404 Not Found', status_code=404)
+
+            async def handle_404():
+                return Response(b"404 Not Found", status_code=404)
+
+            self.add_exception_handler(handle_404, NotFound)
 
         if MethodNotAllowed not in self.exception_handlers:
-            @self.handle(MethodNotAllowed)
-            async def internal_server_error(request: Request):
-                return Response(b'Method Not Allowed', status_code=405,
-                                headers={'Allow': request.context['allowed_methods']})
+
+            async def handle_405(request: Request):
+                return Response(
+                    b"Method Not Allowed",
+                    status_code=405,
+                    headers={"Allow": request.context["allowed_methods"]},
+                )
+
+            self.add_exception_handler(handle_405, MethodNotAllowed)
 
         self.sort_error_handlers()
 
@@ -184,10 +211,18 @@ class Vibora(Application):
                 cache.append(current_key)
             else:
                 keys.appendleft(current_key)
-        self.exception_handlers = OrderedDict([(x, self.exception_handlers[x]) for x in reversed(cache)])
+        self.exception_handlers = OrderedDict(
+            [(x, self.exception_handlers[x]) for x in reversed(cache)]
+        )
 
-    def test_client(self, headers: dict = None, follow_redirects: bool = True, max_redirects: int = 30,
-                    stream: bool = False, decode: bool = True) -> Session:
+    def test_client(
+        self,
+        headers: dict = None,
+        follow_redirects: bool = True,
+        max_redirects: int = 30,
+        stream: bool = False,
+        decode: bool = True,
+    ) -> Session:
         """
 
         :param headers:
@@ -202,11 +237,24 @@ class Vibora(Application):
             sock.close()
             if not self.initialized:
                 self.test_mode = True
-            self.run(host=address, port=port, block=False, necromancer=False, workers=1, debug=True,
-                     startup_message=False)
-            self._test_client = Session(prefix='http://' + address + ':' + str(port), headers=headers,
-                                        follow_redirects=follow_redirects, max_redirects=max_redirects, stream=stream,
-                                        decode=decode, keep_alive=False)
+            self.run(
+                host=address,
+                port=port,
+                block=False,
+                necromancer=False,
+                workers=1,
+                debug=True,
+                startup_message=False,
+            )
+            self._test_client = Session(
+                prefix="http://" + address + ":" + str(port),
+                headers=headers,
+                follow_redirects=follow_redirects,
+                max_redirects=max_redirects,
+                stream=stream,
+                decode=decode,
+                keep_alive=False,
+            )
         return self._test_client
 
     def _configure_sessions(self) -> None:
@@ -225,7 +273,9 @@ class Vibora(Application):
                 app.components.add(app.session_engine)
 
                 @app.handle(Events.AFTER_ENDPOINT)
-                async def flush_session(request: Request, response: Response, sessions: SessionEngine):
+                async def flush_session(
+                    request: Request, response: Response, sessions: SessionEngine
+                ):
                     pending_session = request.session_pending_flush()
                     if pending_session:
                         await sessions.save(pending_session, response)
@@ -239,7 +289,6 @@ class Vibora(Application):
 
             @self.handle(Events.BEFORE_SERVER_START)
             async def register_session_hook(app: Vibora):
-
                 @app.handle(Events.AFTER_ENDPOINT)
                 async def access_logs(request: Request, response: Response):
                     print(format_access_log(request, response), file=sys.stderr)
@@ -250,7 +299,7 @@ class Vibora(Application):
         :return:
         """
         self.components.add(self)
-        self.add_blueprint(self, prefixes={'': ''})
+        self.add_blueprint(self, prefixes={"": ""})
         if self.debug_mode:
             self._turn_on_debug_features()
         self._add_default_routes()
@@ -262,8 +311,17 @@ class Vibora(Application):
         self.load_templates()
         self.initialized = True
 
-    def run(self, host: str='127.0.0.1', port: int=5000, workers: int=None, debug: bool=True,
-            block: bool=True, necromancer: bool=False, sock=None, startup_message: bool=True):
+    def run(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 5000,
+        workers: int = None,
+        debug: bool = True,
+        block: bool = True,
+        necromancer: bool = False,
+        sock=None,
+        startup_message: bool = True,
+    ):
         """
 
         :param startup_message:
@@ -287,8 +345,11 @@ class Vibora(Application):
 
         # Watch out for dead workers and bring new ones to life as needed.
         if necromancer:
-            necromancer = Necromancer(self.workers, spawn_function=spawn_function,
-                                      interval=self.server_limits.worker_timeout)
+            necromancer = Necromancer(
+                self.workers,
+                spawn_function=spawn_function,
+                interval=self.server_limits.worker_timeout,
+            )
             necromancer.start()
 
         # Wait the server start accepting new connections.
@@ -296,13 +357,23 @@ class Vibora(Application):
             wait_server_available(host, port)
 
         if startup_message:
-            cprint('# Vibora ({color_}' + __version__ + '{end_}) # http://' + str(host) + ':' + str(port),
-                   custom=True)
+            cprint(
+                "# Vibora ({color_}"
+                + __version__
+                + "{end_}) # http://"
+                + str(host)
+                + ":"
+                + str(port),
+                custom=True,
+            )
 
         self.running = True
         if block:
             try:
-                pause()
+                while any(x.is_alive() for x in self.workers.copy()):
+                    for worker in self.workers.copy():
+                        if worker.is_alive():
+                            worker.join()
                 self.running = False
             except KeyboardInterrupt:
                 self.clean_up()

@@ -2,7 +2,7 @@ from vibora.utils import json
 
 
 class ValidationError(Exception):
-    def __init__(self, msg=None, field=None, error_code: int=0, **extra):
+    def __init__(self, msg=None, field=None, error_code: int = 0, **extra):
         self.msg = msg
         self.field = field
         self.extra = extra
@@ -19,4 +19,4 @@ class NestedValidationError(Exception):
 class InvalidSchema(Exception):
     def __init__(self, errors: dict):
         self.errors = errors
-        super().__init__('Invalid schema: ' + json.dumps(errors))
+        super().__init__("Invalid schema: " + json.dumps(errors))

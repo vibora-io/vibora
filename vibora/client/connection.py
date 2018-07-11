@@ -2,7 +2,6 @@ import ssl
 from asyncio import StreamWriter, StreamReader, BaseEventLoop, wait_for, TimeoutError
 from typing import Coroutine
 
-
 SECURE_CONTEXT = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
 SECURE_CONTEXT.check_hostname = True
 
@@ -12,7 +11,7 @@ INSECURE_CONTEXT.check_hostname = False
 
 class Connection:
 
-    __slots__ = ('loop', 'reader', 'writer', 'pool')
+    __slots__ = ("loop", "reader", "writer", "pool")
 
     def __init__(self, loop: BaseEventLoop, reader: StreamReader, writer: StreamWriter, pool):
         self.loop = loop
@@ -63,7 +62,7 @@ class Connection:
         except TimeoutError:
             return False
 
-    def release(self, keep_alive: bool=False):
+    def release(self, keep_alive: bool = False):
         """
 
         :param keep_alive:

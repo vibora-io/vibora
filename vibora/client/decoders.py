@@ -2,7 +2,6 @@ import zlib
 
 
 class GzipDecoder(object):
-
     def __init__(self):
         self._obj = zlib.decompressobj(16 + zlib.MAX_WBITS)
 

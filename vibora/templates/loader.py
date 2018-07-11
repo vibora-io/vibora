@@ -7,11 +7,17 @@ from .utils import get_import_names
 
 
 class TemplateLoader(threading.Thread):
-    def __init__(self, directories: list, engine: TemplateEngine, supported_files: list=None, interval: int=0.5):
+    def __init__(
+        self,
+        directories: list,
+        engine: TemplateEngine,
+        supported_files: list = None,
+        interval: int = 0.5,
+    ):
         super().__init__()
         self.directories = directories
         self.engine = engine
-        self.supported_files = supported_files or ('.html', '.vib')
+        self.supported_files = supported_files or (".html", ".vib")
         self.cache = {}
         self.path_index = {}
         self.hash_index = {}
@@ -63,7 +69,7 @@ class TemplateLoader(threading.Thread):
             self.reload_templates(to_be_notified)
 
     def add_to_engine(self, root: str, path: str):
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             template = Template(f.read())
             names = get_import_names(root, path)
             template = self.engine.add_template(template, names=names)

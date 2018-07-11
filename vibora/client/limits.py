@@ -5,9 +5,9 @@ from time import time
 
 class RequestRate:
 
-    __slots__ = ('_count', '_period', '_actual_usage', '_next_flush', 'pattern', 'optimistic')
+    __slots__ = ("_count", "_period", "_actual_usage", "_next_flush", "pattern", "optimistic")
 
-    def __init__(self, count: int, period: int, pattern=None, optimistic: bool=False):
+    def __init__(self, count: int, period: int, pattern=None, optimistic: bool = False):
         """
 
         :param count: How many requests per period are allowed.

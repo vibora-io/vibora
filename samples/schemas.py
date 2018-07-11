@@ -11,15 +11,16 @@ class BenchmarkSchema(Schema):
     field2: int = fields.Integer(required=True)
 
 
-@app.route('/', methods=['POST'])
+@app.route("/", methods=["POST"])
 async def home(request: Request):
     try:
         values = await BenchmarkSchema.load_json(request)
-        return JsonResponse({'msg': 'Successfully validated', 'field1': values.field1,
-                             'field2': values.field2})
+        return JsonResponse(
+            {"msg": "Successfully validated", "field1": values.field1, "field2": values.field2}
+        )
     except InvalidSchema:
-        return JsonResponse({'msg': 'Data is invalid'})
+        return JsonResponse({"msg": "Data is invalid"})
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=8000, host='0.0.0.0', workers=8)
+if __name__ == "__main__":
+    app.run(debug=True, port=8000, host="0.0.0.0", workers=8)

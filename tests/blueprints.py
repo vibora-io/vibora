@@ -5,63 +5,62 @@ from vibora import Vibora
 
 
 class BlueprintsTestCase(TestSuite):
-
     def setUp(self):
         self.app = Vibora(router_strategy=RouterStrategy.STRICT)
 
     async def test_simple_add_blueprint__expects_added(self):
         b1 = Blueprint()
 
-        @b1.route('/')
+        @b1.route("/")
         async def home():
-            return Response(b'123')
+            return Response(b"123")
 
         self.app.add_blueprint(b1)
         async with self.app.test_client() as client:
-            response = await client.request('/')
-            self.assertEqual(response.content, b'123')
+            response = await client.request("/")
+            self.assertEqual(response.content, b"123")
 
     async def test_simple_add_blueprint_with_prefix_expects_added(self):
         b1 = Blueprint()
 
-        @b1.route('/')
+        @b1.route("/")
         async def home():
-            return Response(b'123')
+            return Response(b"123")
 
-        self.app.add_blueprint(b1, prefixes={'home': '/home'})
+        self.app.add_blueprint(b1, prefixes={"home": "/home"})
         async with self.app.test_client() as client:
-            response = await client.request('/home/')
-            self.assertEqual(response.content, b'123')
+            response = await client.request("/home/")
+            self.assertEqual(response.content, b"123")
 
     async def test_simple_add_nested_blueprints(self):
         b1 = Blueprint()
         b2 = Blueprint()
 
-        @b2.route('/123')
+        @b2.route("/123")
         async def home():
-            return Response(b'123')
+            return Response(b"123")
 
         b1.add_blueprint(b2)
         self.app.add_blueprint(b1)
         async with self.app.test_client() as client:
-            response = await client.request('/123')
-            self.assertEqual(response.content, b'123')
+            response = await client.request("/123")
+            self.assertEqual(response.content, b"123")
 
     async def test_simple_add_nested_blueprints_with_prefixes(self):
         b1 = Blueprint()
         b2 = Blueprint()
 
-        @b2.route('/123')
+        @b2.route("/123")
         async def home():
-            return Response(b'123')
+            return Response(b"123")
 
-        b1.add_blueprint(b2, prefixes={'a': '/a', 'b': '/b'})
-        self.app.add_blueprint(b1, prefixes={'a': '/a', 'b': '/b'})
+        b1.add_blueprint(b2, prefixes={"a": "/a", "b": "/b"})
+        self.app.add_blueprint(b1, prefixes={"a": "/a", "b": "/b"})
         async with self.app.test_client() as client:
-            response = await client.request('/a/a/123')
-            self.assertEqual(response.content, b'123')
-            response = await self.app.test_client().request('/b/b/123')
-            self.assertEqual(response.content, b'123')
+            response = await client.request("/a/a/123")
+            self.assertEqual(response.content, b"123")
+            response = await self.app.test_client().request("/b/b/123")
+            self.assertEqual(response.content, b"123")
 
     # def test_routes_added_to_router_with_non_empty_pattern(self):
     #     b1 = Blueprint()

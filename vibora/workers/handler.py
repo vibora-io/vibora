@@ -9,7 +9,6 @@ from ..utils import asynclib
 
 
 class RequestHandler(Process):
-
     def __init__(self, app, bind: str, port: int, sock=None):
         super().__init__()
         self.app = app
@@ -43,7 +42,9 @@ class RequestHandler(Process):
         self.app.initialize()
 
         # Calling before server start hooks (sync/async)
-        loop.run_until_complete(self.app.call_hooks(Events.BEFORE_SERVER_START, components=self.app.components))
+        loop.run_until_complete(
+            self.app.call_hooks(Events.BEFORE_SERVER_START, components=self.app.components)
+        )
 
         # Creating the server.
         handler = partial(self.app.handler, app=self.app, loop=loop, worker=self)
@@ -51,7 +52,9 @@ class RequestHandler(Process):
 
         # Calling after server hooks (sync/async)
         loop.run_until_complete(ss)
-        loop.run_until_complete(self.app.call_hooks(Events.AFTER_SERVER_START, components=self.app.components))
+        loop.run_until_complete(
+            self.app.call_hooks(Events.AFTER_SERVER_START, components=self.app.components)
+        )
 
         async def stop_server(timeout=30):
 

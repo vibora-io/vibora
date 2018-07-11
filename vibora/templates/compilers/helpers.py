@@ -1,4 +1,4 @@
-from inspect import isasyncgen, isasyncgenfunction, iscoroutine
+from inspect import isasyncgen, isasyncgenfunction
 
 
 async def smart_iter(element):

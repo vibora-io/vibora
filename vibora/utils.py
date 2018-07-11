@@ -2,27 +2,25 @@ import socket
 import sys
 import time
 import os
-import signal
 from typing import Tuple, Iterable, Union
 
-if os.environ.get('VIBORA_UJSON', 1) == '0':
+if os.environ.get("VIBORA_UJSON", 1) == "0":
     # noinspection PyUnresolvedReferences
-    import json
+    import json  # noqa
 else:
     try:
-        import ujson as json
+        import ujson as json  # noqa
     except ImportError:
-        import json
+        import json  # noqa
 
-
-if os.environ.get('VIBORA_UVLOOP', 1) == '0':
+if os.environ.get("VIBORA_UVLOOP", 1) == "0":
     # noinspection PyUnresolvedReferences
-    import asyncio as asynclib
+    import asyncio as asynclib  # noqa
 else:
     try:
-        import uvloop as asynclib
+        import uvloop as asynclib  # noqa
     except ImportError:
-        import asyncio as asynclib
+        import asyncio as asynclib  # noqa
 
 
 class RequestParams:
@@ -50,7 +48,7 @@ class RangeFile:
         self.start = start
         self.end = end
         self.chunk_size = chunk_size
-        self._file = open(self.path, 'rb')
+        self._file = open(self.path, "rb")
         self._file.seek(self.current_pointer)
 
     def __iter__(self):
@@ -60,7 +58,7 @@ class RangeFile:
                 data = self._file.read(self.chunk_size)
             else:
                 data = self._file.read(self.end - current_pointer)
-            if data == b'':
+            if data == b"":
                 break
             yield data
 
@@ -69,7 +67,7 @@ class RangeFile:
             return None
         if (self.current_pointer + count) > self.end:
             count = self.end
-        with open(self.path, 'rb') as f:
+        with open(self.path, "rb") as f:
             f.seek(self.current_pointer)
             return f.read(count)
 
@@ -83,13 +81,13 @@ class RangeFile:
 
 def clean_route_name(prefix: str, name: str) -> str:
     if prefix:
-        if prefix[0] == ':':
+        if prefix[0] == ":":
             prefix = prefix[1:]
         if len(prefix) > 0:
-            if prefix[len(prefix)-1] == ':':
-                prefix = prefix[:len(prefix) - 1]
+            if prefix[len(prefix) - 1] == ":":
+                prefix = prefix[: len(prefix) - 1]
         if len(prefix) > 0:
-            return prefix + '.' + name
+            return prefix + "." + name
     return name
 
 
@@ -107,12 +105,12 @@ def clean_methods(methods: Iterable[Union[str, bytes]]) -> Tuple[bytes]:
             elif isinstance(method, bytes):
                 parsed_methods.add(method.upper())
             else:
-                raise Exception('Methods should be str or bytes.')
+                raise Exception("Methods should be str or bytes.")
         return tuple(parsed_methods)
-    return b'GET',
+    return (b"GET",)
 
 
-def get_free_port(address: str='127.0.0.1') -> tuple:
+def get_free_port(address: str = "127.0.0.1") -> tuple:
     """
     The reference of the socket is returned, otherwise the port could
     theoretically (highly unlikely) be used be someone else.
@@ -123,7 +121,7 @@ def get_free_port(address: str='127.0.0.1') -> tuple:
     return sock, address, sock.getsockname()[1]
 
 
-def wait_server_available(host: str, port: int, timeout: int=10) -> None:
+def wait_server_available(host: str, port: int, timeout: int = 10) -> None:
     """
     Wait until the server is available by trying to connect to the same.
     :param timeout: How many seconds wait before giving up.
@@ -143,10 +141,10 @@ def wait_server_available(host: str, port: int, timeout: int=10) -> None:
             time.sleep(0.001)
             timeout -= time.time() - start_time
     sock.close()
-    raise TimeoutError(f'Server is taking too long to get online.')
+    raise TimeoutError(f"Server is taking too long to get online.")
 
 
-def wait_server_offline(host: str, port: int, timeout: int=10) -> None:
+def wait_server_offline(host: str, port: int, timeout: int = 10) -> None:
     """
     Wait until the server is offline.
     :param timeout: How many seconds wait before giving up.
@@ -166,34 +164,21 @@ def wait_server_offline(host: str, port: int, timeout: int=10) -> None:
             return
         finally:
             sock.close()
-    raise TimeoutError(f'Server is still running after the timeout threshold.')
+    raise TimeoutError(f"Server is still running after the timeout threshold.")
 
 
-def cprint(message: str, color: str= '\033[35m', custom: bool=False) -> None:
+def cprint(message: str, color: str = "\033[35m", custom: bool = False) -> None:
     """
     Colored prints in interactive terminals and PyCharm.
     :return: None
     """
-    if sys.stdout.isatty() or os.environ.get('PYCHARM_HOSTED'):
+    if sys.stdout.isatty() or os.environ.get("PYCHARM_HOSTED"):
         if custom:
-            print(message.format(color_=color, end_='\033[0m'))
+            print(message.format(color_=color, end_="\033[0m"))
         else:
-            print(color + message + '\033[0m')
+            print(color + message + "\033[0m")
     else:
-        print(message.format(color_='', end_=''))
-
-
-def pause() -> None:
-    """
-    Pauses the process until a signed is received.
-    Windows does not have a signal.pause() so we waste a few more cpu cycles.
-    :return: None
-    """
-    if os.name == 'nt':
-        while True:
-            time.sleep(60)
-    else:
-        signal.pause()
+        print(message.format(color_="", end_=""))
 
 
 def format_access_log(request, response) -> str:
@@ -203,6 +188,8 @@ def format_access_log(request, response) -> str:
     :param response:
     :return:
     """
-    return f'{request.client_ip()} - "{request.method.decode()} ' \
-           f'{request.parsed_url.path.decode()}" - {response.status_code} - ' \
-           f'{request.headers.get("user-agent")}'
+    return (
+        f"{request.client_ip()} - "
+        f"{request.method.decode()} {request.parsed_url.path.decode()} "
+        f'- {response.status_code} - {request.headers.get("user-agent")}'
+    )

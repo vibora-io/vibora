@@ -4,16 +4,16 @@ from vibora.blueprints import Blueprint
 v1 = Blueprint()
 
 
-@v1.route('/')
+@v1.route("/")
 def home():
-    return JsonResponse({'hello': 'world'})
+    return JsonResponse({"hello": "world"})
 
 
-@v1.route('/exception')
+@v1.route("/exception")
 def exception():
-    raise Exception('oi')
+    raise Exception("oi")
 
 
 @v1.handle(IOError)
 def handle_exception():
-    return JsonResponse({'msg': 'Exception caught correctly.'})
+    return JsonResponse({"msg": "Exception caught correctly."})

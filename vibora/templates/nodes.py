@@ -6,7 +6,7 @@ from .compilers.helpers import smart_iter
 
 
 class Node:
-    def __init__(self, raw: str=''):
+    def __init__(self, raw: str = ""):
         self.children = []
         self.raw = raw
 
@@ -14,7 +14,7 @@ class Node:
     def check(node: str, is_tag: bool):
         return None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         if self.raw:
             compiler.add_comment(self.raw)
         if recursive:
@@ -23,7 +23,6 @@ class Node:
 
 
 class ForNode(Node):
-
     def __init__(self, variables: str, target: str, raw: str):
         super().__init__(raw)
         self.target = target
@@ -31,18 +30,18 @@ class ForNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        if 'for' in node and 'in' in node:
-            variables = node[node.find('for') + 3:node.find('in')]
-            variables = [x.strip() for x in variables.split(',')]
-            target = node[node.find('in')+3:node.rfind('%')].strip()
-            return ForNode(variables, target, node), '{% endfor %}'
+        if "for" in node and "in" in node:
+            variables = node[node.find("for") + 3 : node.find("in")]
+            variables = [x.strip() for x in variables.split(",")]
+            target = node[node.find("in") + 3 : node.rfind("%")].strip()
+            return ForNode(variables, target, node), "{% endfor %}"
 
     @staticmethod
     def optimize_stm(content):
         try:
             args = []
-            tree = ast.parse(content, mode='eval')
-            if tree.body.func.id == 'range':
+            tree = ast.parse(content, mode="eval")
+            if tree.body.func.id == "range":
                 for arg in tree.body.args:
                     if isinstance(arg, ast.Num):
                         if arg.n > 10000:
@@ -54,15 +53,15 @@ class ForNode(Node):
         except (AttributeError, ValueError):
             return None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
-        var_name = ', '.join(self.variables)
+        var_name = ", ".join(self.variables)
         stm = prepare_expression(self.target, compiler.context_var, compiler.current_scope)
         optimized_stm = self.optimize_stm(stm)
         if optimized_stm:
-            compiler.add_statement(f'for {var_name} in {stm}:')
+            compiler.add_statement(f"for {var_name} in {stm}:")
         else:
-            compiler.add_statement(f'async for {var_name} in {smart_iter.__name__}({stm}):')
+            compiler.add_statement(f"async for {var_name} in {smart_iter.__name__}({stm}):")
         compiler.indent()
         for variable in self.variables:
             compiler.current_scope.append(variable)
@@ -75,7 +74,7 @@ class ForNode(Node):
 
 class IfNode(Node):
 
-    parser = re.compile('{%\s?if\s(.*?)\s?%}')
+    parser = re.compile("{%\s?if\s(.*?)\s?%}")
 
     def __init__(self, expression: str, raw: str):
         super().__init__(raw)
@@ -85,18 +84,18 @@ class IfNode(Node):
     def check(node: str, is_tag: bool):
         found = IfNode.parser.search(node)
         if found:
-            return IfNode(found.groups()[0], node), '{% endif %}'
+            return IfNode(found.groups()[0], node), "{% endif %}"
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
         expr = prepare_expression(self.expression, compiler.content_var, compiler.current_scope)
-        compiler.add_statement('if ' + expr + ':')
+        compiler.add_statement("if " + expr + ":")
         compiler.indent()
         for child in self.children:
             if isinstance(child, ElseNode):
                 compiler.flush_text()
                 compiler.rollback()
-                compiler.add_statement('else:')
+                compiler.add_statement("else:")
                 compiler.indent()
             else:
                 child.compile(compiler)
@@ -106,7 +105,7 @@ class IfNode(Node):
 
 class ElifNode(Node):
 
-    parser = re.compile('{%\s?elif\s(.*?)\s?%}|{%\s?else if \s(.*?)\s?%}')
+    parser = re.compile("{%\s?elif\s(.*?)\s?%}|{%\s?else if \s(.*?)\s?%}")
 
     def __init__(self, expression: str, raw: str):
         super().__init__(raw)
@@ -118,10 +117,10 @@ class ElifNode(Node):
         if found:
             return ElifNode(found.groups()[0], node), None
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
         expr = prepare_expression(self.expression, compiler.content_var, compiler.current_scope)
-        compiler.add_statement('elif ' + expr + ':')
+        compiler.add_statement("elif " + expr + ":")
         compiler.indent()
         rollback = True
         for child in self.children:
@@ -135,7 +134,7 @@ class ElifNode(Node):
 
 class ElseNode(Node):
 
-    parser = re.compile('{%\s?else\s(.*?)\s?%}')
+    parser = re.compile("{%\s?else\s(.*?)\s?%}")
 
     def __init__(self, expression: str, raw: str):
         super().__init__(raw)
@@ -147,12 +146,11 @@ class ElseNode(Node):
         if found:
             return ElseNode(found.groups()[0], node), None
 
-    def compile(self, compiler, recursive: bool=True):
-        raise SyntaxError('ElseNodes should not be compiled')
+    def compile(self, compiler, recursive: bool = True):
+        raise SyntaxError("ElseNodes should not be compiled")
 
 
 class EvalNode(Node):
-
     def __init__(self, code: str, raw: str):
         super().__init__(raw)
         self.code = code
@@ -160,29 +158,29 @@ class EvalNode(Node):
     @staticmethod
     def check(node: str, is_tag: bool):
         # FixMe: Check is_tag instead of this crap.
-        if node[:2] == '{{' and node[-2:] == '}}':
+        if node[:2] == "{{" and node[-2:] == "}}":
             return EvalNode(node[2:-2].strip(), node), None
 
     def _compile_macro(self, compiler):
         if compiler.current_scope:
-            stm = f'{compiler.content_var}.append(str({self.code}))'
+            stm = f"{compiler.content_var}.append(str({self.code}))"
             compiler.add_statement(stm)
         else:
-            raise Exception('Macros do not have access to the context.')
+            raise Exception("Macros do not have access to the context.")
 
     def _compile_template(self, compiler):
         stm = prepare_expression(self.code, compiler.context_var, compiler.current_scope)
-        compiler.add_statement(f'__temp__ = {stm}')
-        compiler.add_statement(f'if iscoroutine(__temp__):')
+        compiler.add_statement(f"__temp__ = {stm}")
+        compiler.add_statement(f"if iscoroutine(__temp__):")
         compiler.indent()
-        compiler.add_eval(f'str(await __temp__)')
+        compiler.add_eval(f"str(await __temp__)")
         compiler.rollback()
-        compiler.add_statement(f'else:')
+        compiler.add_statement(f"else:")
         compiler.indent()
-        compiler.add_eval(f'str({stm})')
+        compiler.add_eval(f"str({stm})")
         compiler.rollback()
 
-    def compile(self, compiler, recursive: bool=True):
+    def compile(self, compiler, recursive: bool = True):
         super().compile(compiler, recursive=False)
         if compiler.flavor == CompilerFlavor.MACRO:
             self._compile_macro(compiler)
@@ -191,9 +189,8 @@ class EvalNode(Node):
 
 
 class TextNode(Node):
-
     def __init__(self, text: str):
-        super().__init__('')
+        super().__init__("")
         self.text = text
 
     def compile(self, compiler, recursive: bool = True):
@@ -208,15 +205,16 @@ class BlockNode(Node):
     @staticmethod
     def check(node: str, is_tag: bool):
         import re
-        parser = re.compile('{% block (.*?) %}')
+
+        parser = re.compile("{% block (.*?) %}")
         found = parser.search(node)
         if found:
-            return BlockNode(found.groups()[0], node), '{% endblock %}'
+            return BlockNode(found.groups()[0], node), "{% endblock %}"
 
 
 class ExtendsNode(Node):
 
-    parser = re.compile('[\'"](.*)[\'"]')
+    parser = re.compile("['\"](.*)['\"]")
 
     def __init__(self, parent: str, raw: str):
         super().__init__(raw)
@@ -224,7 +222,7 @@ class ExtendsNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        if 'extends' in node:
+        if "extends" in node:
             groups = ExtendsNode.parser.search(node).groups()
             if groups:
                 return ExtendsNode(groups[0], node), None
@@ -232,7 +230,7 @@ class ExtendsNode(Node):
 
 class IncludeNode(Node):
 
-    parser = re.compile('[\'"](.*)[\'"]')
+    parser = re.compile("['\"](.*)['\"]")
 
     def __init__(self, target: str, raw: str):
         super().__init__(raw)
@@ -240,7 +238,7 @@ class IncludeNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        if 'include' in node:
+        if "include" in node:
             groups = IncludeNode.parser.search(node).groups()
             if groups:
                 return IncludeNode(groups[0], node), None
@@ -248,7 +246,7 @@ class IncludeNode(Node):
 
 class StaticNode(Node):
 
-    parser = re.compile('{% static [\'|\"](.*)[\'|\"] %}')
+    parser = re.compile("{% static ['|\"](.*)['|\"] %}")
 
     def __init__(self, url: str, raw: str):
         super().__init__(raw)
@@ -256,18 +254,18 @@ class StaticNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        if 'static' in node:
+        if "static" in node:
             groups = StaticNode.parser.search(node).groups()
             if groups:
                 return StaticNode(groups[0], node), None
 
     def compile(self, compiler, recursive: bool = True):
-        raise SyntaxError('Static nodes should not be compiled. An extension should process them.')
+        raise SyntaxError("Static nodes should not be compiled. An extension should process them.")
 
 
 class UrlNode(Node):
 
-    parser = re.compile('{% url [\'|\"](.*)[\'|\"] %}')
+    parser = re.compile("{% url ['|\"](.*)['|\"] %}")
 
     def __init__(self, url: str, raw: str):
         super().__init__(raw)
@@ -275,17 +273,17 @@ class UrlNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        if 'url' in node:
+        if "url" in node:
             match = UrlNode.parser.search(node)
             if match:
                 return UrlNode(match.groups()[0], node), None
 
     def compile(self, compiler, recursive: bool = True):
-        raise SyntaxError('URL nodes should not be compiled. An extension should deal with them.')
+        raise SyntaxError("URL nodes should not be compiled. An extension should deal with them.")
 
 
 class MacroNode(Node):
-    parser = re.compile('{% macro (.*?) %}')
+    parser = re.compile("{% macro (.*?) %}")
 
     def __init__(self, func_definition: str, raw: str):
         super().__init__(raw)
@@ -293,10 +291,10 @@ class MacroNode(Node):
 
     @staticmethod
     def check(node: str, is_tag: bool):
-        if 'macro' in node:
+        if "macro" in node:
             match = MacroNode.parser.search(node)
             if match:
-                return MacroNode(match.groups()[0], node), '{% endmacro %}'
+                return MacroNode(match.groups()[0], node), "{% endmacro %}"
 
     def compile(self, compiler, recursive: bool = True):
         # TODO: Refactor.
@@ -306,5 +304,5 @@ class MacroNode(Node):
         new_compiler.current_scope += scope
         for child in self.children:
             child.compile(new_compiler)
-        new_compiler.add_statement('return \'\'.join(' + new_compiler.content_var + ')')
+        new_compiler.add_statement("return ''.join(" + new_compiler.content_var + ")")
         compiler.functions.append(new_compiler.content)

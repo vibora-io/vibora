@@ -1,5 +1,12 @@
-from .definitions import *
-from . import cprotocol
+from typing import TYPE_CHECKING
+from .cprotocol import *  # noqa
 
-locals()['Connection'] = cprotocol.Connection
-locals()['update_current_time'] = cprotocol.update_current_time
+
+class ConnectionStatus:
+    PENDING = 1
+    PROCESSING_REQUEST = 2
+    WEBSOCKET = 3
+
+
+if TYPE_CHECKING:
+    from .hints import *  # noqa

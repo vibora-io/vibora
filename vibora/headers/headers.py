@@ -1,7 +1,4 @@
-
-
 class Headers:
-
     def __init__(self, raw=None):
         self.raw = raw or []
         self.values = None
@@ -16,7 +13,7 @@ class Headers:
         self.values = {}
         while self.raw:
             header = self.raw.pop()
-            self.values[header[0].decode('utf-8').lower()] = header[1].decode('utf-8')
+            self.values[header[0].decode("utf-8").lower()] = header[1].decode("utf-8")
         self.evaluated = True
 
     def dump(self):
@@ -25,13 +22,13 @@ class Headers:
         return self.values
 
     def parse_cookies(self) -> dict:
-        header = self.get('cookie')
+        header = self.get("cookie")
         cookies = {}
         if header:
-            for cookie in header.split(';'):
-                first = cookie.find('=')
+            for cookie in header.split(";"):
+                first = cookie.find("=")
                 name = cookie[:first].strip()
-                value = cookie[first + 1:]
+                value = cookie[first + 1 :]
                 cookies[name] = value
         return cookies
 
@@ -46,4 +43,4 @@ class Headers:
         self.values[key.lower()] = value
 
     def __repr__(self):
-        return f'<Headers {self.dump()}>'
+        return f"<Headers {self.dump()}>"

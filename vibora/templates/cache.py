@@ -1,5 +1,5 @@
 import os
-from typing import Set, Dict
+from typing import Dict
 
 from .compilers.base import TemplateCompiler
 from .template import CompiledTemplate
@@ -7,7 +7,6 @@ from .utils import CompilationResult, TemplateMeta
 
 
 class TemplateCache:
-
     def __init__(self):
         self.loaded_templates = {}
         self.loaded_metas = {}
@@ -46,7 +45,6 @@ class TemplateCache:
 
 
 class InMemoryCache(TemplateCache):
-
     def __init__(self):
         super().__init__()
         self.loaded_templates: Dict[str, CompiledTemplate] = {}
@@ -88,10 +86,9 @@ class InMemoryCache(TemplateCache):
 
 
 class DiskCache(TemplateCache):
-
-    def __init__(self, directory: str, compiler: TemplateCompiler, meta_suffix='.json'):
+    def __init__(self, directory: str, compiler: TemplateCompiler, meta_suffix=".json"):
         super().__init__()
-        self.directory = os.path.join(directory, '__cache__', compiler.NAME)
+        self.directory = os.path.join(directory, "__cache__", compiler.NAME)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
         self.compiler = compiler
@@ -104,7 +101,7 @@ class DiskCache(TemplateCache):
         :param meta_path:
         :return:
         """
-        compiled_template_path = meta_path.replace(self.meta_suffix, '')
+        compiled_template_path = meta_path.replace(self.meta_suffix, "")
 
         # Loading the meta file.
         try:
@@ -129,8 +126,10 @@ class DiskCache(TemplateCache):
             return False
 
         try:
-            with open(compiled_template_path, 'rb') as f:
-                self.loaded_templates[meta.template_hash] = self.compiler.load_compiled_template(meta, f.read())
+            with open(compiled_template_path, "rb") as f:
+                self.loaded_templates[meta.template_hash] = self.compiler.load_compiled_template(
+                    meta, f.read()
+                )
                 self.loaded_metas[meta.template_hash] = meta
                 return True
         except FileNotFoundError:
@@ -151,7 +150,7 @@ class DiskCache(TemplateCache):
         self.loaded_metas[compiled.meta] = compiled.meta
         path = os.path.join(self.directory, compiled.meta.template_hash)
         meta_path = path + self.meta_suffix
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             f.write(compiled.code)
         compiled.meta.store(meta_path)
 
@@ -167,11 +166,13 @@ class DiskCache(TemplateCache):
             if filename.endswith(self.meta_suffix):
                 meta_path = os.path.join(self.directory, filename)
                 if self._load_template(meta_path):
-                    template_path = os.path.join(self.directory, filename.replace(self.meta_suffix, ''))
+                    template_path = os.path.join(
+                        self.directory, filename.replace(self.meta_suffix, "")
+                    )
                     useful_files.append(os.path.basename(template_path))
                     useful_files.append(os.path.basename(meta_path))
 
-        for useless_filename in (files - set(useful_files)):
+        for useless_filename in files - set(useful_files):
             try:
                 os.remove(os.path.join(self.directory, useless_filename))
             except FileNotFoundError:

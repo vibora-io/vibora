@@ -22,12 +22,30 @@ class ResponseStatus(Enum):
 
 class Response:
 
-    __slots__ = ('_connection', '_headers', '_content', '_parser', '_parser_status', '_cookies',
-                 '_status_code', '_decode', '_chunk_size', '_decoder', '_encoding',
-                 'request', 'url')
+    __slots__ = (
+        "_connection",
+        "_headers",
+        "_content",
+        "_parser",
+        "_parser_status",
+        "_cookies",
+        "_status_code",
+        "_decode",
+        "_chunk_size",
+        "_decoder",
+        "_encoding",
+        "request",
+        "url",
+    )
 
-    def __init__(self, url: str, connection: Connection,
-                 request: Request, chunk_size: int= 1 * 1024 * 1024, decode: bool=True):
+    def __init__(
+        self,
+        url: str,
+        connection: Connection,
+        request: Request,
+        chunk_size: int = 1 * 1024 * 1024,
+        decode: bool = True,
+    ):
         self._connection = connection
         self._headers = {}
         self._content = bytearray()
@@ -45,14 +63,14 @@ class Response:
 
     @property
     def encoding(self):
-        return 'utf-8'
+        return "utf-8"
 
     def json(self, *args, loads=None, **kwargs):
         if not loads:
             loads = json.loads
         return loads(self.content.decode(self.encoding), *args, **kwargs)
 
-    def text(self, encoding: str=None) -> str:
+    def text(self, encoding: str = None) -> str:
         return self.content.decode(encoding=encoding or self.encoding)
 
     @property
@@ -62,8 +80,10 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
-            raise Exception('Status code not loaded yet. '
-                            'In streaming mode you should manually call load_headers().')
+            raise Exception(
+                "Status code not loaded yet. "
+                "In streaming mode you should manually call load_headers()."
+            )
         return self._status_code
 
     @property
@@ -73,8 +93,10 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_HEADERS:
-            raise Exception('Headers not loaded yet. '
-                            'In streaming mode you should manually call load_headers().')
+            raise Exception(
+                "Headers not loaded yet. "
+                "In streaming mode you should manually call load_headers()."
+            )
         return self._headers
 
     @property
@@ -84,8 +106,9 @@ class Response:
         :return:
         """
         if self._parser_status == ResponseStatus.PENDING_BODY:
-            raise Exception('You need to call read_content() '
-                            'before using this in streaming mode.')
+            raise Exception(
+                "You need to call read_content() " "before using this in streaming mode."
+            )
         return self._content
 
     @property
@@ -98,8 +121,8 @@ class Response:
             await self.receive_headers()
         if self._cookies is None:
             self._cookies = CookiesJar()
-            if self._headers.get('set-cookie'):
-                self._cookies.add_cookie(Cookie.from_header(self._headers['set-cookie']))
+            if self._headers.get("set-cookie"):
+                self._cookies.add_cookie(Cookie.from_header(self._headers["set-cookie"]))
         return self._cookies
 
     async def read_content(self):
@@ -111,7 +134,7 @@ class Response:
         if self._parser_status != ResponseStatus.PENDING_BODY:
             return
         try:
-            length = int(self._headers['Content-Length'])
+            length = int(self._headers["Content-Length"])
             if not self._decoder:
                 # Skipping the HTTP parser for performance.
                 self._content.extend(await self._connection.read_exactly(length))
@@ -119,13 +142,13 @@ class Response:
             else:
                 self._parser.feed(await self._connection.read_exactly(length))
         except KeyError:
-            if self._headers.get('Transfer-Encoding') == 'chunked':
+            if self._headers.get("Transfer-Encoding") == "chunked":
                 await self._handle_chunked_encoding()
             else:
-                raise Exception('Invalid response.')
+                raise Exception("Invalid response.")
             return self._content
         except ValueError:
-            raise Exception('Invalid content-length header.')
+            raise Exception("Invalid content-length header.")
 
     async def _handle_chunked_encoding(self):
         """
@@ -134,7 +157,7 @@ class Response:
         """
         self._parser_status = ResponseStatus.CHUNKED_TRANSFER
         while self._parser_status == ResponseStatus.CHUNKED_TRANSFER:
-            self._parser.feed(await self._connection.read_until(b'\r\n'))
+            self._parser.feed(await self._connection.read_until(b"\r\n"))
 
     async def receive_headers(self):
         """
@@ -144,8 +167,8 @@ class Response:
         if self._parser_status != ResponseStatus.PENDING_HEADERS:
             return
         try:
-            self._parser.feed(await self._connection.read_until(b'\r\n\r\n'))
-            if self._headers.get('content-encoding') == 'gzip':
+            self._parser.feed(await self._connection.read_until(b"\r\n\r\n"))
+            if self._headers.get("content-encoding") == "gzip":
                 self._decoder = GzipDecoder()
             self._parser_status = ResponseStatus.PENDING_BODY
         except OSError as error:
@@ -159,10 +182,16 @@ class Response:
 
         :return:
         """
-        await self._connection.pool.release_connection(self._connection, self._parser.should_keep_alive())
+        await self._connection.pool.release_connection(
+            self._connection, self._parser.should_keep_alive()
+        )
 
-    async def stream(self, chunk_size: int=1*1024*1024, chunk_timeout: int=10,
-                     complete_timeout: int=300):
+    async def stream(
+        self,
+        chunk_size: int = 1 * 1024 * 1024,
+        chunk_timeout: int = 10,
+        complete_timeout: int = 300,
+    ):
         """
 
         :param complete_timeout:
@@ -176,7 +205,7 @@ class Response:
             await wait_for(self.receive_headers(), chunk_timeout)
 
         try:
-            length = int(self.headers['Content-Length'])
+            length = int(self.headers["Content-Length"])
             remaining = length
             while remaining:
                 bytes_to_read = min(remaining, chunk_size)
@@ -188,13 +217,15 @@ class Response:
                 yield bytes(self._content)
                 self._content = bytearray()
         except KeyError:
-            if self._headers.get('Transfer-Encoding') == 'chunked':
+            if self._headers.get("Transfer-Encoding") == "chunked":
                 self._parser_status = ResponseStatus.CHUNKED_TRANSFER
                 while self._parser_status == ResponseStatus.CHUNKED_TRANSFER:
-                    task = self._connection.read_until(b'\r\n')
+                    task = self._connection.read_until(b"\r\n")
                     start_time = time.time()
                     try:
-                        self._parser.feed(await wait_for(task, min(chunk_timeout, complete_timeout)))
+                        self._parser.feed(
+                            await wait_for(task, min(chunk_timeout, complete_timeout))
+                        )
                     except asyncio.LimitOverrunError as error:
                         self._parser.feed(await self._connection.read_exactly(error.consumed))
                     complete_timeout -= time.time() - start_time
@@ -205,12 +236,12 @@ class Response:
                     yield self._content[:chunk_size]
                     self._content = self._content[chunk_size:]
             else:
-                raise Exception('Invalid response.')
+                raise Exception("Invalid response.")
         except ValueError:
-            raise Exception('Invalid content-length header.')
+            raise Exception("Invalid content-length header.")
 
     def is_redirect(self):
-        return self.headers.get('location') is not None
+        return self.headers.get("location") is not None
 
     #############
     # # #  Http Parser Callbacks
@@ -248,17 +279,18 @@ class Response:
         except Exception as error:
             print(error)
 
-    def chunk_complete(self): pass
+    def chunk_complete(self):
+        pass
 
     def __repr__(self):
         if 400 > self.status_code >= 300:
             if len(self.url) > 30:
-                url = self.url[:30] + '...'
+                url = self.url[:30] + "..."
             else:
                 url = self.url
             return f'<Response [{self.status_code} => "{url}"]>'
         else:
-            return f'<Response [{self.status_code}]>'
+            return f"<Response [{self.status_code}]>"
 
 
 class BodyStream:

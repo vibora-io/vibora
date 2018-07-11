@@ -4,7 +4,7 @@ from vibora import Vibora
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture(name='app')
+@pytest.fixture(name="app")
 async def create_app():
 
     _app = Vibora()

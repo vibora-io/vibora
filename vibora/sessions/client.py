@@ -1,15 +1,18 @@
 import ujson
 from typing import Optional
 from .base import SessionEngine, Session
+
 try:
     from cryptography.fernet import Fernet
 except ImportError:
-    raise ImportError('To use encrypted sessions you need to install the cryptography library or implement your own '
-                      'engine by extending the SessionEngine class.')
+    raise ImportError(
+        "To use encrypted sessions you need to install the cryptography library or implement your own "
+        "engine by extending the SessionEngine class."
+    )
 
 
 class EncryptedCookiesEngine(SessionEngine):
-    def __init__(self, cookie_name='vibora', secret_key=None):
+    def __init__(self, cookie_name="vibora", secret_key=None):
         super().__init__(cookie_name=cookie_name)
         self.cipher = Fernet(secret_key)
 
@@ -51,5 +54,5 @@ class EncryptedCookiesEngine(SessionEngine):
         :return:
         """
         value = self.cipher.encrypt(request.session.dumps().encode())
-        cookie = f'{self.cookie_name}={value.decode()}; SameSite=Lax'
-        response.headers['Set-Cookie'] = cookie
+        cookie = f"{self.cookie_name}={value.decode()}; SameSite=Lax"
+        response.headers["Set-Cookie"] = cookie

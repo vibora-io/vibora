@@ -17,19 +17,19 @@ def is_static(route_handler: Callable) -> bool:
     seen_load_fast_0 = False
     seen_return_value = False
     seen_call_fun = False
-    valid_responses = ('JsonResponse', 'Response')
+    valid_responses = ("JsonResponse", "Response")
 
     for instruction in dis.get_instructions(route_handler):
 
-        if instruction.opname == 'LOAD_GLOBAL' and instruction.argval in valid_responses:
+        if instruction.opname == "LOAD_GLOBAL" and instruction.argval in valid_responses:
             seen_load_fast_0 = True
             continue
 
-        if instruction.opname == 'RETURN_VALUE':
+        if instruction.opname == "RETURN_VALUE":
             seen_return_value = True
             continue
 
-        if instruction.opname.startswith('CALL_FUNCTION'):
+        if instruction.opname.startswith("CALL_FUNCTION"):
             if seen_call_fun:
                 return False
 

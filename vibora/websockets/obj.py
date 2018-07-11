@@ -32,7 +32,7 @@ class WebsocketHandler:
         self.transport.write(frame)
 
 
-def create_single_frame(data, mask=False, opcode: int=None):
+def create_single_frame(data, mask=False, opcode: int = None):
 
     frame = bytearray()
 
@@ -40,12 +40,12 @@ def create_single_frame(data, mask=False, opcode: int=None):
     if opcode is None:
         if isinstance(data, str):
             head1 = 0b10000000 | 0 | 0 | 0 | 1
-            data = data.encode('utf-8')
+            data = data.encode("utf-8")
         else:
             head1 = 0b10000000 | 0 | 0 | 0 | 2
     else:
         if isinstance(data, str):
-            data = data.encode('utf-8')
+            data = data.encode("utf-8")
         head1 = 0b10000000 | 0 | 0 | 0 | opcode
 
     head2 = 0b10000000 if mask else 0
@@ -53,15 +53,15 @@ def create_single_frame(data, mask=False, opcode: int=None):
     # Length headers
     length = len(data)
     if length < 126:
-        frame.extend(struct.pack('!BB', head1, head2 | length))
+        frame.extend(struct.pack("!BB", head1, head2 | length))
     elif length < 65536:
-        frame.extend(struct.pack('!BBH', head1, head2 | 126, length))
+        frame.extend(struct.pack("!BBH", head1, head2 | 126, length))
     else:
-        frame.extend(struct.pack('!BBQ', head1, head2 | 127, length))
+        frame.extend(struct.pack("!BBQ", head1, head2 | 127, length))
 
     # Masking the data to create some entropy.
     if mask:
-        mask_bits = struct.pack('!I', random.getrandbits(32))
+        mask_bits = struct.pack("!I", random.getrandbits(32))
         frame.extend(mask_bits)
         data = bytes(b ^ m for b, m in zip(data, itertools.cycle(mask_bits)))
 
@@ -79,7 +79,6 @@ class Status:
 
 
 class FrameParser:
-
     def __init__(self, protocol):
         self.data = bytearray()
         self.protocol = protocol
@@ -128,7 +127,7 @@ class FrameParser:
 
         # Expecting the first two bytes.
         if self.status == Status.FIRST_TWO_BYTES and length >= 2:
-            head1, head2 = struct.unpack('!BB', data[:2])
+            head1, head2 = struct.unpack("!BB", data[:2])
             del self.data[:2]
             self.final = True if head1 & 0b10000000 else False
             self.rsv1 = True if head1 & 0b01000000 else False
@@ -146,13 +145,13 @@ class FrameParser:
 
         # Payload length 7+16 bits
         if self.status == Status.LENGTH_126 and length >= 2:
-            self.payload_length = struct.unpack('!H', self.data[:2])
+            self.payload_length = struct.unpack("!H", self.data[:2])
             del self.data[:2]
             self.status = Status.MASK if self.masked else Status.PAYLOAD
 
         # Payload length 7+64 bits
         if self.status == Status.LENGTH_127 and length >= 8:
-            self.payload_length = struct.unpack('!Q', self.data[:8])
+            self.payload_length = struct.unpack("!Q", self.data[:8])
             del self.data[:8]
             self.status = Status.MASK if self.masked else Status.PAYLOAD
 
@@ -164,31 +163,31 @@ class FrameParser:
 
         # Expecting the payload itself
         if self.status == Status.PAYLOAD and length >= self.payload_length:
-            print(f'Received opcode: {self.opcode}')
-            print(f'Length: {self.payload_length}')
-            print(f'Data: {self.data[:self.payload_length]}')
+            print(f"Received opcode: {self.opcode}")
+            print(f"Length: {self.payload_length}")
+            print(f"Data: {self.data[:self.payload_length]}")
             decoded = ""
-            for char in bytes(self.data[:self.payload_length]):
+            for char in bytes(self.data[: self.payload_length]):
                 char ^= self.mask[len(decoded) % 4]
                 decoded += chr(char)
-            del self.data[:self.payload_length]
+            del self.data[: self.payload_length]
             await self.opcode_handlers[self.opcode](decoded)
             # await self.handler.on_message(decoded.encode('utf-8'))
             self.clear()
 
     async def _handle_ping(self, msg):
-        print('Received ping.')
+        print("Received ping.")
         a = create_single_frame(msg, opcode=10)
         print(a)
-        a.extend(b'1231233453453435353')
+        a.extend(b"1231233453453435353")
         await self.protocol.write(a)
-        print('Sent pong.')
+        print("Sent pong.")
 
     async def _handle_text(self, msg):
-        print(f'Received text: {msg}')
+        print(f"Received text: {msg}")
 
     async def _handle_binary(self, msg):
-        print(f'Received binary {msg}')
+        print(f"Received binary {msg}")
 
     async def _handle_close(self, msg):
-        print('Server is closing the connection')
+        print("Server is closing the connection")

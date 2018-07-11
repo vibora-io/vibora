@@ -4,7 +4,6 @@ from vibora.tests import TestSuite
 
 
 class NodesParsingSuite(TestSuite):
-
     def setUp(self):
         self.template_engine = TemplateEngine()
 
@@ -18,10 +17,10 @@ class NodesParsingSuite(TestSuite):
             {{ x.non_existent_call() }}
         {% endfor %}
         """
-        self.template_engine.add_template(Template(content=content), names=['test'])
+        self.template_engine.add_template(Template(content=content), names=["test"])
         self.template_engine.compile_templates(verbose=False)
         try:
-            await self.template_engine.render('test')
+            await self.template_engine.render("test")
         except TemplateRenderError as error:
-            self.assertEqual(error.template_line, '{{ x.non_existent_call() }}')
+            self.assertEqual(error.template_line, "{{ x.non_existent_call() }}")
             self.assertIsInstance(error.original_exception, AttributeError)

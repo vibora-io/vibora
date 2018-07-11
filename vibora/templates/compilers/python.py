@@ -2,23 +2,22 @@ import time
 import datetime
 from .base import TemplateCompiler
 from ..template import CompiledTemplate
-from ..utils import CompilerFlavor, CompilationResult, TemplateMeta, get_architecture_signature, \
-    generate_entry_point
+from ..utils import CompilerFlavor, TemplateMeta, get_architecture_signature, generate_entry_point
 from ..exceptions import InvalidVersion, InvalidArchitecture
 
 
 class PythonTemplateCompiler(TemplateCompiler):
-    VERSION = '0.0.1'
-    NAME = 'Pure'
+    VERSION = "0.0.1"
+    NAME = "Pure"
 
     def __init__(self, flavor=CompilerFlavor.TEMPLATE):
         super().__init__()
         self.meta = None
-        self.content = ''
+        self.content = ""
         self.current_scope = list()
-        self.accumulated_text = ''
-        self.content_var = '__content__'
-        self.context_var = '__context__'
+        self.accumulated_text = ""
+        self.content_var = "__content__"
+        self.context_var = "__context__"
         self.static_vars: dict = {}
         self.functions = []
         self.flavor = flavor
@@ -34,11 +33,11 @@ class PythonTemplateCompiler(TemplateCompiler):
         if isinstance(value, str):
             return f'"{value}"'
         elif isinstance(value, int):
-            return f'{value}'
+            return f"{value}"
         elif isinstance(value, list):
             return str(value)
         else:
-            NotImplementedError(f'Cannot convert {value} to a text representation.')
+            NotImplementedError(f"Cannot convert {value} to a text representation.")
 
     def add_static_var(self, value) -> str:
         """
@@ -46,7 +45,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         :param value:
         :return:
         """
-        name = 'static_var_' + str(len(self.static_vars))
+        name = "static_var_" + str(len(self.static_vars))
         self.static_vars[name] = value
         return name
 
@@ -56,9 +55,9 @@ class PythonTemplateCompiler(TemplateCompiler):
         :return:
         """
         self.meta = None
-        self.content = ''
+        self.content = ""
         self.current_scope = list()
-        self.accumulated_text = ''
+        self.accumulated_text = ""
         self.functions = []
         self.flavor = CompilerFlavor.TEMPLATE
 
@@ -69,7 +68,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         :return:
         """
         content = content.replace("\n", "\\n")
-        content = content.replace(r'"', r'\"')
+        content = content.replace(r'"', r"\"")
         self.accumulated_text += content
 
     def flush_text(self):
@@ -78,7 +77,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         :return:
         """
         text = self.accumulated_text
-        self.accumulated_text = ''
+        self.accumulated_text = ""
         if text:
             self.add_statement(f'yield "{text}"', flush_comments=False)
 
@@ -88,7 +87,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         :param statement:
         :return:
         """
-        self.add_statement(f'yield {statement}')
+        self.add_statement(f"yield {statement}")
 
     def add_comment(self, content: str):
         """
@@ -96,10 +95,10 @@ class PythonTemplateCompiler(TemplateCompiler):
         :param content:
         :return:
         """
-        comment = (' ' * self._indentation) + '# ' + content.strip() + '\n'
+        comment = (" " * self._indentation) + "# " + content.strip() + "\n"
         self.pending_comment = comment
 
-    def add_statement(self, content: str, flush_comments: bool=True):
+    def add_statement(self, content: str, flush_comments: bool = True):
         """
 
         :param flush_comments:
@@ -111,7 +110,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         if self.pending_comment and flush_comments:
             self.content += self.pending_comment
             self.pending_comment = None
-        new_content = (' ' * self._indentation) + content.strip() + '\n'
+        new_content = (" " * self._indentation) + content.strip() + "\n"
         self.content += new_content
         self.pending_statement = False
 
@@ -130,20 +129,21 @@ class PythonTemplateCompiler(TemplateCompiler):
         :param template:
         :return:
         """
-        self.content += 'from vibora.templates.compilers.helpers import *\n\n'
+        self.content += "from vibora.templates.compilers.helpers import *\n"
+        self.content += "from inspect import iscoroutine\n\n"
 
         # Adding helper functions and macros.
         for helper_code in self.functions:
-            self.content += helper_code + '\n\n'
+            self.content += helper_code + "\n\n"
 
         entry_point = generate_entry_point(template)
-        with self.statement(f'async def {entry_point}({self.context_var}: dict):'):
+        with self.statement(f"async def {entry_point}({self.context_var}: dict):"):
             template.ast.compile(self)
 
         # Adding static variables to the top side of the file.
-        static_vars_content = ''
+        static_vars_content = ""
         for name, value in self.static_vars.items():
-            static_vars_content += f'{name} = {self.get_text_representation(value)}\n'
+            static_vars_content += f"{name} = {self.get_text_representation(value)}\n"
         self.content = static_vars_content + self.content
 
     def create_new_macro(self, definition: str):
@@ -153,7 +153,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         :return:
         """
         new_compiler = self.__class__(flavor=CompilerFlavor.MACRO)
-        new_compiler.add_statement('def ' + definition + ':')
+        new_compiler.add_statement("def " + definition + ":")
         new_compiler.indent()
         new_compiler.add_statement(f"{self.content_var} = []")
         return new_compiler
@@ -166,7 +166,7 @@ class PythonTemplateCompiler(TemplateCompiler):
         :return:
         """
         context = {}
-        exec(compile(content, '<string>', 'exec'), context)
+        exec(compile(content, "<string>", "exec"), context)
         return context[entry_point]
 
     def load_compiled_template(self, meta: TemplateMeta, content: bytes):
@@ -180,9 +180,9 @@ class PythonTemplateCompiler(TemplateCompiler):
             raise InvalidVersion
         if meta.architecture != get_architecture_signature():
             raise InvalidArchitecture
-        return self.get_render_function(content.decode('utf-8'), meta.entry_point)
+        return self.get_render_function(content.decode("utf-8"), meta.entry_point)
 
-    def compile(self, template, verbose: bool=False) -> CompiledTemplate:
+    def compile(self, template, verbose: bool = False) -> CompiledTemplate:
         """
 
         :param verbose:
@@ -208,7 +208,7 @@ class PythonTemplateCompiler(TemplateCompiler):
             created_at=datetime.datetime.now().isoformat(),
             architecture=get_architecture_signature(),
             compilation_time=round(time.time() - started_at, 2),
-            dependencies=template.dependencies
+            dependencies=template.dependencies,
         )
 
         # Compilation result contains the meta data and the render function loaded at runtime.
@@ -216,8 +216,12 @@ class PythonTemplateCompiler(TemplateCompiler):
             print(self.content)
 
         compiled = CompiledTemplate(
-            content=template.content, ast=template.ast, dependencies=template.dependencies,
-            code=self.content, meta=meta, render=self.get_render_function(self.content, entry_point)
+            content=template.content,
+            ast=template.ast,
+            dependencies=template.dependencies,
+            code=self.content,
+            meta=meta,
+            render=self.get_render_function(self.content, entry_point),
         )
 
         # Cleaning the state machine.

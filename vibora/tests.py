@@ -15,11 +15,10 @@ def wrapper(f):
 
 
 class TestSuite(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         for key, value in cls.__dict__.items():
-            if key.startswith('test_') and iscoroutinefunction(value):
+            if key.startswith("test_") and iscoroutinefunction(value):
                 setattr(cls, key, wrapper(value))
 
     @staticmethod
@@ -29,7 +28,7 @@ class TestSuite(unittest.TestCase):
             items.append(chunk)
         try:
             if isinstance(items[0], bytes):
-                return b''.join(items)
+                return b"".join(items)
         except IndexError:
             return None
-        return ''.join(items)
+        return "".join(items)

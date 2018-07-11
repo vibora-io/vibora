@@ -3,8 +3,8 @@ from ..utils import TemplateMeta, CompilationResult
 
 class TemplateCompiler:
 
-    NAME = 'compiler'
-    VERSION = '0.0.0'
+    NAME = "compiler"
+    VERSION = "0.0.0"
 
     def __init__(self):
         self._indentation = 0
@@ -20,7 +20,7 @@ class TemplateCompiler:
     def rollback(self):
         self.flush_text()
         if self.pending_statement and self._indentation > 4:
-            self.add_statement('pass')
+            self.add_statement("pass")
         elif self.pending_statement and self._indentation == 4:
             # This is a special case when the template is actually empty.
             self.add_statement("yield ''")
@@ -46,7 +46,7 @@ class TemplateCompiler:
     def load_compiled_template(cls, meta: TemplateMeta, content: bytes):
         raise NotImplementedError
 
-    def compile(self, template, verbose: bool=False) -> CompilationResult:
+    def compile(self, template, verbose: bool = False) -> CompilationResult:
         raise NotImplementedError
 
     @classmethod

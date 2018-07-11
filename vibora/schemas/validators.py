@@ -4,7 +4,7 @@ import math
 
 
 class Length:
-    def __init__(self, min: int=0, max: int=math.inf):
+    def __init__(self, min: int = 0, max: int = math.inf):
         self.min = min
         self.max = max
 

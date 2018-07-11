@@ -40,7 +40,7 @@ class Reaper(Thread):
         for connection in self.app.connections.copy():
             conditions = (
                 connection.get_status() == ConnectionStatus.PROCESSING_REQUEST,
-                current_time - connection.get_last_task_time() >= self.worker_timeout
+                current_time - connection.get_last_task_time() >= self.worker_timeout,
             )
             if all(conditions):
                 # ###############
@@ -55,8 +55,9 @@ class Reaper(Thread):
         """
         now = time.time()
         for connection in self.connections.copy():
-            if connection.get_status() == ConnectionStatus.PENDING and \
-                    (now - connection.get_last_task_time() > self.keep_alive_timeout):
+            if connection.get_status() == ConnectionStatus.PENDING and (
+                now - connection.get_last_task_time() > self.keep_alive_timeout
+            ):
                 connection.stop()
 
     def run(self):

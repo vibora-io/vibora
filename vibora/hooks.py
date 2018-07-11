@@ -28,13 +28,19 @@ class Events:
     BEFORE_SERVER_STOP = 6
 
     # Useful for debugging purposes.
-    ALL = (BEFORE_SERVER_START, AFTER_SERVER_START, BEFORE_ENDPOINT, AFTER_ENDPOINT, AFTER_RESPONSE_SENT,
-           BEFORE_SERVER_STOP)
+    ALL = (
+        BEFORE_SERVER_START,
+        AFTER_SERVER_START,
+        BEFORE_ENDPOINT,
+        AFTER_ENDPOINT,
+        AFTER_RESPONSE_SENT,
+        BEFORE_SERVER_STOP,
+    )
 
 
 class Hook:
 
-    __slots__ = ('event_type', 'handler', 'local', 'is_async', 'wanted_components')
+    __slots__ = ("event_type", "handler", "local", "is_async", "wanted_components")
 
     def __init__(self, event: int, handler, local=False):
         self.event_type = event

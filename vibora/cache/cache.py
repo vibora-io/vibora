@@ -4,8 +4,7 @@ from ..request.request import Request
 
 
 class CacheEngine:
-
-    def __init__(self, skip_hooks: bool=True):
+    def __init__(self, skip_hooks: bool = True):
         self.is_async = iscoroutinefunction(self.get) or iscoroutinefunction(self.store)
         self.skip_hooks = skip_hooks
         self.cache = {}
@@ -18,9 +17,10 @@ class CacheEngine:
 
 
 class Static(CacheEngine):
-
     def get(self, request: Request) -> CachedResponse:
         return self.cache.get(1)
 
     def store(self, request: Request, response: Response):
-        self.cache[1] = CachedResponse(response.content, headers=response.headers, cookies=response.cookies)
+        self.cache[1] = CachedResponse(
+            response.content, headers=response.headers, cookies=response.cookies
+        )

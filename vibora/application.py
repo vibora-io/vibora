@@ -1,4 +1,3 @@
-from itertools import chain
 from typing import Callable, Type, List, Optional
 from .request import Request
 from .blueprints import Blueprint
@@ -18,11 +17,20 @@ class Application(Blueprint):
 
     current_time: str = None
 
-    def __init__(self, template_dirs: List[str] = None, router_strategy=RouterStrategy.CLONE,
-                 sessions_engine: SessionEngine=None, server_name: str = None, url_scheme: str = 'http',
-                 static: StaticHandler=None, log_handler: Callable=None, access_logs: bool=None,
-                 server_limits: ServerLimits=None, route_limits: RouteLimits=None,
-                 request_class: Type[Request]=Request):
+    def __init__(
+        self,
+        template_dirs: List[str] = None,
+        router_strategy=RouterStrategy.CLONE,
+        sessions_engine: SessionEngine = None,
+        server_name: str = None,
+        url_scheme: str = "http",
+        static: StaticHandler = None,
+        log_handler: Callable = None,
+        access_logs: bool = None,
+        server_limits: ServerLimits = None,
+        route_limits: RouteLimits = None,
+        request_class: Type[Request] = Request,
+    ):
         """
 
         :param template_dirs:
@@ -54,8 +62,10 @@ class Application(Blueprint):
         self.server_limits = server_limits or ServerLimits()
         self.running = False
         if not issubclass(request_class, Request):
-            raise ValueError('class_obj must be a child of the Vibora Request class. '
-                             '(from vibora.request import Request)')
+            raise ValueError(
+                "class_obj must be a child of the Vibora Request class. "
+                "(from vibora.request import Request)"
+            )
         self.request_class = request_class
         self.session_engine = sessions_engine
         self._test_client = None
@@ -82,7 +92,7 @@ class Application(Blueprint):
         :param components:
         :return:
         """
-        targets = (route.parent, self) if route and route.parent != self else (self, )
+        targets = (route.parent, self) if route and route.parent != self else (self,)
         for target in targets:
             for listener in target.hooks.get(type_id, ()):
                 response = listener.call_handler(components)
@@ -104,7 +114,7 @@ class Application(Blueprint):
             for nested_blueprint, nested_prefixes in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
                     if name and nested_name:
-                        merged_prefixes = {name + ':' + nested_name: pattern + nested_pattern}
+                        merged_prefixes = {name + ":" + nested_name: pattern + nested_pattern}
                     else:
                         merged_prefixes = {name or nested_name: pattern + nested_pattern}
                     self.__register_blueprint_routes(nested_blueprint, prefixes=merged_prefixes)
@@ -122,13 +132,15 @@ class Application(Blueprint):
         :return:
         """
         if blueprint.parent:
-            raise DuplicatedBlueprint('You cannot add blueprint twice. Use more prefixes or a different hierarchy.')
+            raise DuplicatedBlueprint(
+                "You cannot add blueprint twice. Use more prefixes or a different hierarchy."
+            )
 
         if blueprint != self:
             blueprint.parent = self
 
         if prefixes is None:
-            prefixes = {'': ''}
+            prefixes = {"": ""}
 
         self.__register_blueprint_routes(blueprint, prefixes)
 
@@ -136,7 +148,10 @@ class Application(Blueprint):
 
         # Non-Local listeners are removed from the blueprint because they are actually global hooks.
         if blueprint != self:
-            for collection, name in ((blueprint.hooks, 'hooks'), (blueprint.async_hooks, 'async_hooks')):
+            for collection, name in (
+                (blueprint.hooks, "hooks"),
+                (blueprint.async_hooks, "async_hooks"),
+            ):
                 local_listeners = {}
                 for listener_type, listeners in collection.items():
                     for listener in listeners:
@@ -165,15 +180,19 @@ class Application(Blueprint):
         :return:
         """
         if not self.initialized:
-            raise ValueError('Routes are not registered yet. Please run Vibora or call app.initialize().')
+            raise ValueError(
+                "Routes are not registered yet. Please run Vibora or call app.initialize()."
+            )
         route = self.router.reverse_index.get(_name)
         if not route:
             raise ReverseNotFound(_name)
-        root = ''
+        root = ""
         if _external:
             if not self.server_name or not self.url_scheme:
-                raise Exception('Please configure the server_name and url_scheme to use external urls.')
-            root = self.url_scheme + '://' + self.server_name
+                raise Exception(
+                    "Please configure the server_name and url_scheme to use external urls."
+                )
+            root = self.url_scheme + "://" + self.server_name
         return root + route.build_url(*args, **kwargs).decode()
 
     def __del__(self):

@@ -2,9 +2,8 @@ from ..utils import json
 
 
 class SessionEngine:
-
-    def __init__(self, cookie_name: str=None):
-        self.cookie_name = cookie_name or 'SESSION_ID'
+    def __init__(self, cookie_name: str = None):
+        self.cookie_name = cookie_name or "SESSION_ID"
 
     async def load(self, request):
         raise NotImplementedError
@@ -17,9 +16,9 @@ class SessionEngine:
 
 
 class Session:
-    __slots__ = ('values', 'pending_flush', 'uuid')
+    __slots__ = ("values", "pending_flush", "uuid")
 
-    def __init__(self, values: dict = None, pending_flush: bool=False, unique_id: str=None):
+    def __init__(self, values: dict = None, pending_flush: bool = False, unique_id: str = None):
         self.uuid = unique_id
         self.values = values or {}
         self.pending_flush = pending_flush

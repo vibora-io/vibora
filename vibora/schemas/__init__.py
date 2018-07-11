@@ -1,6 +1,4 @@
 from .extensions import fields
-from .schemas import *
-from .extensions.schemas import Schema as CythonSchema
+from .extensions.schemas import Schema
 
-
-locals()['Schema'] = CythonSchema
+__all__ = ["Schema", "fields"]

@@ -5,8 +5,7 @@ from ..utils import json
 
 
 class FilesSessionEngine(SessionEngine):
-
-    def __init__(self, storage_path: str, cookie_name: str='SESSION_ID'):
+    def __init__(self, storage_path: str, cookie_name: str = "SESSION_ID"):
         super().__init__(cookie_name=cookie_name)
         self.storage_path = storage_path
         try:
@@ -38,7 +37,7 @@ class FilesSessionEngine(SessionEngine):
         :param response:
         :return:
         """
-        with open(os.path.join(self.storage_path, session.uuid), 'w') as f:
+        with open(os.path.join(self.storage_path, session.uuid), "w") as f:
             f.write(session.dumps())
-        cookie = f'{self.cookie_name}={session.uuid}; SameSite=Lax'
-        response.headers['Set-Cookie'] = cookie
+        cookie = f"{self.cookie_name}={session.uuid}; SameSite=Lax"
+        response.headers["Set-Cookie"] = cookie

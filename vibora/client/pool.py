@@ -6,10 +6,21 @@ from .connection import Connection, SECURE_CONTEXT, INSECURE_CONTEXT
 
 class ConnectionPool:
 
-    __slots__ = ('loop', 'host', 'port', 'protocol', 'max_connections', 'connections', 'available_connections',
-                 'keep_alive', 'wait_connection_available')
+    __slots__ = (
+        "loop",
+        "host",
+        "port",
+        "protocol",
+        "max_connections",
+        "connections",
+        "available_connections",
+        "keep_alive",
+        "wait_connection_available",
+    )
 
-    def __init__(self, loop: BaseEventLoop, host: str, port: int, protocol: str, keep_alive: bool=True):
+    def __init__(
+        self, loop: BaseEventLoop, host: str, port: int, protocol: str, keep_alive: bool = True
+    ):
         self.loop = loop
         self.host = host
         self.port = port
@@ -24,14 +35,14 @@ class ConnectionPool:
         :param ssl:
         :return:
         """
-        args = {'host': self.host, 'port': self.port, 'loop': self.loop}
-        if self.protocol == 'https':
+        args = {"host": self.host, "port": self.port, "loop": self.loop}
+        if self.protocol == "https":
             if ssl is False:
-                args['ssl'] = INSECURE_CONTEXT
+                args["ssl"] = INSECURE_CONTEXT
             elif ssl is None:
-                args['ssl'] = SECURE_CONTEXT
+                args["ssl"] = SECURE_CONTEXT
             else:
-                args['ssl'] = ssl
+                args["ssl"] = ssl
         reader, writer = await asyncio.open_connection(**args)
         connection = Connection(self.loop, reader, writer, self)
         self.connections.add(connection)

@@ -1,1 +1,1 @@
-from .router import *
+from .router import *  # noqa
