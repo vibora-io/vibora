@@ -17,6 +17,7 @@ async def home(request: Request):
     values = await request.json()
     print(values)
     return JsonResponse(values)
+    
 app.run()
 ```
 
