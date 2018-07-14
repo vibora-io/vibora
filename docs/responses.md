@@ -20,7 +20,7 @@ app = Vibora()
 
 @app.route('/')
 async def home():
-    return JsonResponse({'hello': 'world})
+    return JsonResponse({'hello': 'world'})
 ```
 
 ### Streaming Response
