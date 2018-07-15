@@ -4,7 +4,7 @@ from vibora.websockets import WebsocketHandler
 app = Vibora()
 
 
-@app.websocket("/")
+@app.websocket(b"/")
 class ConnectedClient(WebsocketHandler):
     async def on_message(self, msg):
         print(msg)
