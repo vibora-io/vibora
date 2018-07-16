@@ -66,7 +66,7 @@ async def add_user(request: Request, database: Database):
     # customize the error message feel free to catch the exception
     # and handle it your way. "from_request" method is just syntatic sugar
     # to avoid calling request.json() yourself.
-    schema = await AddUserSchema.from_request(request)
+    schema = await AddUserSchema.load_json(request)
 
     # By now our data is already valid and clean,
     # so lets add our user to the database.
