@@ -85,6 +85,11 @@ cdef class MemoryFile(UploadedFile):
 
 
 cdef class DiskFile(UploadedFile):
+    cdef:
+        str temporary_path
+        int pointer
+        bint delete_on_exit
+
     def __init__(self, filename=None, temporary_dir=None):
         super().__init__(filename=filename)
         self.temporary_path = os.path.join(temporary_dir or gettempdir(), str(uuid.uuid4()))
@@ -156,16 +161,19 @@ cdef class SmartFile:
         :return: 
         """
         cdef int data_size = len(data)
+
         if self.in_memory:
             if len(self.buffer) + data_size > self.in_memory_limit:
                 self.engine = DiskFile(filename=self.filename, temporary_dir=self.temp_dir)
-                self.engine.write(self.buffer)
+                if len(self.buffer) > 0:
+                    await self.engine.write(bytes(self.buffer))
                 self.in_memory = False
             else:
                 self.buffer.extend(data)
                 self.pointer += data_size
-        else:
-            self.engine.write(data)
+
+        if self.in_memory is False:
+            await self.engine.write(bytes(data))
 
     cdef object consume(self):
         """
