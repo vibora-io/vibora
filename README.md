@@ -1,6 +1,12 @@
 <p align="center">
   <a href="https://vibora.io"><img src="https://raw.githubusercontent.com/vibora-io/vibora/master/docs/logo.png"></a>
+</p>
+
+<p align="center">
   <a href="https://circleci.com/gh/vibora-io/vibora"><img src="https://circleci.com/gh/vibora-io/vibora.svg?style=shield"></a>
+  <a href="https://github.com/vibora-io/vibora/blob/master/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
+  <a href="https://pypi.org/project/vibora/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vibora.svg"></a>
+  <a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
 -----------------------------------------------------------
