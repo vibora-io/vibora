@@ -113,16 +113,27 @@ class StaticHandler:
         if range_header:
             pieces = self.get_range_pieces(range_header)
             if len(pieces) == 2:
-                start, end = int(pieces[0]), int(pieces[1])
+                if pieces[0] == "":
+                    start = cache.content_length - int(pieces[1])
+                    end = cache.content_length - 1
+                elif pieces[1] == "":
+                    start = int(pieces[0])
+                    end = cache.content_length - 1
+                else:
+                    start, end = int(pieces[0]), int(pieces[1])
+
+                if start < 0 or start > end or end >= cache.content_length:
+                    return Response(b"", headers={}, status_code=416)
+
                 headers = {
                     "Content-Range": "bytes {0}-{1}/{2}".format(start, end, cache.content_length),
-                    "Content-Length": str((end - start)),
+                    "Content-Length": str((end - start + 1)),
                     "Accept-Ranges": "bytes",
                 }
                 if request.method == "HEAD":
                     return Response(b"", headers=headers, status_code=206)
                 else:
-                    return StreamingResponse(RangeFile(cache.path, start, end).stream, headers=headers, status_code=206)
+                    return StreamingResponse(RangeFile(cache.path, start, end + 1).stream, headers=headers, status_code=206)
 
         # Handling HEAD requests
         if request.method == "HEAD":
