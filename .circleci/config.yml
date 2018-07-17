@@ -55,7 +55,7 @@ jobs:
           name: Code Style Check
           command: |
             . venv/bin/activate
-            flake8 vibora
+            flake8 .
   test-3.7:
     <<: *test-template
     docker:

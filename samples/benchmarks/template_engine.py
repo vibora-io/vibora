@@ -41,4 +41,3 @@ t = Template(content, enable_async=True)
 for _ in range(0, rounds):
     t.render({'x': b, 'y': y})
 print('Jinja2: ', time.time() - t1)
-
