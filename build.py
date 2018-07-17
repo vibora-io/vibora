@@ -18,7 +18,7 @@ for root, dirs, files in os.walk(project_path):
 
 # Calling Cython to compile our extensions.
 try:
-    process = subprocess.run(["cython"] + list(pending_compilation) + ["--fast-fail"])
+    process = subprocess.run([sys.executable, "-m", "cython"] + list(pending_compilation) + ["--fast-fail"])
 except FileNotFoundError:
     raise SystemExit("Failed to call cython. Please make sure it's installed and in path.")
 
