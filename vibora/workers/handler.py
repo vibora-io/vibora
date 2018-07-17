@@ -1,6 +1,6 @@
 import asyncio
 import signal
-from socket import IPPROTO_TCP, TCP_NODELAY, SO_REUSEADDR, SOL_SOCKET, SO_REUSEPORT, socket
+from socket import IPPROTO_TCP, TCP_NODELAY, SO_REUSEADDR, SOL_SOCKET, socket
 from multiprocessing import Process
 from functools import partial
 from .reaper import Reaper
@@ -22,7 +22,6 @@ class RequestHandler(Process):
         # Re-using address and ports. Kernel is our load balancer.
         if not self.socket:
             self.socket = socket()
-            self.socket.setsockopt(SOL_SOCKET, SO_REUSEPORT, 1)
             self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
             self.socket.bind((self.bind, self.port))
