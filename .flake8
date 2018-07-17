@@ -1,2 +1,10 @@
 [flake8]
 ignore=E501,E401,F403,F401,F811,W293
+exclude =
+    .git,
+    __pycache__,
+    docs/source/conf.py,
+    old,
+    build,
+    dist
+    venv
