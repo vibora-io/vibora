@@ -25,5 +25,5 @@ if __name__ == '__main__':
         getattr(logging, level)(msg)
         print(f'Msg: {msg} / Level: {level}')
 
-    app.run(logging=log_handler)
+    app.run(log_handler=log_handler)
 ```

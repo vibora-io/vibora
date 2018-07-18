@@ -58,6 +58,7 @@ class Application(Blueprint):
         self.loop = None
         self.access_logs = access_logs
         self.log_handler = log_handler
+        self.log = None
         self.initialized = False
         self.server_limits = server_limits or ServerLimits()
         self.running = False

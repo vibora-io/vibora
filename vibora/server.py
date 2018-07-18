@@ -5,6 +5,7 @@ from email.utils import formatdate
 from collections import OrderedDict, deque
 from functools import partial
 from multiprocessing import cpu_count
+from typing import Callable
 from .__version__ import __version__
 from .client import Session
 from .workers.handler import RequestHandler
@@ -304,9 +305,11 @@ class Vibora(Application):
         necromancer: bool = False,
         sock=None,
         startup_message: bool = True,
+        log_handler: Callable = None
     ):
         """
 
+        :param log_handler:
         :param startup_message:
         :param host:
         :param port:
@@ -332,6 +335,10 @@ class Vibora(Application):
                 self.workers, spawn_function=spawn_function, interval=self.server_limits.worker_timeout
             )
             necromancer.start()
+
+        # custom log handler
+        if log_handler:
+            self.log = log_handler
 
         # Wait the server start accepting new connections.
         if not sock:
