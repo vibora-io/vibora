@@ -51,7 +51,9 @@ class AddUserSchema(Schema):
 ###### Using your schema
 
 ```py
-from vibora import Request, Blueprint, JsonResponse
+from vibora import Request
+from vibora.blueprints import Blueprint
+from vibora.responses import JsonResponse
 from .schemas import AddUserSchema
 from .database import Database
 
