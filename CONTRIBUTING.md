@@ -17,16 +17,16 @@ This section is especially important because consistent and clean code is an imp
 Vibora tries to use bleeding edge technologies from python. Among other things, guys.
 Therefore, please make sure to use [type annotations](https://docs.python.org/3/library/typing.html) as good as possible.
 
-Another example of good code would be the use of:
+Another example of good code would be the use of
 ```python
 world ="World"
 "f "Hello {world}"
 ```
-instead of:
+instead of
 ```
 "Hello {0}".format(world)
 ```
-or:
+or
 ```python
 "Hello %s" % (world)
 ```
@@ -35,11 +35,11 @@ this is old python, please don't use it.
 ## Commit Message Guidelines
 Correctly formatted commit messages are very important. Changelogs are automatically generated from commit messages. Therefore, please take the time to write the message cleanly and in detail.
 
-A commit message consists of four main components. A **type**, short **description**, the **main part** and the **footer**. In the following sections these four components are explained in more detail.
+A commit message consists of five main components. A **type**,**scope**, a short **description**, the **main part** and the **footer**. In the following sections these five components are explained in more detail.
 
 The structure of a commit message should look like this.
 ```
-<type>: <descriptio>
+<type>(<scope>): <description>
 <BLANK LINE>
 <main part>
 <BLANK LINE>
@@ -57,15 +57,51 @@ The type describes what kind of commit it is. Possible types are listed here:
 * **test** Adding missing tests or fixing one
 * **style** Changes on code style
 * **perf** Changes that improve performance
+* **revert** Is used if this commit reverts another commit. Body and footer are not required then.
 
+### Scope
+The scope is important in connection with the type, so that you know where the change was made. There are several fixed scopes that have to be used.
+
+* **core** All files that are directly in the vibora folder and not in a subfolder
+* **cache**
+* **client**
+* **components**
+* **headers**
+* **multipart**
+* **parsers**
+* **protocol**
+* **request**
+* **responses**
+* **router**
+* **schemas**
+* **sessions**
+* **templates**
+* **websockets**
+* **workers**
+
+* **changelog**
+* **setup** Changes on the root directory as example `requirements.txt` or `setup.py`
+You don't need to use a scope if you want to change **docs**, **style**, **test** and **refactor** when they are _not package specific_.
 ### Subject
 The subject should be short and summarize what the commit does. Please use the **imperative form**. So not "changed" but "change". Do **not** write any **dots** at the end of the sentence and do **not** start with a **capital letter**.
 
 ### Body
+Here it's important to give a more precise description than in the subject. It is also important to write in the imperative form. Please do not write capital at the beginning of the sentence, nor a dot at the end of the sentence.
 
+### Footer (optional)
+Here you can bring in things like `close #0` or `breaking change`. It's just as important to use the imperative form. It should not start with a capital letter and individual details should be separated with a comma. Since no sentences are written here, no points are to be used here either.
 
-### Footer
+### Example
+An example here, so that you have a clue how this has to look like.
+> Note: This is not a real example, it's just fiction
 
+```shell
+fix(components): components engine have to check for type
+
+It causes an error when the type is something which doesn't implement the "add"-method.
+
+close #45
+```
 
 ## Question or Problem?
 Please don't create issues if you have a question about a problem or the library.
