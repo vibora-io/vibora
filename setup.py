@@ -4,7 +4,7 @@ from setuptools import setup, Extension, find_packages
 # Loading version
 here = pathlib.Path(__file__).parent
 txt = (here / "vibora" / "__version__.py").read_text()
-version = txt[txt.find('"') + 1 : txt.rfind('"')]
+version = txt[txt.find('"') + 1: txt.rfind('"')]
 
 setup(
     name="vibora",
