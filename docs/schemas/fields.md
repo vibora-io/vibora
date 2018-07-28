@@ -2,7 +2,7 @@
 
 Vibora has a special class called "Field" to represent each field
 of a schema. You can build any kind of validation rules using this class
-but to avoid repeat yourself there a few builtin ones.
+but to avoid repeating yourself there a few builtin ones.
 There are a few must-know attributes of this class:
 
 1) **required** -> By default all declared fields in a schema are required which means
