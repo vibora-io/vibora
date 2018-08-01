@@ -28,6 +28,15 @@ class SchemasTestCase(TestSuite):
         except InvalidSchema as error:
             self.assertTrue(len(error.errors), 2)
 
+    async def test_numeric_fields_null_input(self):
+        class TestSchema(Schema):
+            field1: int
+            field2: float
+
+        with self.assertRaises(InvalidSchema) as context:
+            await TestSchema.load({'field1': None, 'field2': None})
+        self.assertTrue(len(context.exception.errors), 2)
+
     def test_schema_correctly_identifying_fields(self):
         class TestSchema(Schema):
             field1: str
