@@ -97,7 +97,7 @@ cdef class Integer(Field):
             raise ValidationError(error_code=Messages.MUST_BE_INTEGER, field=self.load_from)
         try:
             return int(value)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValidationError(error_code=Messages.MUST_BE_INTEGER, field=self.load_from)
 
 
@@ -115,7 +115,7 @@ cdef class Number(Field):
             raise ValidationError(error_code=Messages.MUST_BE_NUMBER, field=self.load_from)
         try:
             return float(value)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValidationError(error_code=Messages.MUST_BE_NUMBER, field=self.load_from)
 
 
