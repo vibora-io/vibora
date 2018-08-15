@@ -3,6 +3,11 @@
   <a href="https://circleci.com/gh/vibora-io/vibora"><img src="https://circleci.com/gh/vibora-io/vibora.svg?style=shield"></a>
 </p>
 
+
+<p align="center">
+  <a href="https://pypi.org/project/vibora" alt="Latest PyPI package version"><img src="https://badge.fury.io/py/vibora.svg"></a>
+</p>
+
 -----------------------------------------------------------
 > [Vibora](https://vibora.io) is a **fast, asynchronous and elegant** Python 3.6+ http client/server framework. (Alpha stage)
 
