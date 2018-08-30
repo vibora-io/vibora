@@ -15,7 +15,7 @@ from . cimport cparser
 from ..protocol.cprotocol cimport Connection
 from ..headers.headers cimport Headers
 
-__all__ = ('parse_url', 'HttpParser', 'HttpResponseParser')
+__all__ = ('parse_url', 'HttpParser')
 
 cdef class HttpParser:
     def __init__(self, Connection protocol, max_headers_size: int, max_body_size: int):
