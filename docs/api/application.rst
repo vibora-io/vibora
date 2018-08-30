@@ -1,0 +1,4 @@
+Application
+===========
+
+.. automodule:: vibora.application

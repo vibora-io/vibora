@@ -1,0 +1,5 @@
+Server
+======
+
+.. automodule:: vibora.server
+

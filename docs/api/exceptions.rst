@@ -1,0 +1,5 @@
+Exceptions
+==========
+
+.. automodule:: vibora.exceptions
+

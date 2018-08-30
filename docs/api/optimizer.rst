@@ -1,0 +1,5 @@
+Optimizer
+=========
+
+.. automodule:: vibora.optimizer
+
