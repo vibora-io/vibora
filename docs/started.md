@@ -14,7 +14,8 @@ advantage of some new Python features.
 
 
 ```py
-from vibora import Vibora, JsonResponse
+from vibora import Vibora
+from vibora.resposes import JsonResponse
 
 app = Vibora()
 
