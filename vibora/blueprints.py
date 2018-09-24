@@ -34,6 +34,9 @@ class Blueprint:
         Decorator to register a hook.
         :return: None
         """
+        if value in (Events.BEFORE_SERVER_START, Events.AFTER_SERVER_START, Events.BEFORE_SERVER_STOP):
+            local = False
+
         def wrapper(*args):
             handler = args[0]
             values = value if isinstance(value, (list, tuple)) else [value]
@@ -47,9 +50,7 @@ class Blueprint:
         return wrapper
 
     def route(self, pattern, methods=None, cache=None, name=None, hosts: list=None, limits: RouteLimits=None):
-        def register(*args):
-            handler = args[0]
-
+        def register(handler):
             # Checking if handler is co-routine.
             if not iscoroutinefunction(handler):
                 raise SyntaxError(f'Your route handler must be an async function. (Handler: {handler})')
@@ -80,9 +81,7 @@ class Blueprint:
         return register
 
     def websocket(self, pattern: str, name: str = None):
-        def register(*args):
-            handler = args[0]
-
+        def register(handler):
             # Get the function name in case the user doesn't provide one.
             # Route names are used to create URLs (I.e: links inside templates)
             route_name = handler.__name__ if name is None else name

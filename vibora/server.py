@@ -17,7 +17,7 @@ from .templates.loader import TemplateLoader
 from .templates.extensions import ViboraNodes
 from .exceptions import NotFound, MethodNotAllowed, MissingComponent
 from .parsers.errors import BodyLimitError, HeadersLimitError
-from .utils import wait_server_available, get_free_port, cprint, pause
+from .utils import wait_server_available, get_free_port, cprint, pause, format_access_log
 from .hooks import Hook, Events
 from .application import Application
 
@@ -202,7 +202,8 @@ class Vibora(Application):
             sock.close()
             if not self.initialized:
                 self.test_mode = True
-            self.run(host=address, port=port, block=False, verbose=False, necromancer=False, workers=1, debug=True)
+            self.run(host=address, port=port, block=False, necromancer=False, workers=1, debug=True,
+                     startup_message=False)
             self._test_client = Session(prefix='http://' + address + ':' + str(port), headers=headers,
                                         follow_redirects=follow_redirects, max_redirects=max_redirects, stream=stream,
                                         decode=decode, keep_alive=False)
@@ -229,6 +230,20 @@ class Vibora(Application):
                     if pending_session:
                         await sessions.save(pending_session, response)
 
+    def _configure_logging(self):
+        """
+
+        :return:
+        """
+        if (self.access_logs is None and self.debug_mode) or self.access_logs is True:
+
+            @self.handle(Events.BEFORE_SERVER_START)
+            async def register_session_hook(app: Vibora):
+
+                @app.handle(Events.AFTER_ENDPOINT)
+                async def access_logs(request: Request, response: Response):
+                    print(format_access_log(request, response), file=sys.stderr)
+
     def initialize(self):
         """
 
@@ -247,15 +262,15 @@ class Vibora(Application):
         self.initialized = True
 
     def run(self, host: str='127.0.0.1', port: int=5000, workers: int=None, debug: bool=True,
-            block: bool=True, verbose: bool=True, necromancer: bool=False, sock=None):
+            block: bool=True, necromancer: bool=False, sock=None, startup_message: bool=True):
         """
 
+        :param startup_message:
         :param host:
         :param port:
         :param workers:
         :param debug:
         :param block:
-        :param verbose:
         :param necromancer:
         :param sock:
         :return:
@@ -276,9 +291,10 @@ class Vibora(Application):
             necromancer.start()
 
         # Wait the server start accepting new connections.
-        wait_server_available(host, port)
+        if not sock:
+            wait_server_available(host, port)
 
-        if verbose:
+        if startup_message:
             cprint('# Vibora ({color_}' + __version__ + '{end_}) # http://' + str(host) + ':' + str(port),
                    custom=True)
 

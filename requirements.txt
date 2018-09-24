@@ -1,4 +1,1 @@
-uvloop==0.10.1
-ujson
 cython==0.28.3
-pendulum

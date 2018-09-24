@@ -56,26 +56,17 @@ class Router:
         """
         if not route.is_dynamic and not route.hosts:
             for method in route.methods:
-                if method not in self.routes:
-                    self.routes[method] = {}
-                self.routes[method][route.pattern] = route
+                self.routes.setdefault(method, {})[route.pattern] = route
         elif route.hosts:
             self.check_host = True
             for host in route.hosts:
                 host = re.compile(host)
-                if host not in self.hosts:
-                    self.hosts[host] = {}
-                routes = self.hosts[host]
+                routes = self.hosts.setdefault(host, {})
                 for method in route.methods:
-                    if method not in routes:
-                        routes[method] = []
-                    routes[method].append(route)
+                    routes.setdefault(method, []).append(route)
         elif route.is_dynamic:
             for method in route.methods:
-                try:
-                    self.dynamic_routes[method].append(route)
-                except KeyError:
-                    self.dynamic_routes[method] = [route]
+                self.dynamic_routes.setdefault(method, []).append(route)
         self.reverse_index[route.name] = route
 
     def add_route(self, route: 'Route', prefixes: dict = None, check_slashes: bool = True):

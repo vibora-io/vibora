@@ -3,11 +3,11 @@
 Make sure you are using `Python 3.6+` because Vibora takes
 advantage of some new Python features.
 
-1. Install Vibora: `pip install vibora`
+1. Install Vibora: `pip install vibora[fast]`
 
 > It's highly recommended to install Vibora inside a virtualenv.
 
-> In case you have trouble with Vibora dependencies: `pip install vibora[pure]`
+> In case you have trouble with Vibora dependencies: `pip install vibora` to install it without the extra libraries.
 
 
 2. Create a file called `anything.py` with the following code:

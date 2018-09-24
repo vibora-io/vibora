@@ -1,7 +1,7 @@
 ### Data Validation
 
 Data validation is a common task in any web related activity.
-Vibora has a module called `schemas` to build guess what,
+Vibora has a module called `schemas` to build, guess what,
 schemas, and validate your data against them.
 They are very similar to `marshmallow` and
 other famous libraries except they have some speedups written in Cython
@@ -58,7 +58,7 @@ from .database import Database
 users_api = Blueprint()
 
 @users_api.route('/add')
-async def add_user(request: Request):
+async def add_user(request: Request, database: Database):
 
     # In case the schema is invalid an exception will be raised
     # and catched by an exception handler, this means you don't need to

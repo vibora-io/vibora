@@ -10,9 +10,11 @@ class KeepAliveTestCase(TestSuite):
         v = Vibora()
         address, port = '127.0.0.1', 65530
         async with Session(prefix=f'http://{address}:{port}', timeout=3, keep_alive=True) as client:
-            v.run(host=address, port=port, block=False, verbose=False, necromancer=False, workers=1, debug=False)
+            v.run(host=address, port=port, block=False, necromancer=False, workers=1, debug=False,
+                  startup_message=False)
             self.assertEqual((await client.get('/')).status_code, 404)
             v.clean_up()
             wait_server_offline(address, port, timeout=30)
-            v.run(host=address, port=port, block=False, verbose=False, necromancer=False, workers=1, debug=False)
+            v.run(host=address, port=port, block=False, necromancer=False, workers=1, debug=False,
+                  startup_message=False)
             self.assertEqual((await client.get('/')).status_code, 404)

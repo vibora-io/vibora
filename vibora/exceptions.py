@@ -70,3 +70,8 @@ class MethodNotAllowed(ViboraException):
     def __init__(self, allowed_methods: list):
         self.allowed_methods = allowed_methods
         super().__init__()
+
+
+class StreamAlreadyConsumed(ViboraException):
+    def __init__(self):
+        super().__init__('Stream already consumed')

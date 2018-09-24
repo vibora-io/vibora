@@ -139,7 +139,7 @@ def wait_server_available(host: str, port: int, timeout: int=10) -> None:
             sock.connect((host, port))
             sock.close()
             return
-        except (ConnectionRefusedError, ConnectionAbortedError, ConnectionResetError):
+        except OSError:
             time.sleep(0.001)
             timeout -= time.time() - start_time
     sock.close()
@@ -160,9 +160,9 @@ def wait_server_offline(host: str, port: int, timeout: int=10) -> None:
         try:
             sock.settimeout(1)
             sock.connect((host, port))
-            time.sleep(1)
+            time.sleep(0.1)
             timeout -= time.time() - start_time
-        except (ConnectionRefusedError, ConnectionAbortedError, ConnectionResetError):
+        except OSError:
             return
         finally:
             sock.close()
@@ -194,3 +194,15 @@ def pause() -> None:
             time.sleep(60)
     else:
         signal.pause()
+
+
+def format_access_log(request, response) -> str:
+    """
+
+    :param request:
+    :param response:
+    :return:
+    """
+    return f'{request.client_ip()} - "{request.method.decode()} ' \
+           f'{request.parsed_url.path.decode()}" - {response.status_code} - ' \
+           f'{request.headers.get("user-agent")}'

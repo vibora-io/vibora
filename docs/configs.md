@@ -28,6 +28,7 @@ class Config:
 ```py
 from vibora import Vibora
 from vibora.blueprints import Blueprint
+from vibora.hooks import Events
 from aioredis import ConnectionsPool
 from config import Config
 
@@ -69,6 +70,7 @@ async def initialize_db(app: Vibora, config: Config):
 import json
 from vibora import Vibora
 from api import api
+from config import Config
 
 
 if __name__ == "__main__":
@@ -76,7 +78,7 @@ if __name__ == "__main__":
     app = Vibora()
 
     # Registering our API
-    app.add_blueprint(api, prefixes={'v1: '/v1'})
+    app.add_blueprint(api, prefixes={'v1': '/v1'})
 
     # Opening the configuration file.
     with open('config.json') as f:
@@ -92,9 +94,8 @@ if __name__ == "__main__":
         app.run(host=config.host, port=config.port)
 ```
 
-This example shows how to load your configuration from JSON files but
-you could also load it from environment variables or
-whatever do you think it's best.
+The previous example loads your configuration from JSON files, but
+other approaches, such as environment variables, can be used.
 
 Notice that we register the config instance as a component because
 databases drivers, for example, often need to be instantiated

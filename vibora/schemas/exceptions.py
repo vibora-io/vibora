@@ -2,7 +2,7 @@ from vibora.utils import json
 
 
 class ValidationError(Exception):
-    def __init__(self, msg, field=None, error_code: int=0, **extra):
+    def __init__(self, msg=None, field=None, error_code: int=0, **extra):
         self.msg = msg
         self.field = field
         self.extra = extra
