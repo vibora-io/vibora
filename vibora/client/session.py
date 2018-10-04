@@ -36,12 +36,12 @@ class HTTPEngine:
         :param port:
         :return:
         """
-        key = (protocol, host, port)
         if port in (0, None):
             if protocol == 'https':
                 port = 443
             else:
                 port = 80
+        key = (protocol, host, port)
         try:
             return self.pools[key]
         except KeyError:
