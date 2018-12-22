@@ -14,7 +14,8 @@ Bellow there are the most important ones:
 Automatically dumps Python objects and adds the correct headers to match the JSON format.
 
 ```py
-from vibora import Vibora, JsonResponse
+from vibora import Vibora
+from vibora.responses import JsonResponse
 
 app = Vibora()
 
@@ -50,7 +51,8 @@ The client will have 10 seconds to consume the 30 bytes, in case not, the connec
 
 ```py
 import asyncio
-from vibora import Vibora, StreamingResponse
+from vibora import Vibora
+from vibora.responses import StreamingResponse
 
 app = Vibora()
 
@@ -72,7 +74,8 @@ A raw Response object would fit whenever you need a more
 customized response.
 
 ```py
-from vibora import Vibora, Response
+from vibora import Vibora
+from vibora.responses import Response
 
 app = Vibora()
 
