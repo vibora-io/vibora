@@ -160,7 +160,7 @@ cdef class Request:
         :return:
         """
         if not self._session:
-            self._session = await self.app.session_engine.load(self.cookies)
+            self._session = await self.app.session_engine.load(self)
         return self._session
 
     async def json(self, loads=None, strict: bool=False) -> dict:

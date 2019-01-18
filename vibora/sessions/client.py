@@ -45,7 +45,7 @@ class EncryptedCookiesEngine(SessionEngine):
                 return Session(pending_flush=True)
         return Session()
 
-    async def save(self, request, response) -> None:
+    async def save(self, pending_session, response) -> None:
         """
         Inject headers in the response object so the user will receive
         an encrypted cookie with session values.
@@ -53,6 +53,6 @@ class EncryptedCookiesEngine(SessionEngine):
         :param response: current Response object where headers will be inject.
         :return:
         """
-        value = self.cipher.encrypt(request.session.dumps().encode())
+        value = self.cipher.encrypt(pending_session.dumps().encode())
         cookie = f"{self.cookie_name}={value.decode()}; SameSite=Lax"
         response.headers["Set-Cookie"] = cookie
