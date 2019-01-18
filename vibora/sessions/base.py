@@ -8,7 +8,7 @@ class SessionEngine:
     async def load(self, request):
         raise NotImplementedError
 
-    async def save(self, request, response):
+    async def save(self, pending_session, response):
         raise NotImplementedError
 
     async def clean_up(self):
