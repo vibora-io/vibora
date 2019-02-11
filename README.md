@@ -1,4 +1,4 @@
-> **Warning: This project is being completely re-written. A release is scheduled for 10 February.**
+> **Warning: This project is being completely re-written. If you're curious about the progress, reach me on Slack.**
 
 <p align="center">
   <a href="https://vibora.io"><img src="https://raw.githubusercontent.com/vibora-io/vibora/master/docs/logo.png"></a>
