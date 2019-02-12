@@ -136,7 +136,7 @@ class YourCacheEngine(CacheEngine):
 
 
 @app.route('/', cache=YourCacheEngine(skip_hooks=True))
-def home():
+async def home():
     return Response(b'Hello World')
 ```
 
