@@ -295,8 +295,10 @@ class Vibora(Application):
             wait_server_available(host, port)
 
         if startup_message:
-            cprint('# Vibora ({color_}' + __version__ + '{end_}) # http://' + str(host) + ':' + str(port),
-                   custom=True)
+            message = '# Vibora ({color_}' + __version__ + '{end_}) '
+            if not sock:
+                message += '# http://' + str(host) + ':' + str(port)
+            cprint(message, custom=True)
 
         self.running = True
         if block:
