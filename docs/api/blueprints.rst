@@ -1,0 +1,4 @@
+Blueprints
+==========
+
+.. automodule:: vibora.blueprints

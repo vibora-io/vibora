@@ -1,0 +1,5 @@
+Responses
+=========
+
+.. automodule:: vibora.responses
+

@@ -1,0 +1,5 @@
+Static
+======
+
+.. automodule:: vibora.static
+

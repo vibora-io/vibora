@@ -25,7 +25,7 @@ setup(
         'Programming Language :: Python :: 3.6'
     ],
     extras_require={
-        'dev': ['flake8', 'pytest', 'tox'],
+        'dev': ['flake8', 'pytest', 'tox', 'Sphinx', 'sphinx-autodoc-typehints'],
         'fast': ['ujson==1.35', 'uvloop==0.10.2']
     },
     ext_modules=[

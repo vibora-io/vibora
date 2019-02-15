@@ -1,0 +1,5 @@
+Cookies
+=======
+
+.. automodule:: vibora.cookies
+

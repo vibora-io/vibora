@@ -1,0 +1,5 @@
+Constants
+=========
+
+.. automodule:: vibora.constants
+

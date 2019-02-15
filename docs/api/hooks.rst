@@ -1,0 +1,5 @@
+Hooks
+=====
+
+.. automodule:: vibora.hooks
+
