@@ -14,7 +14,6 @@ else:
     except ImportError:
         import json
 
-
 if os.environ.get('VIBORA_UVLOOP', 1) == '0':
     # noinspection PyUnresolvedReferences
     import asyncio as asynclib
@@ -44,7 +43,11 @@ class RequestParams:
 
 
 class RangeFile:
-    def __init__(self, path: str, start: int, end: int, chunk_size=1 * 1024 * 1024):
+    def __init__(self,
+                 path: str,
+                 start: int,
+                 end: int,
+                 chunk_size=1 * 1024 * 1024):
         self.path = path
         self.current_pointer = start
         self.start = start
@@ -86,7 +89,7 @@ def clean_route_name(prefix: str, name: str) -> str:
         if prefix[0] == ':':
             prefix = prefix[1:]
         if len(prefix) > 0:
-            if prefix[len(prefix)-1] == ':':
+            if prefix[len(prefix) - 1] == ':':
                 prefix = prefix[:len(prefix) - 1]
         if len(prefix) > 0:
             return prefix + '.' + name
@@ -112,7 +115,7 @@ def clean_methods(methods: Iterable[Union[str, bytes]]) -> Tuple[bytes]:
     return b'GET',
 
 
-def get_free_port(address: str='127.0.0.1') -> tuple:
+def get_free_port(address: str = '127.0.0.1') -> tuple:
     """
     The reference of the socket is returned, otherwise the port could
     theoretically (highly unlikely) be used be someone else.
@@ -123,7 +126,7 @@ def get_free_port(address: str='127.0.0.1') -> tuple:
     return sock, address, sock.getsockname()[1]
 
 
-def wait_server_available(host: str, port: int, timeout: int=10) -> None:
+def wait_server_available(host: str, port: int, timeout: int = 10) -> None:
     """
     Wait until the server is available by trying to connect to the same.
     :param timeout: How many seconds wait before giving up.
@@ -146,7 +149,7 @@ def wait_server_available(host: str, port: int, timeout: int=10) -> None:
     raise TimeoutError(f'Server is taking too long to get online.')
 
 
-def wait_server_offline(host: str, port: int, timeout: int=10) -> None:
+def wait_server_offline(host: str, port: int, timeout: int = 10) -> None:
     """
     Wait until the server is offline.
     :param timeout: How many seconds wait before giving up.
@@ -169,7 +172,8 @@ def wait_server_offline(host: str, port: int, timeout: int=10) -> None:
     raise TimeoutError(f'Server is still running after the timeout threshold.')
 
 
-def cprint(message: str, color: str= '\033[35m', custom: bool=False) -> None:
+def cprint(message: str, color: str = '\033[35m',
+           custom: bool = False) -> None:
     """
     Colored prints in interactive terminals and PyCharm.
     :return: None

@@ -78,8 +78,7 @@ class ComponentsTestSuite(TestSuite):
             response = await client.get('/test')
             self.assertEqual(
                 response.content,
-                app.components[TestComponent].name + app.components[TestComponent2].name
-                + b'test'
+                app.components[TestComponent].name + app.components[TestComponent2].name + b'test'
             )
 
     def test_loaded_component_class_instead_of_instance_expects_exception(self):
