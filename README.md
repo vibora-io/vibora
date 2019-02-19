@@ -12,6 +12,11 @@
   <a target="_blank" href="https://join.slack.com/t/vibora-io/shared_invite/enQtNDAxMTQ4NDc5NDYzLTA2YTdmNmM0YmY4ZTY0Y2JjZjc0ODgwMmJjY2I0MmVkODFiYzc4YjM0NGMyOTkxMjZlNTliZDU1ZmFhYWZmNjU"><img alt="Join Slack" src="https://img.shields.io/badge/join-slack-E02462.svg"></a>
 </p>
 
+
+<p align="center">
+  <a href="https://pypi.org/project/vibora" alt="Latest PyPI package version"><img src="https://badge.fury.io/py/vibora.svg"></a>
+</p>
+
 -----------------------------------------------------------
 > [Vibora](https://vibora.io) is a **fast, asynchronous and elegant** Python 3.6+ http client/server framework. (Alpha stage)
 
