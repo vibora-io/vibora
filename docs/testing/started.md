@@ -1,6 +1,6 @@
 ### Testing
 
-Testing is the most important part of any project with considerably
+Testing is the most important part of any project of considerable
 size and yet of one of the most ignored steps.
 
 Vibora has a builtin and fully featured async HTTP client and
