@@ -23,7 +23,10 @@ class Request:
     async def encode(self, connection: Connection):
 
         # Headers
-        http_request = f'{self.method} {self.url.path} HTTP/1.1\r\n'
+        if self.url.query is None:
+            http_request = f'{self.method} {self.url.path} HTTP/1.1\r\n'
+        else:
+            http_request = f'{self.method} {self.url.path}?{self.url.query} HTTP/1.1\r\n'
         for header, value in self.headers.items():
             http_request += f'{header}: {str(value)}\r\n'
         if self.cookies:
