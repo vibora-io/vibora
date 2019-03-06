@@ -219,8 +219,8 @@ class Router:
     def get_route(self, request: Request) -> 'Route':
         try:
             if not self.check_host:
-                return self._find_route(request.url, request.method)
-            return self._find_route_by_host(request.url, request.method, request.headers.get('host'))
+                return self._find_route(request.path, request.method)
+            return self._find_route_by_host(request.path, request.method, request.headers.get('host'))
         except MethodNotAllowed as error:
             request.context['allowed_methods'] = error.allowed_methods
             return self.default_handlers[405]

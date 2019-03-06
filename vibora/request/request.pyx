@@ -135,13 +135,21 @@ cdef class Request:
         return self._parsed_url
 
     @property
+    def path(self) -> str:
+        """
+
+        :return:
+        """
+        return self.parsed_url.path
+
+    @property
     def args(self) -> RequestParams:
         """
 
         :return:
         """
         if not self._args:
-            self._args = RequestParams(parse_qs(self.parsed_url.query))
+            self._args = RequestParams(parse_qs(self.parsed_url.query.decode()))
         return self._args
 
     @property
