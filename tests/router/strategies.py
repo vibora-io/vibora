@@ -1,7 +1,7 @@
 import uuid
 from vibora import Vibora, TestSuite, Request
 from vibora.router import RouterStrategy
-from vibora.responses import Response
+from vibora.responses import Response, JsonResponse
 
 
 class RedirectStrategyTestCase(TestSuite):
@@ -84,12 +84,15 @@ class StrictStrategyTestCase(TestSuite):
         self.assertEqual(405, (await client.request('/test/')).status_code)
 
     async def test_route_with_query_string(self):
-        @self.app.route('/query/', methods=['GET'])
+        @self.app.route('/test')
         async def home(request: Request):
-            return Response(f'Name: {request.args["name"]}'.encode())
+            return JsonResponse({
+                'name': request.args['name']
+            })
+
         client = self.app.test_client()
-        self.assertEqual(200, (await client.request('/query/?name=vibora')).status_code)
-        self.assertEqual("Name: ['vibora']", (await client.request('/query/?name=test')).text)
+        self.assertEqual(200, (await client.request('/test', query={'name': 'vibora'})).status_code)
+        self.assertEqual({'name': ['vibora']}, (await client.request('/test', query={'name': 'vibora'})).json())
 
     async def test_route_with_params_expect_found(self):
         @self.app.route('/<name>/')
