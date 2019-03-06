@@ -75,7 +75,7 @@ app = Vibora()
 @app.route('/')
 async def home(request: Request):
     print(request.args)
-    return Response(f'Name: {request.args['name']}'.encode())
+    return Response(f'Name: {request.args["name"]}'.encode())
 ```
 > A request to http://{address}/?name=vibora would return 'Name: vibora'
 
