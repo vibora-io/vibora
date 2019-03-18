@@ -70,7 +70,7 @@ class Config:
 app = Vibora()
 
 # Registering the config instance.
-app.add_component(Config())
+app.components.add(Config())
 
 @app.route('/')
 async def home(request: Request, config: Config):
