@@ -20,6 +20,7 @@ from .parsers.errors import BodyLimitError, HeadersLimitError
 from .utils import wait_server_available, get_free_port, cprint, pause, format_access_log
 from .hooks import Hook, Events
 from .application import Application
+from .reload import run_with_reloader
 
 
 class Vibora(Application):
@@ -305,3 +306,6 @@ class Vibora(Application):
                 self.running = False
             except KeyboardInterrupt:
                 self.clean_up()
+
+    def run_with_reloader(self, extra_files=None, interval=1, **kwargs):
+        run_with_reloader(lambda: self.run(**kwargs), extra_files, interval)
