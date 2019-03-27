@@ -139,7 +139,7 @@ class StaticHandler:
             raise StaticNotFound()
         if path not in self.cache or self.cache[path].needs_update:
             for root_path in self.paths:
-                real_path = root_path + path
+                real_path = os.path.expanduser(root_path) + path
                 if self.exists(real_path):
                     cached = CacheEntry(real_path, self.available_cache_size)
                     if isinstance(cached.response, CachedResponse):
