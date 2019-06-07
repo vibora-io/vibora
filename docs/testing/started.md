@@ -1,9 +1,9 @@
 ### Testing
 
-Testing is the most important part of any project with considerably
-size and yet of one of the most ignored steps.
+Testing is the most important part of any project with considerable
+size and yet one of the most ignored steps.
 
-Vibora has a builtin and fully featured async HTTP client and
+Vibora has a built-in and fully featured async HTTP client and
 a simple test framework to make it easier for you as in the example bellow:
 
 ```py
