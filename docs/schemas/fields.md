@@ -11,7 +11,7 @@ If you have optional fields you must explicitely declare this as
 `Field(required=False)`
 
 2) **load_from** -> Sometimes is useful to deal with friendly names
-inside a schema but to ofuscate them outside outside your app, by using the `load_from` parameter
+inside a schema but to obfuscate them outside outside your app, by using the `load_from` parameter
 you can specify where to load this field from or even load two
 different fields from the same key.
 
